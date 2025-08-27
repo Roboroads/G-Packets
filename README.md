@@ -16,7 +16,7 @@ Then add the dependency to your `pom.xml`:
 <dependency>
     <groupId>me.roboroads.gearth</groupId>
     <artifactId>G-Packets</artifactId>
-    <version>1.0</version>
+    <version>0.1</version>
 </dependency>
 ```
 
@@ -32,37 +32,63 @@ Packets that are intercepted can be parsed using the `fromPacket` method on the 
 
 ```java
 import me.roboroads.gearth.gpackets.incoming.Users;
-import static gearth.protocol.HMessage.Direction.TOCLIENT;
 
-yourExtension.intercept(TOCLIENT, "Users", (HMessage hMessage) -> { 
-    Users users = Users.fromPacket(hMessage.getPacket());
-    System.out.println("There are " + users.getUsers().size() + " users in this room.");
-    System.out.println("The first user is called " + users.getUsers().get(0).getName() + "!");
-});
+import static gearth.protocol.HMessage.Direction;
+
+public class YourExtension extends ExtensionForm {
+    @Override
+    protected void initExtension() {
+        intercept(Direction.TOCLIENT, "Users", (HMessage hMessage) -> {
+            Users users = Users.fromPacket(hMessage.getPacket());
+            System.out.println("There are " + users.users().size() + " users in this room.");
+            System.out.println("The first user is called " + users.users().get(0).name() + "!");
+        });
+    }
+}
 ```
 
 ### Modifying packets
 
-Packets are immutable, so you cannot modify them directly. Instead, you can create a new packet with the modified values. For example, if you want to change the name of the first user in the `Users` packet and then send it to the client, you can do it like this:
+You're allowed to modify the parsed packets. All data has been parsed and can be accessed by getters and setters. For example, if you want to change the name of the first user in the `Users` packet and then send it to the client, you can do it like this:
 
 ```java
 import me.roboroads.gearth.gpackets.incoming.Users;
-import static gearth.protocol.HMessage.Direction.TOCLIENT;
 
-yourExtension.intercept(TOCLIENT, "Users", (HMessage hMessage) -> { 
-    Users users = Users.fromPacket(hMessage.getPacket());
-    hMessage.setBlocked(true); // Block the original packet from being sent
-    users.getUsers().get(0).withName("NewName"); // Change the name of the first user
-    yourExtension.sendToClient(users.toPacket()); // Send the modified packet to the client
-});
+import static gearth.protocol.HMessage.Direction;
+
+public class YourExtension extends ExtensionForm {
+    @Override
+    protected void initExtension() {
+        intercept(Direction.TOCLIENT, "Users", (HMessage hMessage) -> {
+            Users users = Users.fromPacket(hMessage.getPacket());
+            hMessage.setBlocked(true); // Block the original packet from being sent
+            users.users().get(0).name("NewName"); // Change the name of the first user
+            sendToClient(users.toPacket()); // Send the modified packet to the client
+        });
+    }
+}
 ```
 
 ### Creating packets
 
-Packets can be created using their constructor. For example, if you want to create a `Chat` packet and send it to the server, you can do it like this:
+Packets can be created using their constructor or using a packet builder. For example, if you want to create a `Chat` packet and send it to the server, you can do it like this:
 
 ```java
-soon;
+import me.roboroads.gearth.gpackets.outgoing.Chat;
+
+import static gearth.protocol.HMessage.Direction;
+
+public class YourExtension extends ExtensionForm {
+    @Override
+    protected void initExtension() {
+        // Class initialization
+        Chat chat = new Chat("Hello, world!", 0, -1);
+        // or use the builder
+        Chat chat = Chat.builder().text("Hello, world!").chatStyle(0).index(-1).build();
+
+        sendToServer(chat.toPacket());
+    }
+}
 ```
 
 ### JSON Serialization
@@ -70,5 +96,15 @@ soon;
 Packets can be serialized to and from JSON using the `toJson` and `fromJson` methods. For example, if you want to serialize a `Chat` packet to JSON and then deserialize it back to a packet, you can do it like this:
 
 ```java
-soon;
+import me.roboroads.gearth.gpackets.outgoing.Chat;
+
+public class YourExtension extends ExtensionForm {
+    @Override
+    protected void initExtension() {
+        Chat chat = new Chat("Hello, world!", 0, -1);
+        String json = chat.toJson();
+        Chat deserializedChat = Chat.fromJson(json);
+        sendToServer(deserializedChat.toPacket());
+    }
+}
 ```
