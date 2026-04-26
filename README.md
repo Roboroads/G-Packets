@@ -1,23 +1,27 @@
 # G-Packets
 
-A library for your G-Earth extensions, reverse engineered for your convenience.
+A library for your G-Earth extensions, reverse-engineered for your convenience.
 
 ## Installation
 
-Will be deployed to github packages soon. For now, clone the repository and run:
-
-```bash
-mvn install -f pom.xml
-```
-
-Then add the dependency to your `pom.xml`:
+You can install this through JitPack by adding the repository and dependency to your `pom.xml`:
 
 ```xml
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
 <dependency>
     <groupId>me.roboroads.gearth</groupId>
     <artifactId>G-Packets</artifactId>
     <version>0.1</version>
 </dependency>
+</dependencies>
 ```
 
 ## Usage

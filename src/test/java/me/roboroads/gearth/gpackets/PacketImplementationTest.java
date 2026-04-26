@@ -9,8 +9,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PacketImplementationTest {
 
@@ -19,7 +18,7 @@ public class PacketImplementationTest {
         Reflections reflections = new Reflections("me.roboroads.gearth.gpackets");
         Set<Class<? extends Packet>> packetClasses = reflections.getSubTypesOf(Packet.class);
 
-        assertTrue(packetClasses.size() > 0, "No Packet implementations found! Check scan package.");
+        assertFalse(packetClasses.isEmpty(), "No Packet implementations found! Check scan package.");
 
         for (Class<? extends Packet> clazz : packetClasses) {
             // Skip interfaces and abstract classes
