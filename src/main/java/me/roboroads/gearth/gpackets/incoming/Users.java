@@ -17,6 +17,8 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class Users implements Packet, JsonSerializable {
+    public static final String HEADER = "Users";
+
     List<User> users;
 
     public static Users fromPacket(HPacket packet) {
@@ -30,7 +32,7 @@ public class Users implements Packet, JsonSerializable {
     }
 
     public HPacket toPacket() {
-        HPacket packet = new HPacket("Users", HMessage.Direction.TOCLIENT);
+        HPacket packet = new HPacket(HEADER, HMessage.Direction.TOCLIENT);
 
         packet.appendInt(users.size());
         for (User user : users) {

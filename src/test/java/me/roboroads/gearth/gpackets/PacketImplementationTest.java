@@ -47,6 +47,17 @@ public class PacketImplementationTest {
             } catch (NoSuchMethodException e) {
                 fail("Class " + clazz.getName() + " must implement static method: public static " + clazz.getSimpleName() + " fromJson(String json)");
             }
+
+            // Check HEADER field
+            try {
+                java.lang.reflect.Field headerField = clazz.getDeclaredField("HEADER");
+                assertTrue(Modifier.isPublic(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be public");
+                assertTrue(Modifier.isStatic(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be static");
+                assertTrue(Modifier.isFinal(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be final");
+                assertEquals(String.class, headerField.getType(), "HEADER field in " + clazz.getName() + " must be of type String");
+            } catch (NoSuchFieldException e) {
+                fail("Class " + clazz.getName() + " must have a public static final String HEADER field");
+            }
         }
     }
 }

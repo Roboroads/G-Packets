@@ -17,6 +17,8 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class WiredMovements implements Packet, JsonSerializable {
+    public static final String HEADER = "WiredMovements";
+
     List<WiredMovement> movements;
 
     public static WiredMovements fromPacket(HPacket packet) {
@@ -29,7 +31,7 @@ public class WiredMovements implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket("WiredMovements", HMessage.Direction.TOCLIENT);
+        HPacket packet = new HPacket(HEADER, HMessage.Direction.TOCLIENT);
         packet.appendInt(movements != null ? movements.size() : 0);
         if (movements != null) {
             for (WiredMovement movement : movements) {

@@ -42,10 +42,10 @@ import static gearth.protocol.HMessage.Direction;
 public class YourExtension extends ExtensionForm {
     @Override
     protected void initExtension() {
-        intercept(Direction.TOCLIENT, "Users", (HMessage hMessage) -> {
+        intercept(Direction.TOCLIENT, Users.HEADER, (HMessage hMessage) -> {
             Users users = Users.fromPacket(hMessage.getPacket());
             System.out.println("There are " + users.users().size() + " users in this room.");
-            System.out.println("The first user is called " + users.users().get(0).name() + "!");
+            System.out.println("The first user is called " + users.users().getFirst().name() + "!");
         });
     }
 }
@@ -63,10 +63,10 @@ import static gearth.protocol.HMessage.Direction;
 public class YourExtension extends ExtensionForm {
     @Override
     protected void initExtension() {
-        intercept(Direction.TOCLIENT, "Users", (HMessage hMessage) -> {
+        intercept(Direction.TOCLIENT, Users.HEADER, (HMessage hMessage) -> {
             Users users = Users.fromPacket(hMessage.getPacket());
             hMessage.setBlocked(true); // Block the original packet from being sent
-            users.users().get(0).name("NewName"); // Change the name of the first user
+            users.users().getFirst().name("NewName"); // Change the name of the first user
             sendToClient(users.toPacket()); // Send the modified packet to the client
         });
     }
@@ -78,6 +78,7 @@ public class YourExtension extends ExtensionForm {
 Packets can be created using their constructor or using a packet builder. For example, if you want to create a `Chat` packet and send it to the server, you can do it like this:
 
 ```java
+import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 
 import static gearth.protocol.HMessage.Direction;
@@ -86,9 +87,9 @@ public class YourExtension extends ExtensionForm {
     @Override
     protected void initExtension() {
         // Class initialization
-        Chat chat = new Chat("Hello, world!", 0, -1);
+        Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
         // or use the builder
-        Chat chat = Chat.builder().text("Hello, world!").chatStyle(0).index(-1).build();
+        Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
 
         sendToServer(chat.toPacket());
     }
@@ -100,12 +101,13 @@ public class YourExtension extends ExtensionForm {
 Packets can be serialized to and from JSON using the `toJson` and `fromJson` methods. For example, if you want to serialize a `Chat` packet to JSON and then deserialize it back to a packet, you can do it like this:
 
 ```java
+import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 
 public class YourExtension extends ExtensionForm {
     @Override
     protected void initExtension() {
-        Chat chat = new Chat("Hello, world!", 0, -1);
+        Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
         String json = chat.toJson();
         Chat deserializedChat = Chat.fromJson(json);
         sendToServer(deserializedChat.toPacket());
