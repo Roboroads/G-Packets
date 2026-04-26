@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.Direction;
+import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.Json;
 
 @Data
@@ -25,7 +27,7 @@ public class Pet extends User {
     Integer petLevel;
     String petPosture;
 
-    public Pet(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Integer dir, Integer type, Integer subType, Integer ownerId, String ownerName, Integer rarityLevel, Boolean hasSaddle, Boolean isRiding, Boolean canBreed, Boolean canHarvest, Boolean canRevive, Boolean hasBreedingPermission, Integer petLevel, String petPosture) {
+    public Pet(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type, Integer subType, Integer ownerId, String ownerName, Integer rarityLevel, Boolean hasSaddle, Boolean isRiding, Boolean canBreed, Boolean canHarvest, Boolean canRevive, Boolean hasBreedingPermission, Integer petLevel, String petPosture) {
         super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
         this.subType = subType;
         this.ownerId = ownerId;

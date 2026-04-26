@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.Direction;
+import me.roboroads.gearth.gpackets.model.enums.Gender;
+import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.Json;
 
 @Data
@@ -12,7 +15,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 @SuperBuilder
 @Jacksonized
 public class Player extends User {
-    private String sex;
+    private Gender sex;
     private Integer groupId;
     private Integer groupStatus;
     private String groupName;
@@ -20,7 +23,7 @@ public class Player extends User {
     private Integer achievementScore;
     private Boolean isModerator;
 
-    public Player(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Integer dir, Integer type, String sex, Integer groupId, Integer groupStatus, String groupName, String swimFigure, Integer achievementScore, Boolean isModerator) {
+    public Player(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type, Gender sex, Integer groupId, Integer groupStatus, String groupName, String swimFigure, Integer achievementScore, Boolean isModerator) {
         super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
         this.sex = sex;
         this.groupId = groupId;
@@ -38,7 +41,7 @@ public class Player extends User {
     @Override
     public void appendPacket(HPacket packet) {
         super.appendPacket(packet);
-        packet.appendString(sex);
+        packet.appendString(sex != null ? sex.code() : "");
         packet.appendInt(groupId);
         packet.appendInt(groupStatus);
         packet.appendString(groupName);

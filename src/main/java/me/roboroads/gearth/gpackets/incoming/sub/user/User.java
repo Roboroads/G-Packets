@@ -6,6 +6,9 @@ import gearth.protocol.HPacket;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
+import me.roboroads.gearth.gpackets.model.enums.Direction;
+import me.roboroads.gearth.gpackets.model.enums.Gender;
+import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.Utils;
@@ -30,8 +33,8 @@ public abstract class User implements SubPacket, JsonSerializable {
     private Integer x;
     private Integer y;
     private String z;
-    private Integer dir;
-    private Integer type;
+    private Direction dir;
+    private UserType type;
 
     public static User fromPacket(HPacket packet) {
         Integer id = packet.readInteger();
@@ -42,11 +45,15 @@ public abstract class User implements SubPacket, JsonSerializable {
         Integer x = packet.readInteger();
         Integer y = packet.readInteger();
         String z = packet.readString();
-        Integer dir = packet.readInteger();
-        int type = packet.readInteger();
+        Direction dir = Direction.fromValue(packet.readInteger());
+        UserType type = UserType.fromValue(packet.readInteger());
+
+        if (type == null) {
+            throw new IllegalArgumentException("Unknown user type");
+        }
 
         switch (type) {
-            case 1: {
+            case PLAYER: {
                 String sex = packet.readString();
                 Integer groupId = packet.readInteger();
                 Integer groupStatus = packet.readInteger();
@@ -54,9 +61,9 @@ public abstract class User implements SubPacket, JsonSerializable {
                 String swimFigure = packet.readString();
                 Integer achievementScore = packet.readInteger();
                 Boolean isModerator = packet.readBoolean();
-                return new Player(id, name, custom, figure, roomIndex, x, y, z, dir, type, sex, groupId, groupStatus, groupName, swimFigure, achievementScore, isModerator);
+                return new Player(id, name, custom, figure, roomIndex, x, y, z, dir, type, Gender.fromCode(sex), groupId, groupStatus, groupName, swimFigure, achievementScore, isModerator);
             }
-            case 2: {
+            case PET: {
                 Integer subType = packet.readInteger();
                 Integer ownerId = packet.readInteger();
                 String ownerName = packet.readString();
@@ -71,15 +78,15 @@ public abstract class User implements SubPacket, JsonSerializable {
                 String petPosture = packet.readString();
                 return new Pet(id, name, custom, figure, roomIndex, x, y, z, dir, type, subType, ownerId, ownerName, rarityLevel, hasSaddle, isRiding, canBreed, canHarvest, canRevive, hasBreedingPermission, petLevel, petPosture);
             }
-            case 3: {
+            case OLD_BOT: {
                 return new OldBot(id, name, custom, figure, roomIndex, x, y, z, dir, type);
             }
-            case 4: {
+            case BOT: {
                 String sex = packet.readString();
                 Integer ownerId = packet.readInteger();
                 String ownerName = packet.readString();
                 List<Short> botSkills = Utils.readList(packet, HPacket::readShort);
-                return new Bot(id, name, custom, figure, roomIndex, x, y, z, dir, type, sex, ownerId, ownerName, Collections.unmodifiableList(botSkills));
+                return new Bot(id, name, custom, figure, roomIndex, x, y, z, dir, type, Gender.fromCode(sex), ownerId, ownerName, Collections.unmodifiableList(botSkills));
             }
             default:
                 throw new IllegalArgumentException("Unknown user type: " + type);
@@ -95,8 +102,8 @@ public abstract class User implements SubPacket, JsonSerializable {
         packet.appendInt(x);
         packet.appendInt(y);
         packet.appendString(z);
-        packet.appendInt(dir);
-        packet.appendInt(type);
+        packet.appendInt(dir != null ? dir.value() : -1);
+        packet.appendInt(type != null ? type.value() : -1);
     }
 }
 
