@@ -19,7 +19,7 @@ You can install this through JitPack by adding the repository and dependency to 
 <dependency>
     <groupId>me.roboroads.gearth</groupId>
     <artifactId>G-Packets</artifactId>
-    <version>0.1</version>
+    <version>main-SNAPSHOP</version>
 </dependency>
 </dependencies>
 ```
