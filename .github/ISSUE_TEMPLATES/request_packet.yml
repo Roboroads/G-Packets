@@ -1,0 +1,23 @@
+name: "Request packet"
+description: "With this you can request to add a specific packet"
+labels: "packet-request"
+body:
+- type: input
+  id: packetname
+  attributes:
+    label: "Packet Name"
+    description: "Check your packet logger or Sulek.dev and write down which packket you need. Omit "MessageComposer" or "MessageEvent""
+    placeholder: "Whisper"
+  validations:
+    required: true
+- type: dropdown
+  id: packetdirection
+  attributes:
+    label: "Packet Direction"
+    description: "`MessageComposer`'s are "To Server", `MessageEvent` are "To Client""
+    multiple: false
+    options: 
+      - To Server
+      - To Client
+  validations:
+    required: true
