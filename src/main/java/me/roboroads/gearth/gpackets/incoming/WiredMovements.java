@@ -9,6 +9,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.wired.WiredMovement;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
+import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.Utils;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class WiredMovements implements Packet, JsonSerializable {
-    public static final String HEADER = "WiredMovements";
+    public static final PacketType<WiredMovements> TYPE = new PacketType<>("WiredMovements", HMessage.Direction.TOCLIENT, WiredMovements::fromPacket);
 
     List<WiredMovement> movements;
 
@@ -31,7 +32,7 @@ public class WiredMovements implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(HEADER, HMessage.Direction.TOCLIENT);
+        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
         packet.appendInt(movements != null ? movements.size() : 0);
         if (movements != null) {
             for (WiredMovement movement : movements) {
