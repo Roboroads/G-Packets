@@ -73,16 +73,6 @@ public final class GPackets {
     private static Registration validate(Object target, Method method) {
         String where = method.getDeclaringClass().getName() + "#" + method.getName();
 
-        Class<? extends Packet>[] packetClasses = method.getAnnotation(Intercept.class).value();
-        if (packetClasses.length == 0) {
-            throw new IllegalStateException(where + ": @Intercept must list at least one packet class");
-        }
-
-        List<PacketType<?>> types = new ArrayList<>();
-        for (Class<? extends Packet> packetClass : packetClasses) {
-            types.add(typeOf(packetClass, where));
-        }
-
         if (Modifier.isStatic(method.getModifiers())) {
             throw new IllegalStateException(where + ": @Intercept method must not be static");
         }
@@ -91,7 +81,37 @@ public final class GPackets {
         }
 
         Class<?>[] params = method.getParameterTypes();
-        Shape shape = shapeOf(params, packetClasses, where);
+        if (params.length == 0) {
+            throw new IllegalStateException(where + ": @Intercept method parameters must be (packet), (packet, HMessage) or (HMessage)");
+        }
+        boolean trailingMessage = params[params.length - 1] == HMessage.class;
+        int packetParamCount = params.length - (trailingMessage ? 1 : 0);
+        if (packetParamCount > 1) {
+            throw new IllegalStateException(where + ": @Intercept method parameters must be (packet), (packet, HMessage) or (HMessage)");
+        }
+        Class<?> packetParam = packetParamCount == 1 ? params[0] : null;
+
+        Class<? extends Packet>[] packetClasses = method.getAnnotation(Intercept.class).value();
+        List<PacketType<?>> types = new ArrayList<>();
+        if (packetClasses.length > 0) {
+            if (packetParam != null && !acceptsAll(packetParam, packetClasses)) {
+                throw new IllegalStateException(where + ": @Intercept packet parameter must accept every listed packet class (use Packet)");
+            }
+            for (Class<? extends Packet> packetClass : packetClasses) {
+                types.add(typeOf(packetClass, where));
+            }
+        } else {
+            if (packetParam == null || packetParam == Packet.class || !Packet.class.isAssignableFrom(packetParam)) {
+                throw new IllegalStateException(where + ": @Intercept with no value must take a concrete packet type as its first parameter");
+            }
+            @SuppressWarnings("unchecked")
+            Class<? extends Packet> inferred = (Class<? extends Packet>) packetParam;
+            types.add(typeOf(inferred, where));
+        }
+
+        Shape shape = packetParam == null
+                ? Shape.MESSAGE_ONLY
+                : (trailingMessage ? Shape.PACKET_AND_MESSAGE : Shape.PACKET);
 
         method.setAccessible(true);
         MethodHandle handle;
@@ -116,20 +136,6 @@ public final class GPackets {
             throw new IllegalStateException(where + ": " + packetClass.getName() + " TYPE must be a PacketType");
         }
         return (PacketType<?>) value;
-    }
-
-    private static Shape shapeOf(Class<?>[] params, Class<? extends Packet>[] packetClasses, String where) {
-        if (params.length == 1 && params[0] == HMessage.class) {
-            return Shape.MESSAGE_ONLY;
-        }
-        if (params.length == 1 && acceptsAll(params[0], packetClasses)) {
-            return Shape.PACKET;
-        }
-        if (params.length == 2 && acceptsAll(params[0], packetClasses) && params[1] == HMessage.class) {
-            return Shape.PACKET_AND_MESSAGE;
-        }
-        throw new IllegalStateException(where + ": @Intercept method parameters must be (packet), (packet, HMessage) or (HMessage); "
-                + "with multiple packet classes the packet parameter must accept all of them (use Packet)");
     }
 
     private static boolean acceptsAll(Class<?> param, Class<? extends Packet>[] packetClasses) {

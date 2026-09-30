@@ -56,24 +56,26 @@ public class YourExtension extends ExtensionForm {
         GPackets.init(this);
     }
 
-    @Intercept(Users.class)
+    @Intercept
     void onUsers(Users users) {
         System.out.println("There are " + users.users().size() + " users in this room.");
     }
 }
 ```
 
+With no value, `@Intercept` infers the packet type from the method's first parameter, so `void onUsers(Users users)` handles `Users`.
+
 An `@Intercept` method returns `void`, is not static, and takes the packet first. The `HMessage` is optional, so three shapes are valid:
 
 ```java
-@Intercept(Users.class)
+@Intercept
 void onUsers(Users users) { }
 
-@Intercept(Users.class)
+@Intercept
 void onUsers(Users users, HMessage message) { }
 
 @Intercept(Users.class)
-void onUsers(HMessage message) { } // no parsing
+void onUsers(HMessage message) { } // no packet parameter, so the type is listed
 ```
 
 Block a packet with the message:

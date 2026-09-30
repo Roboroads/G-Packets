@@ -161,13 +161,59 @@ class GPacketsTest {
         assertEquals("secret", handler.seen);
     }
 
-    // ---- validation errors ----
+    // ---- inferred packet type (no value) ----
 
-    static class EmptyValue {
-        @Intercept({})
-        void onChat(Chat chat) {
+    static class Inferred {
+        String fromPacketOnly;
+        String fromPacketAndMessage;
+
+        @Intercept
+        void onUsers(Users users) {
+            fromPacketOnly = "users:" + users.users().size();
+        }
+
+        @Intercept
+        void onChat(Chat chat, HMessage message) {
+            fromPacketAndMessage = chat.text();
         }
     }
+
+    @Test
+    void infersPacketTypeFromTheParameter() {
+        FakeExtension ext = new FakeExtension();
+        Inferred handler = new Inferred();
+
+        GPackets.init(ext, handler);
+        ext.fire(usersPacket(), HMessage.Direction.TOCLIENT);
+        ext.fire(chatPacket("inferred"), HMessage.Direction.TOSERVER);
+
+        assertEquals("users:0", handler.fromPacketOnly);
+        assertEquals("inferred", handler.fromPacketAndMessage);
+    }
+
+    static class InferMessageOnly {
+        @Intercept
+        void onMessage(HMessage message) {
+        }
+    }
+
+    static class InferPacketBase {
+        @Intercept
+        void onAny(Packet packet) {
+        }
+    }
+
+    @Test
+    void rejectsInferenceWithoutAPacketParameter() {
+        assertThrows(IllegalStateException.class, () -> GPackets.init(new FakeExtension(), new InferMessageOnly()));
+    }
+
+    @Test
+    void rejectsInferenceFromThePacketBaseType() {
+        assertThrows(IllegalStateException.class, () -> GPackets.init(new FakeExtension(), new InferPacketBase()));
+    }
+
+    // ---- validation errors ----
 
     static class MissingType {
         @Intercept(NoTypePacket.class)
@@ -192,11 +238,6 @@ class GPacketsTest {
         @Intercept(Chat.class)
         void onChat(String notAPacket) {
         }
-    }
-
-    @Test
-    void rejectsEmptyValue() {
-        assertThrows(IllegalStateException.class, () -> GPackets.init(new FakeExtension(), new EmptyValue()));
     }
 
     @Test
@@ -226,8 +267,9 @@ class GPacketsTest {
         void valid(Chat chat) {
         }
 
-        @Intercept({})
-        void invalid(Chat chat) {
+        @Intercept(Chat.class)
+        String invalid(Chat chat) {
+            return "";
         }
     }
 
