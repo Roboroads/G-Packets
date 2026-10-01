@@ -13,8 +13,8 @@ import me.roboroads.gearth.gpackets.support.Json;
 @SuperBuilder
 @Jacksonized
 public class OldBot extends User {
-    public OldBot(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type) {
-        super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
+    public OldBot(Integer id, String name, String motto, String figure, Integer userIndex, Integer x, Integer y, String z, Direction bodyDirection, UserType type) {
+        super(id, name, motto, figure, userIndex, x, y, z, bodyDirection, type);
     }
 
     public static OldBot fromJson(String json) {

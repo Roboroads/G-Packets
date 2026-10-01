@@ -24,7 +24,7 @@ public class CatalogNode implements SubPacket, JsonSerializable {
             .integer("icon")
             .integer("pageId")
             .string("pageName")
-            .string("localization")
+            .string("pageTitle")
             .list("offerIds", WireType.INT)
             .list("children", () -> CatalogNode.SCHEMA);
 
@@ -32,7 +32,9 @@ public class CatalogNode implements SubPacket, JsonSerializable {
     private Integer icon;
     private Integer pageId;
     private String pageName;
-    private String localization;
+    // The page's display title. The client calls it localization, but it's a plain string, unlike
+    // CatalogPage.localization.
+    private String pageTitle;
     private List<Integer> offerIds;
     private List<CatalogNode> children;
 

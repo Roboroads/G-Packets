@@ -14,8 +14,8 @@ import me.roboroads.gearth.gpackets.support.Json;
 public class ProductOfferFrontPageItem extends FrontPageItem {
     private Integer productOfferId;
 
-    public ProductOfferFrontPageItem(Integer position, String itemName, String itemPromoImage, FrontPageItemType type, Integer secondsToExpiration, Integer productOfferId) {
-        super(position, itemName, itemPromoImage, type, secondsToExpiration);
+    public ProductOfferFrontPageItem(Integer position, String itemName, String itemPromoImage, FrontPageItemType type, Integer secondsToExpiry, Integer productOfferId) {
+        super(position, itemName, itemPromoImage, type, secondsToExpiry);
         this.productOfferId = productOfferId;
     }
 

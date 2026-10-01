@@ -20,10 +20,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class CatalogPublished implements Packet, JsonSerializable {
     public static final PacketType<CatalogPublished> TYPE = PacketType.of("CatalogPublished", HMessage.Direction.TOCLIENT, Schema.of(CatalogPublished.class)
-            .bool("instantlyRefreshCatalogue")
+            .bool("instantlyRefreshCatalog")
             .optional(s -> s.string("newFurniDataHash")));
 
-    private Boolean instantlyRefreshCatalogue;
+    // The client calls it instantlyRefreshCatalogue.
+    private Boolean instantlyRefreshCatalog;
     // Optional tail — only present when the server also wants the client to invalidate
     // its cached furniture data.
     private String newFurniDataHash;

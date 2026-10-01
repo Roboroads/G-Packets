@@ -46,7 +46,7 @@ class WiredMovementsWireFormatTest {
                         .hasOvershoot(false).hasCurve(true).curveStrength(4)
                         .build(),
                 WallItemMove.builder().movementType(WiredMovementType.WALL_ITEM_MOVE)
-                        .itemId(55).isDirectionRight(true)
+                        .furniId(55).isDirectionRight(true)
                         .oldWallX(1).oldWallY(2).oldOffsetX(3).oldOffsetY(4)
                         .newWallX(5).newWallY(6).newOffsetX(7).newOffsetY(8)
                         .animationTime(400)

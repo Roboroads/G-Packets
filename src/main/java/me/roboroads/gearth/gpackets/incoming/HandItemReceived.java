@@ -24,7 +24,7 @@ public class HandItemReceived implements Packet, JsonSerializable {
             .integer("giverUserIndex")
             .integer("handItemType"));
 
-    // The giver's room index (User.roomIndex), not their account id. The client calls it giverUserId.
+    // The giver's room index (User.userIndex), not their account id. The client calls it giverUserId.
     private Integer giverUserIndex;
     private Integer handItemType;
 

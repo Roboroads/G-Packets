@@ -25,7 +25,7 @@ public class AvatarEffect implements Packet, JsonSerializable {
             .integer("effectId")
             .integer("delayMilliSeconds"));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    // The user's room index (User.userIndex), not their account id. The client calls it userId.
     private Integer userIndex;
     private Integer effectId;
     private Integer delayMilliSeconds;

@@ -23,7 +23,7 @@ public class UserRemove implements Packet, JsonSerializable {
     public static final PacketType<UserRemove> TYPE = PacketType.of("UserRemove", HMessage.Direction.TOCLIENT, Schema.of(UserRemove.class)
             .string("userIndex"));
 
-    // The room index (User.roomIndex) as a string: the client turns it into an int and passes it to
+    // The room index (User.userIndex) as a string: the client turns it into an int and passes it to
     // UserDataManager.removeUserDataByRoomIndex.
     private String userIndex;
 
