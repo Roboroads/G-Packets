@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets.docs;
 
+import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
 import me.roboroads.gearth.gpackets.support.schema.ListParameter;
 import me.roboroads.gearth.gpackets.support.schema.OptionalParameter;
 import me.roboroads.gearth.gpackets.support.schema.Parameter;
@@ -12,7 +13,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,20 +47,22 @@ public final class PacketReference {
 
         String render() {
             StringBuilder out = new StringBuilder("## Parameters\n\n");
-            out.append(section(root));
+            out.append(section(root, 3));
             while (!pending.isEmpty()) {
                 Schema<?> next = pending.removeFirst();
                 out.append("\n## ").append(next.type().getSimpleName()).append("\n\n");
-                out.append(section(next));
+                out.append(section(next, 3));
             }
             return out.toString();
         }
 
-        /** A table of the schema's parameters, followed by the options of its enum parameters. */
-        private String section(Schema<?> schema) {
+        /** A table of the schema's parameters, then its enum options, then a subsection per branch case. */
+        private String section(Schema<?> schema, int level) {
             List<String> rows = new ArrayList<>();
             List<ValueParameter> enums = new ArrayList<>();
-            collect(schema.parameters(), "", rows, enums);
+            List<BranchParameter> branches = new ArrayList<>();
+            Map<String, ValueParameter> values = new HashMap<>();
+            collect(schema.parameters(), "", rows, enums, branches, values);
 
             StringBuilder out = new StringBuilder();
             if (rows.isEmpty()) {
@@ -72,14 +77,19 @@ public final class PacketReference {
                 out.append("\n`").append(value.name()).append("` (`").append(value.enumType().getSimpleName()).append("`): ")
                         .append(options(value)).append('\n');
             }
+            for (BranchParameter branch : branches) {
+                cases(branch, values.get(branch.on()), level, out);
+            }
             return out.toString();
         }
 
-        private void collect(List<Parameter> parameters, String note, List<String> rows, List<ValueParameter> enums) {
+        private void collect(List<Parameter> parameters, String note, List<String> rows, List<ValueParameter> enums,
+                             List<BranchParameter> branches, Map<String, ValueParameter> values) {
             for (Parameter parameter : parameters) {
                 if (parameter instanceof ValueParameter) {
                     ValueParameter value = (ValueParameter) parameter;
                     rows.add(row(value.name(), type(value), note));
+                    values.put(value.name(), value);
                     if (value.enumType() != null) {
                         enums.add(value);
                     }
@@ -91,8 +101,34 @@ public final class PacketReference {
                     rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), note));
                 } else if (parameter instanceof OptionalParameter) {
                     collect(((OptionalParameter) parameter).schema().parameters(),
-                            join(note, "optional: only present if the packet has bytes left"), rows, enums);
+                            join(note, "optional: only present if the packet has bytes left"), rows, enums, branches, values);
+                } else if (parameter instanceof BranchParameter && ((BranchParameter) parameter).exhaustive()) {
+                    BranchParameter branch = (BranchParameter) parameter;
+                    rows.add(row(null, "", join(note, "depends on `" + branch.on() + "`, see below")));
+                    branches.add(branch);
+                } else if (parameter instanceof BranchParameter) {
+                    BranchParameter when = (BranchParameter) parameter;
+                    for (BranchParameter.Case c : when.cases().values()) {
+                        collect(c.schema().parameters(), join(note, "only when `" + when.on() + "` is `" + literal(c.value()) + "`"),
+                                rows, enums, branches, values);
+                    }
                 }
+            }
+        }
+
+        /** A subsection per case. Cases with the same subclass and the same parameters share one subsection. */
+        private void cases(BranchParameter branch, ValueParameter discriminator, int level, StringBuilder out) {
+            Map<String, CaseGroup> groups = new LinkedHashMap<>();
+            for (BranchParameter.Case c : branch.cases().values()) {
+                String subclass = c.subclass().getSimpleName();
+                String section = section(c.schema(), level + 1);
+                groups.computeIfAbsent(subclass + '\u0000' + section, key -> new CaseGroup(subclass, section))
+                        .labels.add(label(c.value(), discriminator));
+            }
+            for (CaseGroup group : groups.values()) {
+                out.append('\n').append(hashes(level)).append(" When `").append(branch.on()).append("` is ")
+                        .append(group.labels.size() == 1 ? group.labels.get(0) : "one of " + String.join(", ", group.labels))
+                        .append(": `").append(group.subclass).append("`\n\n").append(group.section);
             }
         }
 
@@ -126,12 +162,44 @@ public final class PacketReference {
             return String.join(", ", options);
         }
 
+        /** The case's wire value, plus the enum constant's name when the discriminator is an enum. */
+        private static String label(Object value, ValueParameter discriminator) {
+            String label = "`" + literal(value) + "`";
+            if (discriminator != null) {
+                for (Map.Entry<String, Object> option : discriminator.enumOptions().entrySet()) {
+                    if (option.getValue().equals(value)) {
+                        return label + " (`" + option.getKey() + "`)";
+                    }
+                }
+            }
+            return label;
+        }
+
         private static String literal(Object value) {
             return value instanceof String ? "\"" + value + "\"" : String.valueOf(value);
         }
 
         private static String join(String note, String extra) {
             return note.isEmpty() ? extra : note + "; " + extra;
+        }
+
+        private static String hashes(int level) {
+            StringBuilder hashes = new StringBuilder();
+            for (int i = 0; i < level; i++) {
+                hashes.append('#');
+            }
+            return hashes.toString();
+        }
+    }
+
+    private static final class CaseGroup {
+        final String subclass;
+        final String section;
+        final List<String> labels = new ArrayList<>();
+
+        CaseGroup(String subclass, String section) {
+            this.subclass = subclass;
+            this.section = section;
         }
     }
 }

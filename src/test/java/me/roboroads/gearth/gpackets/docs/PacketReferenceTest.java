@@ -1,9 +1,12 @@
 package me.roboroads.gearth.gpackets.docs;
 
 import me.roboroads.gearth.gpackets.model.enums.Direction;
+import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -72,5 +75,36 @@ class PacketReferenceTest {
     @Test
     void saysSoWhenThereAreNoParameters() {
         assertEquals("## Parameters\n\nNo parameters.\n", PacketReference.body(Schema.of(Plain.class)));
+    }
+
+    static class Animal {
+    }
+
+    static class Dog extends Animal {
+    }
+
+    static class Cat extends Animal {
+    }
+
+    @Test
+    void rendersBranchCasesAndGroupsCasesThatRenderTheSame() {
+        UnaryOperator<Schema<Cat>> cat = c -> c.bool("indoor").when("indoor", true, w -> w.string("room"));
+        Schema<Animal> schema = Schema.of(Animal.class)
+                .enumInt("kind", UserType.class)
+                .branch("kind", cases -> cases
+                        .on(UserType.PLAYER, Dog.class, d -> d.integer("bark"))
+                        .on(UserType.PET, Cat.class, cat)
+                        .on(UserType.BOT, Cat.class, cat));
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `kind` | int → `UserType` |  |\n"
+                        + "|  |  | depends on `kind`, see below |\n"
+                        + "\n`kind` (`UserType`): `PLAYER` = `1`, `PET` = `2`, `OLD_BOT` = `3`, `BOT` = `4`\n"
+                        + "\n### When `kind` is `1` (`PLAYER`): `Dog`\n\n" + TABLE_HEAD
+                        + "| `bark` | int |  |\n"
+                        + "\n### When `kind` is one of `2` (`PET`), `4` (`BOT`): `Cat`\n\n" + TABLE_HEAD
+                        + "| `indoor` | boolean |  |\n"
+                        + "| `room` | string | only when `indoor` is `true` |\n",
+                PacketReference.body(schema));
     }
 }
