@@ -2,8 +2,13 @@ package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.support.Unused;
+import me.roboroads.gearth.gpackets.support.schema.limit.Limit;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +18,7 @@ import java.util.Map;
 public abstract class Parameter {
     private final String name;
     private String unused;
+    private List<Limit> limits = Collections.emptyList();
 
     Parameter(String name) {
         this.name = name;
@@ -37,6 +43,24 @@ public abstract class Parameter {
     /** Called once by the schema that adds this parameter, before anything else can see it. */
     void markUnused(String reason) {
         this.unused = reason;
+    }
+
+    /** The limits the client keeps this parameter within, in the order they were declared. */
+    public List<Limit> limits() {
+        return limits;
+    }
+
+    /** Called once by the schema that adds this parameter, before anything else can see it. */
+    void limits(List<Limit> limits) {
+        this.limits = Collections.unmodifiableList(new ArrayList<>(limits));
+    }
+
+    /** Adds the limits this parameter breaks in {@code values} to {@code out}. {@code path} is relative to the packet. */
+    abstract void check(Map<String, Object> values, String path, List<Violation> out);
+
+    /** The path of {@code name} inside {@code path}, which is empty at the packet's root. */
+    static String at(String path, String name) {
+        return path.isEmpty() ? name : path + "." + name;
     }
 
     /** Reads this parameter into {@code values}. {@code path} names the enclosing values in errors. */

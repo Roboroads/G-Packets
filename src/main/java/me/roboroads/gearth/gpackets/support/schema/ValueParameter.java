@@ -2,9 +2,12 @@ package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.support.Unused;
+import me.roboroads.gearth.gpackets.support.schema.limit.Limit;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** One primitive value on the wire, optionally mapped to an enum. */
@@ -70,6 +73,21 @@ public final class ValueParameter extends Parameter {
     @Override
     void write(Map<String, Object> values, HPacket packet, String path) {
         wireType.write(packet, coerce(values.get(name()), path + "." + name()));
+    }
+
+    @Override
+    void check(Map<String, Object> values, String path, List<Violation> out) {
+        if (limits().isEmpty()) {
+            return;
+        }
+        String here = at(path, name());
+        Object value = coerce(values.get(name()), here);
+        for (Limit limit : limits()) {
+            String problem = limit.checked() ? limit.problem(value) : null;
+            if (problem != null) {
+                out.add(new Violation(here, problem, limit, null));
+            }
+        }
     }
 
     /**
