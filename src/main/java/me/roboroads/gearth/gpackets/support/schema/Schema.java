@@ -1,6 +1,7 @@
 package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.Unused;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -182,9 +183,29 @@ public final class Schema<T> {
                 throw new IllegalArgumentException(type.getSimpleName() + " already has a parameter named " + name);
             }
         }
+        parameter.markUnused(unusedReason(type, parameter.name()));
         List<Parameter> next = new ArrayList<>(parameters);
         next.add(parameter);
         return new Schema<>(type, next);
+    }
+
+    /**
+     * The reason on the {@link Unused} field called {@code name}, declared on {@code type} or the
+     * nearest superclass that declares it, or null when that field is unmarked or doesn't exist.
+     */
+    private static String unusedReason(Class<?> type, String name) {
+        if (name == null) {
+            return null;
+        }
+        for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
+            try {
+                Unused unused = c.getDeclaredField(name).getAnnotation(Unused.class);
+                return unused == null ? null : unused.value();
+            } catch (NoSuchFieldException e) {
+                // Not declared here; look in the superclass.
+            }
+        }
+        return null;
     }
 
     /** The keys these parameters put in the enclosing values, including those of branch cases and optionals. */

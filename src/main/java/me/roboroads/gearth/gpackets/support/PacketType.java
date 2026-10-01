@@ -46,6 +46,15 @@ public final class PacketType<T extends Packet> {
     }
 
     /**
+     * Why the current client ignores this packet, from the {@link Unused} on its class, or null
+     * when the client handles it.
+     */
+    public String unused() {
+        Unused unused = schema.type().getAnnotation(Unused.class);
+        return unused == null ? null : unused.value();
+    }
+
+    /**
      * Parses the packet from the start of its body and restores the read index afterwards,
      * so parsing is safe when several listeners, or the caller's own code, read the same packet.
      */

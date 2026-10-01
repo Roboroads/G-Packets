@@ -1,6 +1,7 @@
 package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.Unused;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 public abstract class Parameter {
     private final String name;
+    private String unused;
 
     Parameter(String name) {
         this.name = name;
@@ -22,6 +24,19 @@ public abstract class Parameter {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * Why the current client ignores this parameter, from the {@link Unused} on its field, or null
+     * when the client uses it. Branches and optionals have no field and return null.
+     */
+    public String unused() {
+        return unused;
+    }
+
+    /** Called once by the schema that adds this parameter, before anything else can see it. */
+    void markUnused(String reason) {
+        this.unused = reason;
     }
 
     /** Reads this parameter into {@code values}. {@code path} names the enclosing values in errors. */
