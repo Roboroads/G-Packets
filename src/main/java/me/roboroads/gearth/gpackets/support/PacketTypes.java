@@ -1,17 +1,27 @@
 package me.roboroads.gearth.gpackets.support;
 
 import gearth.protocol.HMessage;
+import me.roboroads.gearth.gpackets.incoming.AvatarEffect;
+import me.roboroads.gearth.gpackets.incoming.CarryObject;
 import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
 import me.roboroads.gearth.gpackets.incoming.CatalogPage;
 import me.roboroads.gearth.gpackets.incoming.CatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
+import me.roboroads.gearth.gpackets.incoming.Expression;
+import me.roboroads.gearth.gpackets.incoming.HandItemReceived;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
+import me.roboroads.gearth.gpackets.incoming.Sleep;
+import me.roboroads.gearth.gpackets.incoming.UseObject;
+import me.roboroads.gearth.gpackets.incoming.UserChange;
+import me.roboroads.gearth.gpackets.incoming.UserRemove;
+import me.roboroads.gearth.gpackets.incoming.UserUpdate;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
 import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.outgoing.DropCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
@@ -33,20 +43,32 @@ import java.util.Optional;
 public final class PacketTypes {
     // Also lists packets the client ignores. Those are written out in full instead of imported,
     // because Java 8 warns on the import of a deprecated class and @SuppressWarnings can't reach it.
+    // Dance exists in both directions, so both are written out in full too.
     @SuppressWarnings("deprecation")
     private static final List<PacketType<?>> ALL = Collections.unmodifiableList(Arrays.<PacketType<?>>asList(
+            AvatarEffect.TYPE,
+            CarryObject.TYPE,
             CatalogIndex.TYPE,
             CatalogPage.TYPE,
             CatalogPageWithEarliestExpiry.TYPE,
             CatalogPublished.TYPE,
+            me.roboroads.gearth.gpackets.incoming.Dance.TYPE,
+            Expression.TYPE,
+            HandItemReceived.TYPE,
             RoomSettingsData.TYPE,
             me.roboroads.gearth.gpackets.incoming.RoomSettingsError.TYPE,
             RoomSettingsSaved.TYPE,
             RoomSettingsSaveError.TYPE,
+            Sleep.TYPE,
+            UseObject.TYPE,
+            UserChange.TYPE,
+            UserRemove.TYPE,
+            UserUpdate.TYPE,
             Users.TYPE,
             WiredMovements.TYPE,
             WiredRoomSettings.TYPE,
             Chat.TYPE,
+            DropCarryItem.TYPE,
             GetCatalogIndex.TYPE,
             GetCatalogPage.TYPE,
             GetCatalogPageWithEarliestExpiry.TYPE,
