@@ -159,13 +159,29 @@ class DocsExamplesTest {
         extension.sayHello();
     }
 
-    // intercepting.md: "Handlers in other classes"
+    // intercepting.md: "Handlers in other classes"; GPackets.init finds and creates it
     static class ChatLogger {
-        final List<String> said = new ArrayList<>();
+        static final List<String> SAID = new ArrayList<>();
 
         @Intercept
         void onChat(Chat chat) {
-            said.add(chat.text());
+            SAID.add(chat.text());
+        }
+    }
+
+    // intercepting.md: "Handlers in other classes", a handler that takes the extension
+    static class AutoReply {
+        private final InterceptingExamples extension;
+
+        AutoReply(InterceptingExamples extension) {
+            this.extension = extension;
+        }
+
+        @Intercept
+        void onChat(Chat chat) {
+            if (chat.text().equals("ping")) {
+                extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT, -1).toPacket());
+            }
         }
     }
 
@@ -253,8 +269,8 @@ class DocsExamplesTest {
     @Test
     void annotatedHandlersRunAndBlock() {
         InterceptingExamples extension = new InterceptingExamples();
-        ChatLogger logger = new ChatLogger();
-        GPackets.init(extension, logger);
+        ChatLogger.SAID.clear();
+        GPackets.init(extension);
 
         extension.fire(oneUser().toPacket(), HMessage.Direction.TOCLIENT);
         HMessage chat = extension.fire(new Chat("no spoiler please", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
@@ -262,7 +278,18 @@ class DocsExamplesTest {
         assertEquals(1, extension.users);
         assertTrue(extension.blocked);
         assertTrue(chat.isBlocked());
-        assertEquals(Collections.singletonList("no spoiler please"), logger.said);
+        assertEquals(Collections.singletonList("no spoiler please"), ChatLogger.SAID);
+    }
+
+    @Test
+    void foundHandlersCanTakeTheExtension() {
+        InterceptingExamples extension = new InterceptingExamples();
+        GPackets.init(extension);
+
+        extension.fire(new Chat("ping", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+
+        assertEquals(1, extension.sentToServer.size());
+        assertEquals("pong", Chat.TYPE.parse(extension.sentToServer.get(0)).text());
     }
 
     @Test

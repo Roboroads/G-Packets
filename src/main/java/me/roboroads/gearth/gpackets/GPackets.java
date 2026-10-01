@@ -8,15 +8,21 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Opt-in reflection entry point. Call {@link #init(IExtension)} from your extension to register
- * every method annotated with {@link Intercept} through G-Earth's own {@code intercept(...)}.
- * If you never call init, nothing is scanned.
+ * every method annotated with {@link Intercept} through G-Earth's own {@code intercept(...)}:
+ * the extension's own, those of the handler objects you pass, and those of every handler class in
+ * the extension's package or below, which init creates itself. If you never call init, nothing is
+ * scanned.
  *
  * <p>Calling init twice registers the handlers twice.
  */
@@ -25,24 +31,35 @@ public final class GPackets {
     private GPackets() {
     }
 
-    /** Scans the extension itself for {@link Intercept} handlers and registers them. */
+    /** Registers the extension's {@link Intercept} handlers and those of the handler classes found next to it. */
     public static void init(IExtension extension) {
         init(extension, new Object[0]);
     }
 
     /**
-     * Scans the extension and every extra handler object for {@link Intercept} handlers and
-     * registers them. Nothing is registered unless every annotated method is valid; otherwise an
-     * {@link IllegalStateException} names the offending {@code Class#method} and the problem.
+     * Registers the {@link Intercept} handlers of the extension, of every extra handler object, and of
+     * every handler class in the extension's package or below (in the extension's jar or classes
+     * folder), in that order; found classes are sorted by name. A found class is created with a
+     * constructor that takes the extension, or else one that takes nothing; a class you pass an
+     * instance of is not created. Nothing is registered unless every found class can be created and
+     * every annotated method is valid; otherwise an {@link IllegalStateException} names the class or
+     * the {@code Class#method} and the problem.
      */
     public static void init(IExtension extension, Object... handlers) {
         List<Object> targets = new ArrayList<>();
         targets.add(extension);
+        Set<Class<?>> passed = new HashSet<>();
         if (handlers != null) {
             for (Object handler : handlers) {
                 if (handler != null) {
                     targets.add(handler);
+                    passed.add(handler.getClass());
                 }
+            }
+        }
+        for (Class<?> type : HandlerScanner.handlerClasses(extension.getClass())) {
+            if (!passed.contains(type)) {
+                targets.add(create(type, extension));
             }
         }
 
@@ -58,7 +75,35 @@ public final class GPackets {
         }
     }
 
-    private static List<Method> collectAnnotatedMethods(Class<?> type) {
+    /** Creates a found handler with a constructor that takes the extension, or else one that takes nothing. */
+    private static Object create(Class<?> type, IExtension extension) {
+        Constructor<?> chosen = null;
+        for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+            Class<?>[] parameters = constructor.getParameterTypes();
+            if (parameters.length == 1 && parameters[0].isInstance(extension)) {
+                chosen = constructor;
+                break;
+            }
+        }
+        if (chosen == null) {
+            try {
+                chosen = type.getDeclaredConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new IllegalStateException(type.getName() + ": found @Intercept methods but no constructor that takes"
+                        + " nothing or the extension; create it yourself and pass it to GPackets.init");
+            }
+        }
+        chosen.setAccessible(true);
+        try {
+            return chosen.getParameterCount() == 1 ? chosen.newInstance(extension) : chosen.newInstance();
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException(type.getName() + ": its constructor threw", e.getCause());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(type.getName() + ": cannot create it", e);
+        }
+    }
+
+    static List<Method> collectAnnotatedMethods(Class<?> type) {
         List<Method> methods = new ArrayList<>();
         for (Class<?> c = type; c != null && c != Object.class && !c.getName().startsWith("gearth."); c = c.getSuperclass()) {
             for (Method method : c.getDeclaredMethods()) {

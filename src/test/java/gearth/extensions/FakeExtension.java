@@ -31,6 +31,9 @@ public class FakeExtension extends IExtension {
     /** The direction of every {@code intercept(direction, listener)} call, which intercepts all headers. */
     public final List<HMessage.Direction> everyPacketDirections = new ArrayList<>();
 
+    /** Every packet passed to {@link #sendToServer}, in order. */
+    public final List<HPacket> sentToServer = new ArrayList<>();
+
     /** Runs every listener registered for the packet's header and the given direction. */
     public HMessage fire(HPacket packet, HMessage.Direction direction) {
         String header = packet.packetIncompleteIdentifier();
@@ -65,6 +68,7 @@ public class FakeExtension extends IExtension {
 
     @Override
     public boolean sendToServer(HPacket packet) {
+        sentToServer.add(packet);
         return true;
     }
 
