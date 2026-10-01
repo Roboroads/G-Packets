@@ -1,0 +1,49 @@
+site_name: G-Packets
+site_description: Parse, build and intercept Habbo packets in G-Earth extensions.
+site_url: https://roboroads.github.io/G-Packets/
+repo_url: https://github.com/Roboroads/G-Packets
+repo_name: Roboroads/G-Packets
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.details
+
+plugins:
+  - search
+
+not_in_nav: |
+  /packets/*.md
+
+nav:
+  - Reference:
+      - Packet reference: packets/index.md
