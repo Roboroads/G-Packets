@@ -231,7 +231,8 @@ public final class PacketReference {
                 options.add("`" + option.getKey() + "` = `" + literal(option.getValue()) + "`"
                         + (unused.containsKey(option.getKey()) ? " (unused)" : ""));
             }
-            return String.join(", ", options);
+            String listed = String.join(", ", options);
+            return value.openEnum() ? listed + ". Other ids pass through." : listed;
         }
 
         /** The case's wire value, plus the enum constant's name when the discriminator is an enum. */

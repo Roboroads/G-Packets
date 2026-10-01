@@ -351,4 +351,17 @@ class DocsExamplesTest {
         assertEquals("{\"text\":\"hi\",\"style\":2,\"trackingId\":3}", chat.toJson());
         assertEquals(chat, Chat.fromJson(chat.toJson()));
     }
+
+    // changing-and-sending.md: "Creating a packet", a style newer than the library
+    @Test
+    void anUnnamedChatStyleKeepsItsId() {
+        ChatBarStyle style = ChatBarStyle.of(1028);
+
+        assertFalse(style.known());
+        assertEquals(1028, style.value());
+
+        Chat chat = Chat.fromPacket(new Chat("hi", ChatBarStyle.ROBOT, -1).toPacket());
+        assertTrue(chat.style() == ChatBarStyle.ROBOT);
+        assertTrue(ChatBarStyle.of(1028).equals(style));
+    }
 }

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GPacketsTest {
 
     private static HPacket chatPacket(String text) {
-        return new Chat(text, ChatBarStyle.fromValue(0), 1).toPacket();
+        return new Chat(text, ChatBarStyle.of(0), 1).toPacket();
     }
 
     private static HPacket usersPacket() {

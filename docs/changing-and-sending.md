@@ -36,6 +36,17 @@ Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
 Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
 ```
 
+A chat style can be newer than your version of G-Packets: the hotel adds styles without a client update. `ChatBarStyle` names every style the library knows, and `ChatBarStyle.of(id)` takes any other id:
+
+```java
+ChatBarStyle style = ChatBarStyle.of(1028);
+
+style.known(); // false: G-Packets has no name for it
+style.value(); // 1028
+```
+
+A packet you read keeps such an id, and sends it back unchanged. Compare with `==` against a named style (`chat.style() == ChatBarStyle.ROBOT`), and with `equals` when both sides can be ids the library doesn't name. These types don't work in a `switch`. `ActivityPointType` works the same way.
+
 ## Sending a packet
 
 Send an outgoing packet to the server with G-Earth's `sendToServer`:

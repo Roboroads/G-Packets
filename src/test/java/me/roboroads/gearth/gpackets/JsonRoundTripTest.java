@@ -45,6 +45,15 @@ public class JsonRoundTripTest {
     }
 
     @Test
+    public void chatKeepsAStyleTheLibraryDoesNotName() {
+        Chat chat = Chat.fromJson("{\"text\":\"hi\",\"style\":1028,\"trackingId\":3}");
+
+        assertEquals(1028, chat.style().value());
+        assertFalse(chat.style().known());
+        assertEquals("{\"text\":\"hi\",\"style\":1028,\"trackingId\":3}", chat.toJson());
+    }
+
+    @Test
     @SuppressWarnings("deprecation") // sets Player.groupStatus
     public void usersRoundTripKeepsSubtypes() {
         Users users = Users.builder().users(Arrays.asList(

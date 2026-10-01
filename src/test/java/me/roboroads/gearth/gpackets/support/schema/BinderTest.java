@@ -10,6 +10,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.wired.WallItemMove;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.WiredMovement;
 import me.roboroads.gearth.gpackets.model.enums.CatalogType;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -21,12 +22,14 @@ import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import org.junit.jupiter.api.Test;
+import testfixtures.openenum.OpenEnumFixtures.Shade;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -79,7 +82,29 @@ class BinderTest {
 
     @Test
     void unknownEnumValuesBecomeNull() {
-        assertNull(CHAT.parse(packet().appendString("hi").appendInt(999).appendInt(7)).style());
+        Schema<UserDirectionUpdate> schema = Schema.of(UserDirectionUpdate.class).enumInt("bodyDirection", Direction.class);
+
+        assertNull(schema.parse(packet().appendInt(999)).bodyDirection());
+    }
+
+    @Data
+    @Builder
+    static class Painted {
+        private Shade shade;
+    }
+
+    private static final Schema<Painted> PAINTED = Schema.of(Painted.class).enumInt("shade", Shade.class);
+
+    @Test
+    void openEnumsGiveTheNamedConstantOrKeepTheId() {
+        assertSame(Shade.LIGHT, PAINTED.parse(packet().appendInt(1)).shade());
+
+        Painted unnamed = PAINTED.parse(packet().appendInt(9));
+        assertEquals(Shade.of(9), unnamed.shade());
+
+        HPacket out = packet();
+        PAINTED.append(unnamed, out);
+        assertEquals(bytes(packet().appendInt(9)), bytes(out));
     }
 
     @Test
