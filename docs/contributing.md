@@ -208,7 +208,7 @@ public enum Direction implements IntEnum {
     private final int value;
 ```
 
-If you aren't sure what every value means, keep the field a plain `Integer` and use `integer(...)`, as `Offer.activityPointType` does.
+If you can't name every value the client knows, keep the field a plain `Integer`, use `integer(...)`, and list the values you do know in a comment. An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again.
 
 ## Registering the packet
 

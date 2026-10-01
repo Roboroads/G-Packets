@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.ActivityPointType;
+import me.roboroads.gearth.gpackets.model.enums.ClubLevel;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
@@ -24,11 +26,11 @@ public class Offer implements SubPacket, JsonSerializable {
             .bool("isRent")
             .integer("priceInCredits")
             .integer("priceInActivityPoints")
-            .integer("activityPointType")
+            .enumInt("activityPointType", ActivityPointType.class)
             .integer("priceInSilver")
             .bool("giftable")
             .list("products", Product.SCHEMA)
-            .integer("clubLevel")
+            .enumInt("clubLevel", ClubLevel.class)
             .bool("bundlePurchaseAllowed")
             .bool("unknownBoolean12")
             .string("previewImage");
@@ -38,14 +40,12 @@ public class Offer implements SubPacket, JsonSerializable {
     private Boolean isRent;
     private Integer priceInCredits;
     private Integer priceInActivityPoints;
-    // Raw int from the wire; see ActivityPointType for the mapping.
-    private Integer activityPointType;
+    private ActivityPointType activityPointType;
     // Client field name preserved; may also be priceInSeasonCurrency.
     private Integer priceInSilver;
     private Boolean giftable;
     private List<Product> products;
-    // Raw int from the wire; see ClubLevel for the mapping.
-    private Integer clubLevel;
+    private ClubLevel clubLevel;
     private Boolean bundlePurchaseAllowed;
     // The client stores it but never exposes or reads it; G-Rust calls it "_unused".
     // Possibly an "is pet" flag (other emulators), unverified.
