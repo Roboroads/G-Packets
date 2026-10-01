@@ -9,6 +9,7 @@ import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.support.Packet;
 import org.junit.jupiter.api.Test;
 import testfixtures.NoTypePacket;
+import testfixtures.scanning.ScanningExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,15 +120,8 @@ class GPacketsTest {
     }
 
     // ---- extension itself is scanned ----
-
-    static class ScanningExtension extends FakeExtension {
-        String seen;
-
-        @Intercept(Chat.class)
-        void onChat(Chat chat) {
-            seen = chat.text();
-        }
-    }
+    // ScanningExtension lives in testfixtures.scanning: in this package, handler discovery would
+    // also find the deliberately invalid handler fixtures below.
 
     @Test
     void scansTheExtensionItself() {
