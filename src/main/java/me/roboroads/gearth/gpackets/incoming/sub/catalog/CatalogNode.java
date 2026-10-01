@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.WireType;
 
 import java.util.List;
 
@@ -18,6 +19,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CatalogNode implements SubPacket, JsonSerializable {
+    public static final Schema<CatalogNode> SCHEMA = Schema.of(CatalogNode.class)
+            .bool("visible")
+            .integer("icon")
+            .integer("pageId")
+            .string("pageName")
+            .string("localization")
+            .list("offerIds", WireType.INT)
+            .list("children", () -> CatalogNode.SCHEMA);
+
     private Boolean visible;
     private Integer icon;
     private Integer pageId;
@@ -27,35 +37,11 @@ public class CatalogNode implements SubPacket, JsonSerializable {
     private List<CatalogNode> children;
 
     public static CatalogNode fromPacket(HPacket packet) {
-        return CatalogNode.builder()
-                .visible(packet.readBoolean())
-                .icon(packet.readInteger())
-                .pageId(packet.readInteger())
-                .pageName(packet.readString())
-                .localization(packet.readString())
-                .offerIds(Utils.readList(packet, HPacket::readInteger))
-                .children(Utils.readList(packet, CatalogNode::fromPacket))
-                .build();
+        return SCHEMA.parse(packet);
     }
 
     @Override
     public void appendPacket(HPacket packet) {
-        packet.appendBoolean(visible != null && visible);
-        packet.appendInt(icon != null ? icon : 0);
-        packet.appendInt(pageId != null ? pageId : 0);
-        packet.appendString(pageName != null ? pageName : "");
-        packet.appendString(localization != null ? localization : "");
-        packet.appendInt(offerIds != null ? offerIds.size() : 0);
-        if (offerIds != null) {
-            for (Integer id : offerIds) {
-                packet.appendInt(id != null ? id : 0);
-            }
-        }
-        packet.appendInt(children != null ? children.size() : 0);
-        if (children != null) {
-            for (CatalogNode child : children) {
-                child.appendPacket(packet);
-            }
-        }
+        SCHEMA.append(this, packet);
     }
 }

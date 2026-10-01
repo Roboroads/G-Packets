@@ -3,9 +3,10 @@ package me.roboroads.gearth.gpackets.model.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 @RequiredArgsConstructor
-public enum ChatBarStyle {
+public enum ChatBarStyle implements IntEnum {
     DEFAULT(0),
     GENERIC(1),
     ROBOT(2),

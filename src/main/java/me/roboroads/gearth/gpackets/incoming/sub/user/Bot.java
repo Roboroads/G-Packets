@@ -1,6 +1,5 @@
 package me.roboroads.gearth.gpackets.incoming.sub.user;
 
-import gearth.protocol.HPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -32,19 +31,5 @@ public class Bot extends User {
 
     public static Bot fromJson(String json) {
         return Json.parse(Bot.class, json);
-    }
-
-    @Override
-    public void appendPacket(HPacket packet) {
-        super.appendPacket(packet);
-        packet.appendString(sex != null ? sex.code() : "");
-        packet.appendInt(ownerId);
-        packet.appendString(ownerName);
-        packet.appendInt(botSkills != null ? botSkills.size() : 0);
-        if (botSkills != null) {
-            for (Short skill : botSkills) {
-                packet.appendShort(skill);
-            }
-        }
     }
 }

@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @Builder
@@ -18,18 +19,17 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CatalogPageWithEarliestExpiry implements Packet, JsonSerializable {
-    public static final PacketType<CatalogPageWithEarliestExpiry> TYPE = new PacketType<>("CatalogPageWithEarliestExpiry", HMessage.Direction.TOCLIENT, CatalogPageWithEarliestExpiry::fromPacket);
+    public static final PacketType<CatalogPageWithEarliestExpiry> TYPE = PacketType.of("CatalogPageWithEarliestExpiry", HMessage.Direction.TOCLIENT, Schema.of(CatalogPageWithEarliestExpiry.class)
+            .string("pageName")
+            .integer("secondsToExpiry")
+            .string("image"));
 
     private String pageName;
     private Integer secondsToExpiry;
     private String image;
 
     public static CatalogPageWithEarliestExpiry fromPacket(HPacket packet) {
-        return CatalogPageWithEarliestExpiry.builder()
-                .pageName(packet.readString())
-                .secondsToExpiry(packet.readInteger())
-                .image(packet.readString())
-                .build();
+        return TYPE.schema().parse(packet);
     }
 
     public static CatalogPageWithEarliestExpiry fromJson(String json) {
@@ -38,10 +38,6 @@ public class CatalogPageWithEarliestExpiry implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendString(pageName != null ? pageName : "");
-        packet.appendInt(secondsToExpiry != null ? secondsToExpiry : 0);
-        packet.appendString(image != null ? image : "");
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

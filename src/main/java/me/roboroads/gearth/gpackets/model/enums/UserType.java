@@ -3,9 +3,10 @@ package me.roboroads.gearth.gpackets.model.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 @RequiredArgsConstructor
-public enum UserType {
+public enum UserType implements IntEnum {
     PLAYER(1),
     PET(2),
     OLD_BOT(3),

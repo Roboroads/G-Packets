@@ -1,6 +1,5 @@
 package me.roboroads.gearth.gpackets.incoming.sub.catalog;
 
-import gearth.protocol.HPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -22,12 +21,5 @@ public class ProductCodeFrontPageItem extends FrontPageItem {
 
     public static ProductCodeFrontPageItem fromJson(String json) {
         return Json.parse(ProductCodeFrontPageItem.class, json);
-    }
-
-    @Override
-    public void appendPacket(HPacket packet) {
-        super.appendPacket(packet);
-        packet.appendString(productCode != null ? productCode : "");
-        appendTrailingExpiration(packet);
     }
 }

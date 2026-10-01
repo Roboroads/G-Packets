@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.WireType;
 
 import java.util.List;
 
@@ -18,29 +19,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Localization implements SubPacket, JsonSerializable {
+    public static final Schema<Localization> SCHEMA = Schema.of(Localization.class)
+            .list("images", WireType.STRING)
+            .list("texts", WireType.STRING);
+
     private List<String> images;
     private List<String> texts;
 
     public static Localization fromPacket(HPacket packet) {
-        return Localization.builder()
-                .images(Utils.readList(packet, HPacket::readString))
-                .texts(Utils.readList(packet, HPacket::readString))
-                .build();
+        return SCHEMA.parse(packet);
     }
 
     @Override
     public void appendPacket(HPacket packet) {
-        packet.appendInt(images != null ? images.size() : 0);
-        if (images != null) {
-            for (String image : images) {
-                packet.appendString(image != null ? image : "");
-            }
-        }
-        packet.appendInt(texts != null ? texts.size() : 0);
-        if (texts != null) {
-            for (String text : texts) {
-                packet.appendString(text != null ? text : "");
-            }
-        }
+        SCHEMA.append(this, packet);
     }
 }

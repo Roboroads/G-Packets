@@ -28,6 +28,9 @@ public class FakeExtension extends IExtension {
 
     public final List<Registration> registrations = new ArrayList<>();
 
+    /** The direction of every {@code intercept(direction, listener)} call, which intercepts all headers. */
+    public final List<HMessage.Direction> everyPacketDirections = new ArrayList<>();
+
     /** Runs every listener registered for the packet's header and the given direction. */
     public HMessage fire(HPacket packet, HMessage.Direction direction) {
         String header = packet.packetIncompleteIdentifier();
@@ -52,7 +55,7 @@ public class FakeExtension extends IExtension {
 
     @Override
     public void intercept(HMessage.Direction direction, ExtensionBase.MessageListener messageListener) {
-        // not used by these tests
+        everyPacketDirections.add(direction);
     }
 
     @Override

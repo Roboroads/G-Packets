@@ -13,6 +13,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @Builder
@@ -20,18 +21,17 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CatalogIndex implements Packet, JsonSerializable {
-    public static final PacketType<CatalogIndex> TYPE = new PacketType<>("CatalogIndex", HMessage.Direction.TOCLIENT, CatalogIndex::fromPacket);
+    public static final PacketType<CatalogIndex> TYPE = PacketType.of("CatalogIndex", HMessage.Direction.TOCLIENT, Schema.of(CatalogIndex.class)
+            .struct("root", CatalogNode.SCHEMA)
+            .bool("newAdditionsAvailable")
+            .enumString("catalogType", CatalogType.class));
 
     private CatalogNode root;
     private Boolean newAdditionsAvailable;
     private CatalogType catalogType;
 
     public static CatalogIndex fromPacket(HPacket packet) {
-        return CatalogIndex.builder()
-                .root(CatalogNode.fromPacket(packet))
-                .newAdditionsAvailable(packet.readBoolean())
-                .catalogType(CatalogType.fromCode(packet.readString()))
-                .build();
+        return TYPE.schema().parse(packet);
     }
 
     public static CatalogIndex fromJson(String json) {
@@ -40,14 +40,6 @@ public class CatalogIndex implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        if (root != null) {
-            root.appendPacket(packet);
-        } else {
-            new CatalogNode().appendPacket(packet);
-        }
-        packet.appendBoolean(newAdditionsAvailable != null && newAdditionsAvailable);
-        packet.appendString(catalogType != null ? catalogType.code() : "");
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

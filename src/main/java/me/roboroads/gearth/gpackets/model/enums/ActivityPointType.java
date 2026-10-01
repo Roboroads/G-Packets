@@ -3,12 +3,13 @@ package me.roboroads.gearth.gpackets.model.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 // Values and names from the client's purse constants (com.sulake.habbo.catalog.purse).
 // The wire only carries the int, so callers may keep the raw int and treat this as
 // documentation only.
 @RequiredArgsConstructor
-public enum ActivityPointType {
+public enum ActivityPointType implements IntEnum {
     DUCKETS(0),
     NO_OP_1(1),
     NO_OP_2(2),

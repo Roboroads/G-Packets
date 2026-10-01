@@ -10,7 +10,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
@@ -18,12 +18,13 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class WiredMovements implements Packet, JsonSerializable {
-    public static final PacketType<WiredMovements> TYPE = new PacketType<>("WiredMovements", HMessage.Direction.TOCLIENT, WiredMovements::fromPacket);
+    public static final PacketType<WiredMovements> TYPE = PacketType.of("WiredMovements", HMessage.Direction.TOCLIENT, Schema.of(WiredMovements.class)
+            .list("movements", WiredMovement.SCHEMA));
 
     List<WiredMovement> movements;
 
     public static WiredMovements fromPacket(HPacket packet) {
-        return new WiredMovements(Utils.readList(packet, WiredMovement::fromPacket));
+        return TYPE.schema().parse(packet);
     }
 
     public static WiredMovements fromJson(String json) {
@@ -32,13 +33,6 @@ public class WiredMovements implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendInt(movements != null ? movements.size() : 0);
-        if (movements != null) {
-            for (WiredMovement movement : movements) {
-                movement.appendPacket(packet);
-            }
-        }
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

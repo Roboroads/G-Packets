@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
@@ -18,6 +18,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Offer implements SubPacket, JsonSerializable {
+    public static final Schema<Offer> SCHEMA = Schema.of(Offer.class)
+            .integer("offerId")
+            .string("localizationId")
+            .bool("isRent")
+            .integer("priceInCredits")
+            .integer("priceInActivityPoints")
+            .integer("activityPointType")
+            .integer("priceInSilver")
+            .bool("giftable")
+            .list("products", Product.SCHEMA)
+            .integer("clubLevel")
+            .bool("bundlePurchaseAllowed")
+            .bool("unknownBoolean12")
+            .string("previewImage");
+
     private Integer offerId;
     private String localizationId;
     private Boolean isRent;
@@ -38,42 +53,11 @@ public class Offer implements SubPacket, JsonSerializable {
     private String previewImage;
 
     public static Offer fromPacket(HPacket packet) {
-        return Offer.builder()
-                .offerId(packet.readInteger())
-                .localizationId(packet.readString())
-                .isRent(packet.readBoolean())
-                .priceInCredits(packet.readInteger())
-                .priceInActivityPoints(packet.readInteger())
-                .activityPointType(packet.readInteger())
-                .priceInSilver(packet.readInteger())
-                .giftable(packet.readBoolean())
-                .products(Utils.readList(packet, Product::fromPacket))
-                .clubLevel(packet.readInteger())
-                .bundlePurchaseAllowed(packet.readBoolean())
-                .unknownBoolean12(packet.readBoolean())
-                .previewImage(packet.readString())
-                .build();
+        return SCHEMA.parse(packet);
     }
 
     @Override
     public void appendPacket(HPacket packet) {
-        packet.appendInt(offerId != null ? offerId : 0);
-        packet.appendString(localizationId != null ? localizationId : "");
-        packet.appendBoolean(isRent != null && isRent);
-        packet.appendInt(priceInCredits != null ? priceInCredits : 0);
-        packet.appendInt(priceInActivityPoints != null ? priceInActivityPoints : 0);
-        packet.appendInt(activityPointType != null ? activityPointType : 0);
-        packet.appendInt(priceInSilver != null ? priceInSilver : 0);
-        packet.appendBoolean(giftable != null && giftable);
-        packet.appendInt(products != null ? products.size() : 0);
-        if (products != null) {
-            for (Product product : products) {
-                product.appendPacket(packet);
-            }
-        }
-        packet.appendInt(clubLevel != null ? clubLevel : 0);
-        packet.appendBoolean(bundlePurchaseAllowed != null && bundlePurchaseAllowed);
-        packet.appendBoolean(unknownBoolean12 != null && unknownBoolean12);
-        packet.appendString(previewImage != null ? previewImage : "");
+        SCHEMA.append(this, packet);
     }
 }

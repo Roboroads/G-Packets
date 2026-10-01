@@ -3,9 +3,10 @@ package me.roboroads.gearth.gpackets.model.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.roboroads.gearth.gpackets.support.schema.StringEnum;
 
 @RequiredArgsConstructor
-public enum Gender {
+public enum Gender implements StringEnum {
     MALE("M"),
     FEMALE("F");
 

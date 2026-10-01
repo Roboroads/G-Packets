@@ -10,6 +10,9 @@ import lombok.experimental.SuperBuilder;
 import me.roboroads.gearth.gpackets.model.enums.ProductType;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
+
+import java.util.function.UnaryOperator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "productType", visible = true)
 @JsonSubTypes({
@@ -21,24 +24,40 @@ import me.roboroads.gearth.gpackets.support.SubPacket;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class Product implements SubPacket, JsonSerializable {
+    public static final Schema<Product> SCHEMA;
+
+    static {
+        UnaryOperator<Schema<FurniProduct>> furni = s -> s
+                .integer("furniClassId")
+                .string("extraParam")
+                .integer("productCount")
+                .bool("uniqueLimitedItem")
+                .when("uniqueLimitedItem", true, u -> u
+                        .integer("uniqueLimitedItemSeriesSize")
+                        .integer("uniqueLimitedItemsLeft"));
+        SCHEMA = Schema.of(Product.class)
+                .enumString("productType", ProductType.class)
+                .branch("productType", cases -> cases
+                        .on(ProductType.BADGE, BadgeProduct.class, s -> s.string("extraParam"))
+                        .on(ProductType.ITEM, FurniProduct.class, furni)
+                        .on(ProductType.STUFF, FurniProduct.class, furni)
+                        .on(ProductType.EFFECT, FurniProduct.class, furni)
+                        .on(ProductType.CL, FurniProduct.class, furni)
+                        .on(ProductType.SUBSCRIPTION, FurniProduct.class, furni)
+                        .on(ProductType.R, FurniProduct.class, furni)
+                        .on(ProductType.HABBICON, FurniProduct.class, furni)
+                        .on(ProductType.CHAT_STYLE, FurniProduct.class, furni));
+    }
+
     private ProductType productType;
     private String extraParam;
 
     public static Product fromPacket(HPacket packet) {
-        ProductType productType = ProductType.fromCode(packet.readString());
-
-        if (productType == null) {
-            throw new IllegalArgumentException("Unknown product type");
-        }
-
-        if (productType == ProductType.BADGE) {
-            return BadgeProduct.fromPacket(packet, productType);
-        }
-        return FurniProduct.fromPacket(packet, productType);
+        return SCHEMA.parse(packet);
     }
 
     @Override
     public void appendPacket(HPacket packet) {
-        packet.appendString(productType != null ? productType.code() : "");
+        SCHEMA.append(this, packet);
     }
 }

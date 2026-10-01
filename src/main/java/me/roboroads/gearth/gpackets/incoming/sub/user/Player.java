@@ -1,6 +1,5 @@
 package me.roboroads.gearth.gpackets.incoming.sub.user;
 
-import gearth.protocol.HPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -36,17 +35,5 @@ public class Player extends User {
 
     public static Player fromJson(String json) {
         return Json.parse(Player.class, json);
-    }
-
-    @Override
-    public void appendPacket(HPacket packet) {
-        super.appendPacket(packet);
-        packet.appendString(sex != null ? sex.code() : "");
-        packet.appendInt(groupId);
-        packet.appendInt(groupStatus);
-        packet.appendString(groupName);
-        packet.appendString(swimFigure);
-        packet.appendInt(achievementScore);
-        packet.appendBoolean(isModerator);
     }
 }
