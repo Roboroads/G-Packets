@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.4.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.3.0...G-Packets-v0.4.0) (2026-10-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename fields that don't follow the developer-first naming rule ([#101](https://github.com/Roboroads/G-Packets/issues/101))
+* read the badgesRank int the client reads after a player's isModerator ([#100](https://github.com/Roboroads/G-Packets/issues/100))
+* keep chat style and activity point ids the library doesn't name ([#93](https://github.com/Roboroads/G-Packets/issues/93))
+* only allow the max visitors the client offers when saving room settings ([#86](https://github.com/Roboroads/G-Packets/issues/86))
+
+### Features
+
+* add the room avatar status, action and expression packets ([#95](https://github.com/Roboroads/G-Packets/issues/95)) ([27988cd](https://github.com/Roboroads/G-Packets/commit/27988cd56f125f96afedb84af64d7d8f437814bf))
+* keep chat style and activity point ids the library doesn't name ([#93](https://github.com/Roboroads/G-Packets/issues/93)) ([39182ea](https://github.com/Roboroads/G-Packets/commit/39182ea25e4b061981679b676a9643cc3c9e9686)), closes [#18](https://github.com/Roboroads/G-Packets/issues/18) [#88](https://github.com/Roboroads/G-Packets/issues/88) [#90](https://github.com/Roboroads/G-Packets/issues/90)
+* mark the expiring catalog page image as unused ([#89](https://github.com/Roboroads/G-Packets/issues/89)) ([f36dd37](https://github.com/Roboroads/G-Packets/commit/f36dd37a27eade55e91225d8ba9751c3f438aef4))
+
+
+### Bug Fixes
+
+* keep unknown trailing bytes when replacing a message ([#102](https://github.com/Roboroads/G-Packets/issues/102)) ([9531758](https://github.com/Roboroads/G-Packets/commit/953175850ca8b1271b379798f3afec7d8acb1f66))
+* only allow the max visitors the client offers when saving room settings ([#86](https://github.com/Roboroads/G-Packets/issues/86)) ([0fb74ef](https://github.com/Roboroads/G-Packets/commit/0fb74eff102ff85e42ea733aaddc3e92c0cab791))
+* read the badgesRank int the client reads after a player's isModerator ([#100](https://github.com/Roboroads/G-Packets/issues/100)) ([ee5df63](https://github.com/Roboroads/G-Packets/commit/ee5df6312950506cd9160d970ddd5898ce0110bd))
+
+
+### Code Refactoring
+
+* rename fields that don't follow the developer-first naming rule ([#101](https://github.com/Roboroads/G-Packets/issues/101)) ([08f1e00](https://github.com/Roboroads/G-Packets/commit/08f1e008b8406acf1aea1683f1db9a52f4de128b))
+
 ## [0.3.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.2.0...G-Packets-v0.3.0) (2026-10-01)
 
 
