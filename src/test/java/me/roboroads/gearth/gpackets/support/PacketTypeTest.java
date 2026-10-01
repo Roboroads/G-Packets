@@ -65,6 +65,17 @@ class PacketTypeTest {
     }
 
     @Test
+    void writeTakesAStyleTheLibraryDoesNotName() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("text", "built");
+        values.put("style", ChatBarStyle.of(1028));
+
+        HPacket packet = Chat.TYPE.write(values);
+
+        assertEquals(ChatBarStyle.of(1028), Chat.TYPE.parse(packet).style());
+    }
+
+    @Test
     void readThenWriteReproducesTheBytesIncludingUnknownEnumValues() {
         HPacket original = new HPacket("Chat", HMessage.Direction.TOSERVER);
         original.appendString("hi").appendInt(999).appendInt(7);
@@ -76,7 +87,7 @@ class PacketTypeTest {
 
     @Test
     void parseRoundTripsThroughToPacket() {
-        Chat chat = new Chat("hello world", ChatBarStyle.fromValue(0), 7);
+        Chat chat = new Chat("hello world", ChatBarStyle.of(0), 7);
 
         Chat parsed = Chat.TYPE.parse(chat.toPacket());
 
@@ -85,7 +96,7 @@ class PacketTypeTest {
 
     @Test
     void parseRestoresReadIndex() {
-        HPacket packet = new Chat("hi", ChatBarStyle.fromValue(0), -1).toPacket();
+        HPacket packet = new Chat("hi", ChatBarStyle.of(0), -1).toPacket();
         packet.setReadIndex(11);
 
         Chat.TYPE.parse(packet);
@@ -105,7 +116,7 @@ class PacketTypeTest {
         assertEquals("Chat", registration.header);
         assertEquals(HMessage.Direction.TOSERVER, registration.direction);
 
-        ext.fire(new Chat("routed", ChatBarStyle.fromValue(0), 3).toPacket(), HMessage.Direction.TOSERVER);
+        ext.fire(new Chat("routed", ChatBarStyle.of(0), 3).toPacket(), HMessage.Direction.TOSERVER);
         assertNotNull(seen.get());
         assertEquals("routed", seen.get().text());
     }

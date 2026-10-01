@@ -113,11 +113,13 @@ The loop registers the listener for both directions, so you see what the server 
 
 | Kind | What it is | What you can ask it |
 |---|---|---|
-| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()` |
+| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()`, `openEnum()` |
 | `ListParameter` | an int count, then that many elements | `elementType()` for values, `elementSchema()` for structures |
 | `StructParameter` | a nested structure | `schema()` |
 | `BranchParameter` | parameters that depend on an earlier value | `on()`, `exhaustive()`, `cases()` |
 | `OptionalParameter` | parameters the server may leave off the end | `schema()` |
+
+`openEnum()` is true when the value's type keeps ids it doesn't name, like `ChatBarStyle`. `enumOptions()` then lists only the named ones.
 
 Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing.
 
@@ -172,6 +174,35 @@ describe(CatalogIndex.TYPE.schema(), "", Collections.newSetFromMap(new IdentityH
 
 !!! warning
     A schema can contain itself: a `CatalogNode` has `children` that are `CatalogNode`s. When you walk schemas, keep a set of the ones you've seen, compared by identity, as the example does. Without it the walk never ends.
+
+## Limits and rules
+
+Every parameter has `limits()`: the limits the client keeps it within. Each `Limit` has `describe()`, which gives the limit in words, and `checked()`, which is false for a limit that only describes, such as "VIP only". The limit classes carry their numbers, so a tool can use them:
+
+```java
+for (Parameter parameter : SaveRoomSettings.TYPE.schema().parameters()) {
+    for (Limit limit : parameter.limits()) {
+        System.out.println(parameter.name() + ": " + limit.describe());
+    }
+    for (Limit limit : parameter.limits()) {
+        if (limit instanceof MaxLength) {
+            System.out.println(parameter.name() + " fits in a field of " + ((MaxLength) limit).max() + " characters");
+        }
+    }
+}
+```
+
+| Limit | Holds |
+|---|---|
+| `MaxLength` | `max()` characters |
+| `NotEmpty` | at least one character |
+| `Range` | `min()` to `max()`, and 0 too when `allowsZero()` |
+| `MaxSize` | `max()` items in a list |
+| `Each` | `limit()` for every item of a list |
+| `Not` | none of `values()` |
+| `RequiresVip` | nothing to check: only VIP users can change it in the client |
+
+A schema can also have `rules()`, limits across several parameters, such as "the autokick timeout is at least the sleep timeout + 30". Each `Rule` has a `description()`. See [Limits](changing-and-sending.md#limits) for what happens when a packet breaks one.
 
 ## Unused parameters
 

@@ -1,7 +1,9 @@
 package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +34,13 @@ public final class OptionalParameter extends Parameter {
     void write(Map<String, Object> values, HPacket packet, String path) {
         if (anySet(schema, values)) {
             schema.writeFrom(values, packet, path);
+        }
+    }
+
+    @Override
+    void check(Map<String, Object> values, String path, List<Violation> out) {
+        if (anySet(schema, values)) {
+            schema.checkInto(values, path, out);
         }
     }
 

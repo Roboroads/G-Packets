@@ -47,6 +47,13 @@ jobs:
       - name: Build the site
         run: mkdocs build --strict
 
+      # The packet reference is generated, so it isn't in the repo. Serve the markdown as well, for
+      # tools that keep an offline copy of the docs.
+      - name: Publish the packet reference as markdown
+        run: |
+          mkdir -p site/md
+          cp -r docs/packets site/md/packets
+
       - name: Upload the site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5

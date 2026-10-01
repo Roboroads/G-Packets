@@ -11,6 +11,8 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.StructParameter;
 import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
+import me.roboroads.gearth.gpackets.support.schema.limit.Limit;
+import me.roboroads.gearth.gpackets.support.schema.limit.Rule;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -97,6 +99,8 @@ public final class PacketReference {
                 + "- Direction: " + direction + "\n"
                 + "- Class: `" + type.schema().type().getName() + "`\n\n"
                 + "```java\n@Intercept\nvoid on" + name + "(" + name + " packet) {\n    // ...\n}\n```\n\n"
+                + (type.direction() == HMessage.Direction.TOSERVER && type.schema().hasChecks()
+                    ? "Limits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n" : "")
                 + body(type.schema());
     }
 
@@ -143,6 +147,12 @@ public final class PacketReference {
                     out.append(row).append('\n');
                 }
             }
+            if (!schema.rules().isEmpty()) {
+                out.append("\nRules:\n\n");
+                for (Rule rule : schema.rules()) {
+                    out.append("- ").append(rule.description()).append('\n');
+                }
+            }
             for (ValueParameter value : enums) {
                 out.append("\n`").append(value.name()).append("` (`").append(value.enumType().getSimpleName()).append("`): ")
                         .append(options(value)).append('\n');
@@ -158,7 +168,7 @@ public final class PacketReference {
             for (Parameter parameter : parameters) {
                 if (parameter instanceof ValueParameter) {
                     ValueParameter value = (ValueParameter) parameter;
-                    rows.add(row(value.name(), type(value), unusedNote(note, value)));
+                    rows.add(row(value.name(), type(value), limitNote(unusedNote(note, value), value)));
                     values.put(value.name(), value);
                     if (value.enumType() != null) {
                         enums.add(value);
@@ -166,9 +176,9 @@ public final class PacketReference {
                 } else if (parameter instanceof ListParameter) {
                     ListParameter list = (ListParameter) parameter;
                     String element = list.elementType() != null ? wireName(list.elementType()) : link(list.elementSchema());
-                    rows.add(row(list.name(), "list of " + element, unusedNote(note, list)));
+                    rows.add(row(list.name(), "list of " + element, limitNote(unusedNote(note, list), list)));
                 } else if (parameter instanceof StructParameter) {
-                    rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), unusedNote(note, parameter)));
+                    rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), limitNote(unusedNote(note, parameter), parameter)));
                 } else if (parameter instanceof OptionalParameter) {
                     collect(((OptionalParameter) parameter).schema().parameters(),
                             join(note, "optional: only present if the packet has bytes left"), rows, enums, branches, values);
@@ -231,7 +241,8 @@ public final class PacketReference {
                 options.add("`" + option.getKey() + "` = `" + literal(option.getValue()) + "`"
                         + (unused.containsKey(option.getKey()) ? " (unused)" : ""));
             }
-            return String.join(", ", options);
+            String listed = String.join(", ", options);
+            return value.openEnum() ? listed + ". Other ids pass through." : listed;
         }
 
         /** The case's wire value, plus the enum constant's name when the discriminator is an enum. */
@@ -252,6 +263,14 @@ public final class PacketReference {
         }
 
         /** The note, plus why the client ignores the parameter when it does. */
+        /** The note, plus the parameter's limits in words. */
+        private static String limitNote(String note, Parameter parameter) {
+            for (Limit limit : parameter.limits()) {
+                note = join(note, limit.describe());
+            }
+            return note;
+        }
+
         private static String unusedNote(String note, Parameter parameter) {
             return parameter.unused() == null ? note : join(note, "Unused by the client: " + parameter.unused());
         }

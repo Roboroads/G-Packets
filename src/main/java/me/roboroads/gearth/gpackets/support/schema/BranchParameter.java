@@ -1,9 +1,11 @@
 package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,6 +68,14 @@ public final class BranchParameter extends Parameter {
         Case match = caseFor(values.get(discriminator.name()), path);
         if (match != null) {
             match.schema().writeFrom(values, packet, path);
+        }
+    }
+
+    @Override
+    void check(Map<String, Object> values, String path, List<Violation> out) {
+        Case match = caseFor(values.get(discriminator.name()), path);
+        if (match != null) {
+            match.schema().checkInto(values, path, out);
         }
     }
 

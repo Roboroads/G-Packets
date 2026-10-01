@@ -5,14 +5,19 @@ import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import org.junit.jupiter.api.Test;
+import testfixtures.openenum.OpenEnumFixtures.Shade;
+import testfixtures.openenum.OpenEnumFixtures.Tone;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SchemaValueTest {
 
@@ -141,6 +146,68 @@ class SchemaValueTest {
         assertEquals(0, dir.enumOptions().get("NORTH"));
         assertEquals(7, dir.enumOptions().get("NORTH_WEST"));
         assertEquals("F", ((ValueParameter) SCHEMA.parameters().get(7)).enumOptions().get("FEMALE"));
+    }
+
+    @Test
+    void openEnumParametersListTheirNamedIdsByValue() {
+        ValueParameter shade = (ValueParameter) Schema.of(Sample.class).enumInt("shade", Shade.class).parameters().get(0);
+
+        assertEquals(Shade.class, shade.enumType());
+        assertTrue(shade.openEnum());
+        assertEquals(Arrays.asList("LIGHT", "DARK", "FADED"), new ArrayList<>(shade.enumOptions().keySet()));
+        assertEquals(1, shade.enumOptions().get("LIGHT"));
+        assertEquals(Collections.singletonMap("FADED", "Only old clients draw it"), shade.unusedOptions());
+    }
+
+    @Test
+    void aRealEnumIsNotOpen() {
+        assertFalse(((ValueParameter) SCHEMA.parameters().get(6)).openEnum());
+        assertFalse(((ValueParameter) SCHEMA.parameters().get(0)).openEnum());
+    }
+
+    static class Odd implements IntEnum {
+        @Override
+        public int value() {
+            return 1;
+        }
+    }
+
+    @Test
+    void enumIntRejectsAnIntEnumThatIsNeitherAnEnumNorOpen() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).enumInt("odd", Odd.class));
+
+        assertEquals("odd: " + Odd.class.getName() + " is neither an enum nor an OpenIntEnum", e.getMessage());
+    }
+
+    @Test
+    void writingAnOpenEnumWritesItsId() {
+        Schema<Sample> schema = Schema.of(Sample.class).enumInt("shade", Shade.class);
+        Map<String, Object> values = new HashMap<>();
+        values.put("shade", Shade.of(9));
+        HPacket out = packet();
+
+        schema.write(values, out);
+
+        assertEquals(bytes(packet().appendInt(9)), bytes(out));
+    }
+
+    @Test
+    void writingTheWrongOpenEnumFailsWithThePath() {
+        Schema<Sample> schema = Schema.of(Sample.class).enumInt("shade", Shade.class);
+        Map<String, Object> values = new HashMap<>();
+        values.put("shade", Tone.LOW);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> schema.write(values, packet()));
+
+        assertEquals("Sample.shade: expected INT, got " + Tone.class.getName(), e.getMessage());
+    }
+
+    @Test
+    void readingAnOpenEnumKeepsTheRawId() {
+        Schema<Sample> schema = Schema.of(Sample.class).enumInt("shade", Shade.class);
+
+        assertEquals(9, schema.read(packet().appendInt(9)).get("shade"));
     }
 
     @Test

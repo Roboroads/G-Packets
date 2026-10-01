@@ -5,8 +5,11 @@ import gearth.extensions.IExtension;
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.limit.LimitException;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -82,8 +85,19 @@ public final class PacketType<T extends Packet> {
         }
     }
 
-    /** Builds a packet of this type from named values. A missing or null value writes the wire default. */
+    /**
+     * Builds a packet of this type from named values. A missing or null value writes the wire
+     * default.
+     *
+     * @throws LimitException for an outgoing type whose values break its limits or rules.
+     */
     public HPacket write(Map<String, Object> values) {
+        checkLimits(() -> schema.violations(values));
+        return writeUnchecked(values);
+    }
+
+    /** Like {@link #write}, without checking limits. */
+    public HPacket writeUnchecked(Map<String, Object> values) {
         HPacket packet = new HPacket(header, direction);
         schema.write(values, packet);
         return packet;
@@ -95,9 +109,15 @@ public final class PacketType<T extends Packet> {
      * G-Earth still recognises the packet.
      *
      * @throws IllegalArgumentException if the message's destination does not match this type's direction.
+     * @throws LimitException           for an outgoing type whose values break its limits or rules.
      */
     public void replaceIn(HMessage message, Map<String, Object> values) {
         replaceBody(message, () -> write(values));
+    }
+
+    /** Like {@link #replaceIn}, without checking limits. */
+    public void replaceInUnchecked(HMessage message, Map<String, Object> values) {
+        replaceBody(message, () -> writeUnchecked(values));
     }
 
     void replaceBody(HMessage message, Supplier<HPacket> replacement) {
@@ -113,11 +133,50 @@ public final class PacketType<T extends Packet> {
         message.getPacket().setBytes(new HPacket(headerId, body).toBytes());
     }
 
-    /** Builds a packet of this type from a typed packet object. */
+    /**
+     * Builds a packet of this type from a typed packet object.
+     *
+     * @throws LimitException for an outgoing type whose values break its limits or rules.
+     */
     public HPacket toPacket(T value) {
+        checkLimits(() -> schema.violations(value));
+        return toPacketUnchecked(value);
+    }
+
+    /** Like {@link #toPacket}, without checking limits. */
+    public HPacket toPacketUnchecked(T value) {
         HPacket packet = new HPacket(header, direction);
         schema.append(value, packet);
         return packet;
+    }
+
+    /** The limits and rules the packet breaks, in either direction. Empty when everything fits. */
+    public List<Violation> violations(T value) {
+        return schema.violations(value);
+    }
+
+    /** The limits and rules the values break, in either direction. Empty when everything fits. */
+    public List<Violation> violations(Map<String, Object> values) {
+        return schema.violations(values);
+    }
+
+    /** Throws for an outgoing type with checks when the values break any; incoming types are never checked. */
+    private void checkLimits(Supplier<List<Violation>> violations) {
+        if (direction == HMessage.Direction.TOSERVER && schema.hasChecks()) {
+            List<Violation> found = violations.get();
+            if (!found.isEmpty()) {
+                throw new LimitException(header, found);
+            }
+        }
+    }
+
+    /** The {@code public static final PacketType TYPE} of the packet's class, for the defaults on {@link Packet}. */
+    static PacketType<?> typeOf(Packet packet, String use) {
+        try {
+            return (PacketType<?>) packet.getClass().getField("TYPE").get(null);
+        } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
+            throw new IllegalStateException(packet.getClass().getName() + " must have a public static final PacketType TYPE to use " + use, e);
+        }
     }
 
     /**
