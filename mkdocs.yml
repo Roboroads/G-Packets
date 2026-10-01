@@ -41,10 +41,16 @@ markdown_extensions:
 plugins:
   - search
 
+exclude_docs: |
+  /requirements.txt
+
 not_in_nav: |
   /packets/*.md
 
 nav:
+  - Getting started:
+      - Home: index.md
+      - Getting started: getting-started.md
   - The basics:
       - Intercepting packets: intercepting.md
       - Changing and sending packets: changing-and-sending.md
