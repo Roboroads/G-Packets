@@ -1,6 +1,5 @@
 package me.roboroads.gearth.gpackets.incoming.sub.catalog;
 
-import gearth.protocol.HPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -22,12 +21,5 @@ public class PageLinkFrontPageItem extends FrontPageItem {
 
     public static PageLinkFrontPageItem fromJson(String json) {
         return Json.parse(PageLinkFrontPageItem.class, json);
-    }
-
-    @Override
-    public void appendPacket(HPacket packet) {
-        super.appendPacket(packet);
-        packet.appendString(cataloguePageLocation != null ? cataloguePageLocation : "");
-        appendTrailingExpiration(packet);
     }
 }

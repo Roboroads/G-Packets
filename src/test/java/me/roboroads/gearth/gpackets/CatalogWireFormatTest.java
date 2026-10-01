@@ -27,9 +27,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class CatalogWireFormatTest {
 
@@ -67,6 +69,20 @@ class CatalogWireFormatTest {
     @Test
     void catalogIndexFromPacket() {
         assertEquals(catalogIndex(), CatalogIndex.fromPacket(catalogIndexPacket()));
+    }
+
+    @Test
+    void catalogIndexValuesNestTheTree() {
+        Map<?, ?> root = (Map<?, ?>) CatalogIndex.TYPE.read(catalogIndexPacket()).get("root");
+        Map<?, ?> child = (Map<?, ?>) ((List<?>) root.get("children")).get(0);
+
+        assertEquals("frontpage", child.get("pageName"));
+        assertEquals(Arrays.asList(11, 12), child.get("offerIds"));
+    }
+
+    @Test
+    void catalogPageValuesLeaveOutTheMissingFrontPageItems() {
+        assertFalse(CatalogPage.TYPE.read(catalogPagePacket(false)).containsKey("frontPageItems"));
     }
 
     // ---- CatalogPage ----

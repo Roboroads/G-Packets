@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import me.roboroads.gearth.gpackets.model.enums.FrontPageItemType;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
@@ -22,6 +23,22 @@ import me.roboroads.gearth.gpackets.support.SubPacket;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class FrontPageItem implements SubPacket, JsonSerializable {
+    public static final Schema<FrontPageItem> SCHEMA = Schema.of(FrontPageItem.class)
+            .integer("position")
+            .string("itemName")
+            .string("itemPromoImage")
+            .enumInt("type", FrontPageItemType.class)
+            .branch("type", cases -> cases
+                    .on(FrontPageItemType.PAGE_LINK, PageLinkFrontPageItem.class, s -> s
+                            .string("cataloguePageLocation")
+                            .integer("secondsToExpiration"))
+                    .on(FrontPageItemType.PRODUCT_OFFER, ProductOfferFrontPageItem.class, s -> s
+                            .integer("productOfferId")
+                            .integer("secondsToExpiration"))
+                    .on(FrontPageItemType.PRODUCT_CODE, ProductCodeFrontPageItem.class, s -> s
+                            .string("productCode")
+                            .integer("secondsToExpiration")));
+
     private Integer position;
     private String itemName;
     private String itemPromoImage;
@@ -30,45 +47,11 @@ public abstract class FrontPageItem implements SubPacket, JsonSerializable {
     private Integer secondsToExpiration;
 
     public static FrontPageItem fromPacket(HPacket packet) {
-        Integer position = packet.readInteger();
-        String itemName = packet.readString();
-        String itemPromoImage = packet.readString();
-        FrontPageItemType type = FrontPageItemType.fromValue(packet.readInteger());
-
-        if (type == null) {
-            throw new IllegalArgumentException("Unknown front page item type");
-        }
-
-        switch (type) {
-            case PAGE_LINK: {
-                String cataloguePageLocation = packet.readString();
-                Integer secondsToExpiration = packet.readInteger();
-                return new PageLinkFrontPageItem(position, itemName, itemPromoImage, type, secondsToExpiration, cataloguePageLocation);
-            }
-            case PRODUCT_OFFER: {
-                Integer productOfferId = packet.readInteger();
-                Integer secondsToExpiration = packet.readInteger();
-                return new ProductOfferFrontPageItem(position, itemName, itemPromoImage, type, secondsToExpiration, productOfferId);
-            }
-            case PRODUCT_CODE: {
-                String productCode = packet.readString();
-                Integer secondsToExpiration = packet.readInteger();
-                return new ProductCodeFrontPageItem(position, itemName, itemPromoImage, type, secondsToExpiration, productCode);
-            }
-            default:
-                throw new IllegalArgumentException("Unknown front page item type: " + type);
-        }
+        return SCHEMA.parse(packet);
     }
 
     @Override
     public void appendPacket(HPacket packet) {
-        packet.appendInt(position != null ? position : 0);
-        packet.appendString(itemName != null ? itemName : "");
-        packet.appendString(itemPromoImage != null ? itemPromoImage : "");
-        packet.appendInt(type != null ? type.value() : -1);
-    }
-
-    protected void appendTrailingExpiration(HPacket packet) {
-        packet.appendInt(secondsToExpiration != null ? secondsToExpiration : 0);
+        SCHEMA.append(this, packet);
     }
 }

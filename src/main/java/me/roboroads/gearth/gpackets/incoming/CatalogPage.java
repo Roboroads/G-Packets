@@ -15,7 +15,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
@@ -25,7 +25,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CatalogPage implements Packet, JsonSerializable {
-    public static final PacketType<CatalogPage> TYPE = new PacketType<>("CatalogPage", HMessage.Direction.TOCLIENT, CatalogPage::fromPacket);
+    public static final PacketType<CatalogPage> TYPE = PacketType.of("CatalogPage", HMessage.Direction.TOCLIENT, Schema.of(CatalogPage.class)
+            .integer("pageId")
+            .enumString("catalogType", CatalogType.class)
+            .string("layoutCode")
+            .struct("localization", Localization.SCHEMA)
+            .list("offers", Offer.SCHEMA)
+            .integer("offerId")
+            .bool("acceptSeasonCurrencyAsCredits")
+            .optional(s -> s.list("frontPageItems", FrontPageItem.SCHEMA)));
 
     private Integer pageId;
     private CatalogType catalogType;
@@ -40,19 +48,7 @@ public class CatalogPage implements Packet, JsonSerializable {
     private List<FrontPageItem> frontPageItems;
 
     public static CatalogPage fromPacket(HPacket packet) {
-        CatalogPageBuilder builder = CatalogPage.builder()
-                .pageId(packet.readInteger())
-                .catalogType(CatalogType.fromCode(packet.readString()))
-                .layoutCode(packet.readString())
-                .localization(Localization.fromPacket(packet))
-                .offers(Utils.readList(packet, Offer::fromPacket))
-                .offerId(packet.readInteger())
-                .acceptSeasonCurrencyAsCredits(packet.readBoolean());
-
-        if (packet.isEOF() == 0) {
-            builder.frontPageItems(Utils.readList(packet, FrontPageItem::fromPacket));
-        }
-        return builder.build();
+        return TYPE.schema().parse(packet);
     }
 
     public static CatalogPage fromJson(String json) {
@@ -61,29 +57,6 @@ public class CatalogPage implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendInt(pageId != null ? pageId : 0);
-        packet.appendString(catalogType != null ? catalogType.code() : "");
-        packet.appendString(layoutCode != null ? layoutCode : "");
-        if (localization != null) {
-            localization.appendPacket(packet);
-        } else {
-            new Localization().appendPacket(packet);
-        }
-        packet.appendInt(offers != null ? offers.size() : 0);
-        if (offers != null) {
-            for (Offer offer : offers) {
-                offer.appendPacket(packet);
-            }
-        }
-        packet.appendInt(offerId != null ? offerId : -1);
-        packet.appendBoolean(acceptSeasonCurrencyAsCredits != null && acceptSeasonCurrencyAsCredits);
-        if (frontPageItems != null) {
-            packet.appendInt(frontPageItems.size());
-            for (FrontPageItem item : frontPageItems) {
-                item.appendPacket(packet);
-            }
-        }
-        return packet;
+        return TYPE.toPacket(this);
     }
 }
