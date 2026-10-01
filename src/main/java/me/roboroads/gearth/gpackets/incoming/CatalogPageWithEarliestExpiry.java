@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
@@ -26,6 +27,10 @@ public class CatalogPageWithEarliestExpiry implements Packet, JsonSerializable {
 
     private String pageName;
     private Integer secondsToExpiry;
+    // The client's ExpiringCatalogPageWidget stores it in a field and nothing reads it;
+    // the teaser image is built from pageName instead (reception/catalog_teaser_<pageName>.png).
+    @Unused("The client stores it but never reads it")
+    @Deprecated
     private String image;
 
     public static CatalogPageWithEarliestExpiry fromPacket(HPacket packet) {
