@@ -6,6 +6,9 @@ import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +19,25 @@ class PacketReplaceTest {
         // Original body belongs to some other packet shape; replaceIn should overwrite it.
         HPacket original = new HPacket(headerId, new byte[]{0, 0, 0, 5});
         return new HMessage(original, direction, 0);
+    }
+
+    @Test
+    void typeReplaceInWritesEditedValuesAndKeepsTheHeaderId() {
+        HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOSERVER);
+        Map<String, Object> values = Chat.TYPE.read(new Chat("original", ChatBarStyle.fromValue(0), 9).toPacket());
+        values.put("text", "edited");
+
+        Chat.TYPE.replaceIn(message, values);
+
+        assertEquals(1234, message.getPacket().headerId());
+        assertEquals(new Chat("edited", ChatBarStyle.fromValue(0), 9), Chat.TYPE.parse(message.getPacket()));
+    }
+
+    @Test
+    void typeReplaceInRejectsDirectionMismatch() {
+        HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOCLIENT);
+
+        assertThrows(IllegalArgumentException.class, () -> Chat.TYPE.replaceIn(message, new HashMap<>()));
     }
 
     @Test

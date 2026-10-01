@@ -6,9 +6,11 @@ import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Describes a packet type: its header name, direction and wire format.
@@ -76,6 +78,30 @@ public final class PacketType<T extends Packet> {
         HPacket packet = new HPacket(header, direction);
         schema.write(values, packet);
         return packet;
+    }
+
+    /**
+     * Replaces the intercepted message's body with a packet built from named values, for example
+     * values from {@link #read} that a user edited. The message keeps its original header id, so
+     * G-Earth still recognises the packet.
+     *
+     * @throws IllegalArgumentException if the message's destination does not match this type's direction.
+     */
+    public void replaceIn(HMessage message, Map<String, Object> values) {
+        replaceBody(message, () -> write(values));
+    }
+
+    void replaceBody(HMessage message, Supplier<HPacket> replacement) {
+        if (message.getDestination() != direction) {
+            throw new IllegalArgumentException(
+                    "Cannot replace a " + message.getDestination() + " message with a " + direction + " packet (" + header + ")");
+        }
+
+        byte[] built = replacement.get().toBytes();
+        // Body = everything after the 4-byte length and 2-byte header.
+        byte[] body = Arrays.copyOfRange(built, 6, built.length);
+        int headerId = message.getPacket().headerId();
+        message.getPacket().setBytes(new HPacket(headerId, body).toBytes());
     }
 
     /** Builds a packet of this type from a typed packet object. */

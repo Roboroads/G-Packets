@@ -204,16 +204,18 @@ There are five kinds of parameter:
 - `BranchParameter`: parameters that depend on an earlier value, `on()`. `cases()` maps each wire value to the parameters that follow and the subclass the packet then is.
 - `OptionalParameter`: parameters at the end of a packet that the server may leave out.
 
-`TYPE.read` turns a raw packet into named values, and `TYPE.write` turns values back into a packet:
+`TYPE.read` turns a raw packet into named values. `TYPE.replaceIn` puts edited values back into the intercepted message, keeping its header id:
 
 ```java
 intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
     Map<String, Object> values = Users.TYPE.read(message.getPacket());
     // {users=[{id=1, name=Alice, ..., type=1, sex=F, ...}]}
+    // ...edit values...
+    Users.TYPE.replaceIn(message, values);
 });
-
-HPacket packet = Users.TYPE.write(values);
 ```
+
+To build a new packet from values instead, use `TYPE.write(values)` and send it with `sendToServer` or `sendToClient`. Don't copy its bytes into an intercepted message: a packet built from a header name has header id 0 until G-Earth sends it.
 
 Values are plain Java: boxed primitives, `List`s and `Map`s. An enum holds its wire value, so a value the library doesn't know survives a round trip. The values of a branch or optional sit in the same map as the values around them. When writing, a missing or null value writes `0`, `""` or `false`.
 
