@@ -12,6 +12,7 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import testfixtures.NoTypePacket;
+import testfixtures.openenum.OpenEnumFixtures.Shade;
 import testfixtures.unused.UnusedFixtures;
 
 import java.io.IOException;
@@ -124,6 +125,16 @@ class PacketReferenceTest {
     }
 
     @Test
+    void saysWhenAnEnumKeepsOtherIds() {
+        Schema<Plain> schema = Schema.of(Plain.class).enumInt("shade", Shade.class);
+
+        String body = PacketReference.body(schema);
+
+        assertTrue(body.contains("| `shade` | int → `Shade` |  |\n"), body);
+        assertTrue(body.endsWith("\n`shade` (`Shade`): `LIGHT` = `1`, `DARK` = `2`, `FADED` = `3` (unused). Other ids pass through.\n"), body);
+    }
+
+    @Test
     @SuppressWarnings("deprecation")
     void anUnusedPacketGetsAWarningAndAnIndexMark() {
         PacketType<UnusedFixtures.IgnoredPacket> ignored =
@@ -204,6 +215,8 @@ class PacketReferenceTest {
         assertEquals(1, occurrences(catalogPage, ": `FurniProduct`\n"));
         assertTrue(catalogPage.contains("| `unknownBoolean12` | boolean | Unused by the client: The client stores it but never reads it |"),
                 catalogPage);
+        String chat = read(directory.resolve("outgoing/Chat.md"));
+        assertTrue(chat.contains("`NFT_MONEY` = `1027`, `RECYCLED` = `10000`. Other ids pass through.\n"), chat);
         String index = read(directory.resolve("index.md"));
         assertTrue(index.contains("| [RoomSettingsError](incoming/RoomSettingsError.md) (unused) |"), index);
     }
