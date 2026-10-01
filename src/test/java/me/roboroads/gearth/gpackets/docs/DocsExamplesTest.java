@@ -26,8 +26,10 @@ import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,16 +47,18 @@ class DocsExamplesTest {
 
         // parameters.md: "Finding the type of any packet"
         void logEveryKnownPacket() {
-            intercept(HMessage.Direction.TOCLIENT, message -> {
-                PacketInfo info = getPacketInfoManager()
-                        .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
-                if (info == null) {
-                    return;
-                }
-                PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
-                    System.out.println(info.getName() + " " + type.read(message.getPacket()));
+            for (HMessage.Direction direction : HMessage.Direction.values()) {
+                intercept(direction, message -> {
+                    PacketInfo info = getPacketInfoManager()
+                            .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
+                    if (info == null) {
+                        return;
+                    }
+                    PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
+                        System.out.println(info.getName() + " " + type.read(message.getPacket()));
+                    });
                 });
-            });
+            }
         }
 
         // parameters.md: "Changing values and putting them back"
@@ -141,9 +145,17 @@ class DocsExamplesTest {
     }
 
     @Test
+    void logEveryKnownPacketListensBothWays() {
+        Examples extension = new Examples();
+
+        extension.logEveryKnownPacket();
+
+        assertEquals(new HashSet<>(Arrays.asList(HMessage.Direction.values())), new HashSet<>(extension.everyPacketDirections));
+    }
+
+    @Test
     void theOtherParameterExamplesRun() {
         Examples extension = new Examples();
-        extension.logEveryKnownPacket();
         extension.sayHello();
     }
 

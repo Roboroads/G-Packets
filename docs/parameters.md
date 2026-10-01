@@ -21,18 +21,22 @@ import me.roboroads.gearth.gpackets.support.PacketTypes;
 
 @Override
 protected void initExtension() {
-    intercept(HMessage.Direction.TOCLIENT, message -> {
-        PacketInfo info = getPacketInfoManager()
-                .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
-        if (info == null) {
-            return;
-        }
-        PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
-            System.out.println(info.getName() + " " + type.read(message.getPacket()));
+    for (HMessage.Direction direction : HMessage.Direction.values()) {
+        intercept(direction, message -> {
+            PacketInfo info = getPacketInfoManager()
+                    .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
+            if (info == null) {
+                return;
+            }
+            PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
+                System.out.println(info.getName() + " " + type.read(message.getPacket()));
+            });
         });
-    });
+    }
 }
 ```
+
+The loop registers the listener for both directions, so you see what the server sends and what your client sends.
 
 `getPacketInfoManager()` comes from G-Earth and only knows the header names while you are connected, so look packets up inside the listener, not in `initExtension` itself.
 
