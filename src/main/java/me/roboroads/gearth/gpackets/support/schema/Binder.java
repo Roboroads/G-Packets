@@ -21,7 +21,7 @@ final class Binder {
 
     static <T> T bind(Schema<T> schema, Map<String, Object> values) {
         Class<?> target = targetClass(schema, values, schema.type());
-        Method builderMethod = find(target, "builder", 0);
+        Method builderMethod = builderMethod(target);
         if (builderMethod == null) {
             if (!values.isEmpty()) {
                 throw new IllegalStateException(target.getName() + " has no builder() to set " + values.keySet());
@@ -170,6 +170,26 @@ final class Binder {
             return unbindAt(((StructParameter) parameter).schema(), field, path);
         }
         throw new IllegalStateException("Unknown parameter kind " + parameter.getClass().getName());
+    }
+
+    /**
+     * The class's static {@code builder()}, or null. A subclass also inherits its parent's
+     * {@code builder()}; {@link Class#getMethod} picks the one with the most specific return type.
+     */
+    private static Method builderMethod(Class<?> type) {
+        String key = type.getName() + "#builder";
+        Method cached = METHODS.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        try {
+            Method method = type.getMethod("builder");
+            method.setAccessible(true);
+            METHODS.put(key, method);
+            return method;
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     /** The public, non-bridge method with this name and parameter count, or null. */

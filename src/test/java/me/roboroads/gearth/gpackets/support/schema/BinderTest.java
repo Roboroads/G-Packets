@@ -10,7 +10,11 @@ import me.roboroads.gearth.gpackets.incoming.sub.wired.WallItemMove;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.WiredMovement;
 import me.roboroads.gearth.gpackets.model.enums.CatalogType;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
+import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.model.enums.WiredMovementType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
@@ -148,6 +152,34 @@ class BinderTest {
                 () -> wrong.parse(packet().appendShort((short) 5)));
 
         assertTrue(e.getMessage().startsWith("GetCatalogPage.pageId: "), e.getMessage());
+    }
+
+    @Data
+    @SuperBuilder
+    static class Animal {
+        private UserType kind;
+        private String name;
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    @SuperBuilder
+    static class Dog extends Animal {
+        private Integer bark;
+    }
+
+    @Test
+    void aBaseWithItsOwnBuilderStillBuildsTheCaseSubclass() {
+        // Dog shows both Dog.builder() and the inherited Animal.builder(); binding must pick Dog's.
+        Schema<Animal> schema = Schema.of(Animal.class)
+                .enumInt("kind", UserType.class)
+                .string("name")
+                .branch("kind", cases -> cases.on(UserType.PET, Dog.class, s -> s.integer("bark")));
+
+        Animal parsed = schema.parse(packet().appendInt(2).appendString("Rex").appendInt(5));
+
+        assertInstanceOf(Dog.class, parsed);
+        assertEquals(5, ((Dog) parsed).bark());
     }
 
     @Test
