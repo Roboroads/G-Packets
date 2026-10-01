@@ -224,6 +224,26 @@ private Boolean unknownBoolean12;
 
 Only mark what you've checked in the client's code: the value is stored and nothing reads it, or the handler does nothing with the packet. Marking isn't a breaking change, so the pull request title needs no `!`. In your tests, put `@SuppressWarnings("deprecation")` on a test that sets or reads a marked parameter.
 
+## Limits
+
+When the client keeps a value within a limit, declare it in the schema, so extensions can't send something the client never would and tools can show it. Pass limits after the parameter's name, with a static import of `Limits`:
+
+```java
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.*;
+
+Schema.of(SaveRoomSettings.class)
+        .string("name", maxLength(60))
+        .list("tags", WireType.STRING, maxSize(2), each(maxLength(30)))
+        .integer("idleSleepTimeoutSeconds", range(30, 3600).orZero(), requiresVip())
+        .rule("idleAutokickTimeoutSeconds is at least idleSleepTimeoutSeconds + 30 when both are enabled",
+                values -> !(Boolean) values.get("idleSleepEnabled") || !(Boolean) values.get("idleAutokickEnabled")
+                        || (Integer) values.get("idleAutokickTimeoutSeconds") >= (Integer) values.get("idleSleepTimeoutSeconds") + 30)
+```
+
+The factories are `maxLength(n)` and `notEmpty()` for strings, `range(min, max)` (with `.orZero()` when the client sends 0 for "off") for numbers, `maxSize(n)` and `each(limit)` for lists, `not(values...)` for values the client never sends, and `requiresVip()` for settings only VIP users can change. A limit on a parameter it doesn't fit fails when the class loads. A `rule` gets the values as they would be written and returns true when they're fine.
+
+Only declare a limit the client never goes past: a fixed choice in its UI or a check before it sends. If the client sometimes goes past it, like the chat input's 100 characters, put it in a comment instead. Add a comment on the field with the client evidence, and test one breaking value.
+
 ## Registering the packet
 
 Add the new `TYPE` to the list in `PacketTypes`:

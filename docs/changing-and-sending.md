@@ -56,6 +56,31 @@ CatalogPublished published = CatalogPublished.builder()
 sendToClient(published.toPacket());
 ```
 
+## Limits
+
+The Habbo client keeps some values within limits before it sends them: a room name is at most 60 characters, a room has at most two tags, an idle timeout is 30 to 3600 seconds. G-Packets knows these limits and checks them when you build an outgoing packet. If a value breaks one, `toPacket()` throws a `LimitException` that lists every broken limit:
+
+```java
+try {
+    sendToServer(settings.toPacket());
+} catch (LimitException e) {
+    for (Violation violation : e.violations()) {
+        System.out.println(violation.path() + ": " + violation.message());
+        // name: at most 60 characters, got 61
+    }
+}
+```
+
+When you mean to send something the client wouldn't, for example to see how the server reacts, skip the check with `toPacketUnchecked()`:
+
+```java
+sendToServer(settings.toPacketUnchecked());
+```
+
+The same goes for values: `TYPE.write(values)` and `TYPE.replaceIn(message, values)` check, and `TYPE.writeUnchecked(values)` and `TYPE.replaceInUnchecked(message, values)` don't. To check without sending or throwing, for example while someone fills in a form, call `TYPE.violations(packet)` or `TYPE.violations(values)`; it returns an empty list when everything fits.
+
+Only packets you send to the server are checked. Packets from the server are never checked, so a value the server sends always parses and writes. The [packet reference](packets/index.md) lists each packet's limits.
+
 ## Fields you leave empty
 
 You don't have to set every field. A few rules decide what gets sent:
