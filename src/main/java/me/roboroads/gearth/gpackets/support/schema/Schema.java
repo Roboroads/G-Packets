@@ -137,6 +137,16 @@ public final class Schema<T> {
         writeFrom(Objects.requireNonNull(values, "values"), packet, type.getSimpleName());
     }
 
+    /** Reads a typed object from the packet's current read index. */
+    public T parse(HPacket packet) {
+        return Binder.bind(this, read(packet));
+    }
+
+    /** Appends a typed object to the packet. */
+    public void append(T value, HPacket packet) {
+        write(Binder.unbind(this, Objects.requireNonNull(value, "value")), packet);
+    }
+
     void readInto(HPacket packet, Map<String, Object> values, String path) {
         for (Parameter parameter : parameters) {
             parameter.read(packet, values, path);
