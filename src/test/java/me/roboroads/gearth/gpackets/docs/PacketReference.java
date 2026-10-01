@@ -53,8 +53,15 @@ public final class PacketReference {
         Files.createDirectories(directory);
         Files.write(directory.resolve("index.md"), index(types).getBytes(StandardCharsets.UTF_8));
         for (PacketType<?> type : types) {
-            Files.write(directory.resolve(type.header() + ".md"), page(type).getBytes(StandardCharsets.UTF_8));
+            Path file = directory.resolve(path(type));
+            Files.createDirectories(file.getParent());
+            Files.write(file, page(type).getBytes(StandardCharsets.UTF_8));
         }
+    }
+
+    /** The page's path in the reference, per direction, because a header such as {@code Chat} exists both ways. */
+    static String path(PacketType<?> type) {
+        return (type.direction() == HMessage.Direction.TOCLIENT ? "incoming/" : "outgoing/") + type.header() + ".md";
     }
 
     static String index(List<PacketType<?>> types) {
@@ -76,7 +83,7 @@ public final class PacketReference {
         matching.sort(Comparator.comparing((PacketType<?> type) -> type.header()));
         out.append("\n## ").append(title).append("\n\n| Header | Class |\n|---|---|\n");
         for (PacketType<?> type : matching) {
-            out.append("| [").append(type.header()).append("](").append(type.header()).append(".md) | `")
+            out.append("| [").append(type.header()).append("](").append(path(type)).append(") | `")
                     .append(type.schema().type().getName()).append("` |\n");
         }
     }

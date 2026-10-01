@@ -48,7 +48,7 @@ exclude_docs: |
   /requirements.txt
 
 not_in_nav: |
-  /packets/*.md
+  /packets/*/*.md
 
 nav:
   - Getting started:

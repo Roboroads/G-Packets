@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets.docs;
 
+import gearth.protocol.HMessage;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
@@ -10,6 +11,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import testfixtures.NoTypePacket;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -134,9 +136,9 @@ class PacketReferenceTest {
                         + "Every packet G-Packets implements, generated from the packet schemas. "
                         + "Each page lists the packet's parameters in the order they appear on the wire.\n"
                         + "\n## Incoming (to client)\n\n| Header | Class |\n|---|---|\n"
-                        + "| [Users](Users.md) | `me.roboroads.gearth.gpackets.incoming.Users` |\n"
+                        + "| [Users](incoming/Users.md) | `me.roboroads.gearth.gpackets.incoming.Users` |\n"
                         + "\n## Outgoing (to server)\n\n| Header | Class |\n|---|---|\n"
-                        + "| [Chat](Chat.md) | `me.roboroads.gearth.gpackets.outgoing.Chat` |\n",
+                        + "| [Chat](outgoing/Chat.md) | `me.roboroads.gearth.gpackets.outgoing.Chat` |\n",
                 PacketReference.index(Arrays.<PacketType<?>>asList(Users.TYPE, Chat.TYPE)));
     }
 
@@ -146,14 +148,27 @@ class PacketReferenceTest {
 
         assertTrue(Files.exists(directory.resolve("index.md")));
         for (PacketType<?> type : PacketTypes.all()) {
-            assertTrue(Files.exists(directory.resolve(type.header() + ".md")), type.header() + ".md is missing");
+            assertTrue(Files.exists(directory.resolve(PacketReference.path(type))), PacketReference.path(type) + " is missing");
         }
-        String catalogIndex = read(directory.resolve("CatalogIndex.md"));
+        String catalogIndex = read(directory.resolve("incoming/CatalogIndex.md"));
         assertEquals(1, occurrences(catalogIndex, "\n## CatalogNode\n"));
         assertTrue(catalogIndex.contains("| `children` | list of [CatalogNode](#catalognode) |  |"));
-        String catalogPage = read(directory.resolve("CatalogPage.md"));
+        String catalogPage = read(directory.resolve("incoming/CatalogPage.md"));
         assertTrue(catalogPage.contains("When `productType` is one of `\"i\"` (`ITEM`), `\"s\"` (`STUFF`)"), catalogPage);
         assertEquals(1, occurrences(catalogPage, ": `FurniProduct`\n"));
+    }
+
+    @Test
+    void aHeaderUsedInBothDirectionsGetsTwoPages(@TempDir Path directory) throws IOException {
+        PacketType<NoTypePacket> incomingChat = PacketType.of("Chat", HMessage.Direction.TOCLIENT, Schema.of(NoTypePacket.class));
+
+        PacketReference.write(Arrays.<PacketType<?>>asList(Chat.TYPE, incomingChat), directory);
+
+        assertTrue(read(directory.resolve("outgoing/Chat.md")).contains("- Direction: outgoing (to server)"));
+        assertTrue(read(directory.resolve("incoming/Chat.md")).contains("- Direction: incoming (to client)"));
+        String index = read(directory.resolve("index.md"));
+        assertTrue(index.contains("| [Chat](incoming/Chat.md) |"), index);
+        assertTrue(index.contains("| [Chat](outgoing/Chat.md) |"), index);
     }
 
     private static String read(Path file) throws IOException {
