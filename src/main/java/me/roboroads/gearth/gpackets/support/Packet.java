@@ -4,6 +4,12 @@ import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 
 public interface Packet {
+    /**
+     * Builds this packet.
+     *
+     * @throws me.roboroads.gearth.gpackets.support.schema.limit.LimitException for an outgoing packet
+     *         that breaks the client's limits; see {@link #toPacketUnchecked()}.
+     */
     HPacket toPacket();
 
     /**
@@ -17,12 +23,17 @@ public interface Packet {
      * @throws IllegalStateException    if this packet class has no {@code public static final PacketType TYPE}.
      */
     default void replaceIn(HMessage message) {
-        PacketType<?> type;
-        try {
-            type = (PacketType<?>) getClass().getField("TYPE").get(null);
-        } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-            throw new IllegalStateException(getClass().getName() + " must have a public static final PacketType TYPE to use replaceIn", e);
-        }
-        type.replaceBody(message, this::toPacket);
+        PacketType.typeOf(this, "replaceIn").replaceBody(message, this::toPacket);
+    }
+
+    /**
+     * Builds this packet like {@link #toPacket()}, without checking the limits the client keeps
+     * it within, for when you mean to send something the client wouldn't.
+     *
+     * @throws IllegalStateException if this packet class has no {@code public static final PacketType TYPE}.
+     */
+    @SuppressWarnings("unchecked")
+    default HPacket toPacketUnchecked() {
+        return ((PacketType<Packet>) PacketType.typeOf(this, "toPacketUnchecked")).toPacketUnchecked(this);
     }
 }
