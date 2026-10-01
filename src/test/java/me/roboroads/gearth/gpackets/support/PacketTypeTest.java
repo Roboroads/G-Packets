@@ -5,6 +5,7 @@ import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +34,7 @@ class PacketTypeTest {
 
     @Test
     void readReturnsNamedValuesAndRestoresTheReadIndex() {
-        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT.value(), 7).toPacket();
         packet.setReadIndex(11);
 
         Map<String, Object> values = Chat.TYPE.read(packet);
@@ -46,37 +47,37 @@ class PacketTypeTest {
 
     @Test
     void readThenParseOnTheSamePacketBothSeeTheWholeBody() {
-        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT.value(), 7).toPacket();
 
         Chat.TYPE.read(packet);
 
-        assertEquals(new Chat("hi", ChatBarStyle.ROBOT, 7), Chat.TYPE.parse(packet));
+        assertEquals(new Chat("hi", ChatBarStyle.ROBOT.value(), 7), Chat.TYPE.parse(packet));
     }
 
     @Test
     void writeBuildsAPacketFromValues() {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("text", "built");
-        values.put("style", ChatBarStyle.ROBOT);
+        values.put("style", ChatBarStyle.ROBOT.value());
 
         HPacket packet = Chat.TYPE.write(values);
 
-        assertEquals(new Chat("built", ChatBarStyle.ROBOT, 0), Chat.TYPE.parse(packet));
+        assertEquals(new Chat("built", ChatBarStyle.ROBOT.value(), 0), Chat.TYPE.parse(packet));
     }
 
     @Test
     void readThenWriteReproducesTheBytesIncludingUnknownEnumValues() {
-        HPacket original = new HPacket("Chat", HMessage.Direction.TOSERVER);
-        original.appendString("hi").appendInt(999).appendInt(7);
+        HPacket original = new HPacket("GetCatalogPage", HMessage.Direction.TOSERVER);
+        original.appendInt(5).appendInt(-1).appendString("NOT_A_CATALOG_TYPE");
 
-        HPacket copy = Chat.TYPE.write(Chat.TYPE.read(original));
+        HPacket copy = GetCatalogPage.TYPE.write(GetCatalogPage.TYPE.read(original));
 
         assertEquals(Arrays.toString(original.toBytes()), Arrays.toString(copy.toBytes()));
     }
 
     @Test
     void parseRoundTripsThroughToPacket() {
-        Chat chat = new Chat("hello world", ChatBarStyle.fromValue(0), 7);
+        Chat chat = new Chat("hello world", ChatBarStyle.DEFAULT.value(), 7);
 
         Chat parsed = Chat.TYPE.parse(chat.toPacket());
 
@@ -85,7 +86,7 @@ class PacketTypeTest {
 
     @Test
     void parseRestoresReadIndex() {
-        HPacket packet = new Chat("hi", ChatBarStyle.fromValue(0), -1).toPacket();
+        HPacket packet = new Chat("hi", ChatBarStyle.DEFAULT.value(), -1).toPacket();
         packet.setReadIndex(11);
 
         Chat.TYPE.parse(packet);
@@ -105,7 +106,7 @@ class PacketTypeTest {
         assertEquals("Chat", registration.header);
         assertEquals(HMessage.Direction.TOSERVER, registration.direction);
 
-        ext.fire(new Chat("routed", ChatBarStyle.fromValue(0), 3).toPacket(), HMessage.Direction.TOSERVER);
+        ext.fire(new Chat("routed", ChatBarStyle.DEFAULT.value(), 3).toPacket(), HMessage.Direction.TOSERVER);
         assertNotNull(seen.get());
         assertEquals("routed", seen.get().text());
     }

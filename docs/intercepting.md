@@ -110,7 +110,7 @@ public class AutoReply {
     @Intercept
     void onChat(Chat chat) {
         if (chat.text().equals("ping")) {
-            extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT, -1).toPacket());
+            extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT.value(), -1).toPacket());
         }
     }
 }

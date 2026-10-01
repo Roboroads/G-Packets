@@ -20,7 +20,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -35,11 +34,16 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 public class Chat implements Packet, JsonSerializable {
     public static final PacketType<Chat> TYPE = PacketType.of("Chat", HMessage.Direction.TOSERVER, Schema.of(Chat.class)
             .string("text")
-            .enumInt("style", ChatBarStyle.class)
+            .integer("style")
             .integer("trackingId"));
 
     private String text;
-    private ChatBarStyle style;
+    // The chat bubble style id. Static styles (below 1000) are the ChatBarStyle values. The client
+    // also sends NFT styles (1000-9999) and purchasable styles (10000-99999), only if the user owns
+    // them: see isNftChatStyle and isPurchasableStyle in
+    // com/sulake/habbo/ui/widget/chatinput/RoomChatInputView.as, and the style list in
+    // binaryData/455_chatstyles_xml. New styles ship as data, so this stays a plain int.
+    private Integer style;
     @Builder.Default
     private int trackingId = -1;
 
@@ -208,7 +212,7 @@ public enum Direction implements IntEnum {
     private final int value;
 ```
 
-If you can't name every value the client knows, keep the field a plain `Integer`, use `integer(...)`, and list the values you do know in a comment. An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again.
+If you can't name every value the client knows, keep the field a plain `Integer`, use `integer(...)`, and list the values you do know in a comment. An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again. `Chat.style` above is one: `ChatBarStyle` names the static styles, but the client also sends NFT and purchasable style ids that ship as data.
 
 ## Parameters the client ignores
 
@@ -246,7 +250,7 @@ Start with a test that pins the exact bytes, so you know the schema matches the 
 class ChatWireFormatTest {
 
     private static Chat sample() {
-        return new Chat("hello", ChatBarStyle.ROBOT, 5);
+        return new Chat("hello", ChatBarStyle.ROBOT.value(), 5);
     }
 
     private static HPacket expectedPacket() {

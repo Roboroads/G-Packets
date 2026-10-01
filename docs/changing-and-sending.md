@@ -30,11 +30,13 @@ Build a packet with its constructor or its builder:
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 
-Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
+Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT.value(), -1);
 
 // or
-Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
+Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT.value()).trackingId(-1).build();
 ```
+
+A chat's `style` is the id of its speech bubble. `ChatBarStyle` names the standard bubbles, but NFT and purchasable bubbles have ids of their own (1000 and up), so the field takes any int.
 
 ## Sending a packet
 

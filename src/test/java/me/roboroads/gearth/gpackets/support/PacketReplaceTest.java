@@ -24,13 +24,13 @@ class PacketReplaceTest {
     @Test
     void typeReplaceInWritesEditedValuesAndKeepsTheHeaderId() {
         HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOSERVER);
-        Map<String, Object> values = Chat.TYPE.read(new Chat("original", ChatBarStyle.fromValue(0), 9).toPacket());
+        Map<String, Object> values = Chat.TYPE.read(new Chat("original", ChatBarStyle.DEFAULT.value(), 9).toPacket());
         values.put("text", "edited");
 
         Chat.TYPE.replaceIn(message, values);
 
         assertEquals(1234, message.getPacket().headerId());
-        assertEquals(new Chat("edited", ChatBarStyle.fromValue(0), 9), Chat.TYPE.parse(message.getPacket()));
+        assertEquals(new Chat("edited", ChatBarStyle.DEFAULT.value(), 9), Chat.TYPE.parse(message.getPacket()));
     }
 
     @Test
@@ -44,7 +44,7 @@ class PacketReplaceTest {
     void replaceInKeepsTheOriginalHeaderId() {
         HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOSERVER);
 
-        new Chat("edited", ChatBarStyle.fromValue(0), 9).replaceIn(message);
+        new Chat("edited", ChatBarStyle.DEFAULT.value(), 9).replaceIn(message);
 
         assertEquals(1234, message.getPacket().headerId());
     }
@@ -52,7 +52,7 @@ class PacketReplaceTest {
     @Test
     void replaceInSwapsTheBody() {
         HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOSERVER);
-        Chat replacement = new Chat("edited", ChatBarStyle.fromValue(0), 9);
+        Chat replacement = new Chat("edited", ChatBarStyle.DEFAULT.value(), 9);
 
         replacement.replaceIn(message);
 
@@ -63,7 +63,7 @@ class PacketReplaceTest {
     void replaceInMarksThePacketEdited() {
         HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOSERVER);
 
-        new Chat("edited", ChatBarStyle.fromValue(0), 9).replaceIn(message);
+        new Chat("edited", ChatBarStyle.DEFAULT.value(), 9).replaceIn(message);
 
         assertTrue(message.getPacket().isReplaced());
     }
@@ -73,6 +73,6 @@ class PacketReplaceTest {
         HMessage message = messageWithHeaderId(1234, HMessage.Direction.TOCLIENT);
 
         assertThrows(IllegalArgumentException.class,
-                () -> new Chat("edited", ChatBarStyle.fromValue(0), 9).replaceIn(message));
+                () -> new Chat("edited", ChatBarStyle.DEFAULT.value(), 9).replaceIn(message));
     }
 }

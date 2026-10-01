@@ -51,7 +51,7 @@ intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
 ```java
 Map<String, Object> values = new HashMap<>();
 values.put("text", "Hello from values");
-values.put("style", ChatBarStyle.DEFAULT);
+values.put("style", ChatBarStyle.DEFAULT.value());
 
 sendToServer(Chat.TYPE.write(values));
 ```
@@ -60,7 +60,7 @@ Writing is forgiving where it can be:
 
 - A missing or null value is written as `0`, `""` or `false`. The example leaves out `trackingId`, so `0` is sent.
 - Numbers are narrowed to the wire type, so an `Integer` works for a `short`.
-- An enum parameter accepts the constant (`ChatBarStyle.DEFAULT`) or its wire value (`0`).
+- An enum parameter, such as a user's `dir`, accepts the constant (`Direction.EAST`) or its wire value (`2`).
 - Keys the schema doesn't use are ignored. You may switch a user's `type` from player to bot and leave the player's keys in the map: only the bot's parameters are written.
 
 A branch can't guess, though. If a user's `type` is missing or null, writing throws.

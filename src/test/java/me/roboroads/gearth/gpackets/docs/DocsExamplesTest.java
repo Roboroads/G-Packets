@@ -78,7 +78,7 @@ class DocsExamplesTest {
         void sayHello() {
             Map<String, Object> values = new HashMap<>();
             values.put("text", "Hello from values");
-            values.put("style", ChatBarStyle.DEFAULT);
+            values.put("style", ChatBarStyle.DEFAULT.value());
             sendToServer(Chat.TYPE.write(values));
         }
 
@@ -198,7 +198,7 @@ class DocsExamplesTest {
         @Intercept
         void onChat(Chat chat) {
             if (chat.text().equals("ping")) {
-                extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT, -1).toPacket());
+                extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT.value(), -1).toPacket());
             }
         }
     }
@@ -273,8 +273,8 @@ class DocsExamplesTest {
 
         // changing-and-sending.md: "Sending a packet"
         void send() {
-            Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
-            Chat same = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
+            Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT.value(), -1);
+            Chat same = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT.value()).trackingId(-1).build();
             sendToServer(chat.toPacket());
 
             CatalogPublished published = CatalogPublished.builder()
@@ -291,7 +291,7 @@ class DocsExamplesTest {
         GPackets.init(extension);
 
         extension.fire(oneUser().toPacket(), HMessage.Direction.TOCLIENT);
-        HMessage chat = extension.fire(new Chat("no spoiler please", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage chat = extension.fire(new Chat("no spoiler please", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
 
         assertEquals(1, extension.users);
         assertTrue(extension.blocked);
@@ -304,7 +304,7 @@ class DocsExamplesTest {
         InterceptingExamples extension = new InterceptingExamples();
         GPackets.init(extension);
 
-        extension.fire(new Chat("ping", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        extension.fire(new Chat("ping", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
 
         assertEquals(1, extension.sentToServer.size());
         assertEquals("pong", Chat.TYPE.parse(extension.sentToServer.get(0)).text());
@@ -317,9 +317,9 @@ class DocsExamplesTest {
         InterceptingExamples raw = new InterceptingExamples();
         raw.blockSpoilersRaw();
 
-        HMessage blockedByType = withType.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
-        HMessage blockedRaw = raw.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
-        HMessage passed = raw.fire(new Chat("hello", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage blockedByType = withType.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage blockedRaw = raw.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage passed = raw.fire(new Chat("hello", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
 
         assertTrue(blockedByType.isBlocked());
         assertTrue(blockedRaw.isBlocked());
@@ -331,7 +331,7 @@ class DocsExamplesTest {
         InterceptingExamples extension = new InterceptingExamples();
         extension.shout();
 
-        HMessage message = extension.fire(new Chat("hi", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage message = extension.fire(new Chat("hi", ChatBarStyle.DEFAULT.value(), -1).toPacket(), HMessage.Direction.TOSERVER);
 
         assertEquals("HI", Chat.TYPE.parse(message.getPacket()).text());
     }
@@ -346,7 +346,7 @@ class DocsExamplesTest {
     // json.md
     @Test
     void chatSerializesToTheJsonShownOnThePage() {
-        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT).trackingId(3).build();
+        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT.value()).trackingId(3).build();
 
         assertEquals("{\"text\":\"hi\",\"style\":2,\"trackingId\":3}", chat.toJson());
         assertEquals(chat, Chat.fromJson(chat.toJson()));

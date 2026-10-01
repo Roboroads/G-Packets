@@ -24,7 +24,7 @@ public class JsonRoundTripTest {
 
     @Test
     public void toJsonWritesFields() {
-        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT).trackingId(3).build();
+        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT.value()).trackingId(3).build();
 
         assertEquals("{\"text\":\"hi\",\"style\":2,\"trackingId\":3}", chat.toJson());
     }
@@ -39,7 +39,7 @@ public class JsonRoundTripTest {
 
     @Test
     public void chatRoundTrip() {
-        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.GENERIC).build();
+        Chat chat = Chat.builder().text("hi").style(ChatBarStyle.GENERIC.value()).build();
 
         assertEquals(chat, Chat.fromJson(chat.toJson()));
     }

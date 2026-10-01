@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
+/**
+ * The static chat bubble styles: the ids below 1000 in the client's style list,
+ * binaryData/455_chatstyles_xml. {@code Chat.style} is a plain int, because the client also sends
+ * NFT and purchasable style ids that aren't listed here.
+ */
 @RequiredArgsConstructor
 public enum ChatBarStyle implements IntEnum {
     DEFAULT(0),
@@ -25,7 +30,6 @@ public enum ChatBarStyle implements IntEnum {
     NORMAL_DARK_TURQUOISE(15),
     HEARTS(16),
     GOTHICROSE(17),
-    STICKINGPLASTER(17),
     PIGLET(19),
     SAUSAGEDOG(20),
     FIRINGMYLAZER(21),
@@ -46,6 +50,8 @@ public enum ChatBarStyle implements IntEnum {
     SANTA(36),
     AMBASSADOR(37),
     RADIO(38),
+    SNOWSTORM_RED(120),
+    SNOWSTORM_BLUE(121),
     TEAM_RED(130),
     TEAM_BLUE(131),
     TEAM_YELLOW(132),

@@ -34,7 +34,7 @@ class BinderTest {
 
     private static final Schema<Chat> CHAT = Schema.of(Chat.class)
             .string("text")
-            .enumInt("style", ChatBarStyle.class)
+            .integer("style")
             .integer("trackingId");
 
     private static final Schema<WiredMovement> MOVEMENT = Schema.of(WiredMovement.class)
@@ -58,14 +58,14 @@ class BinderTest {
     void parseBuildsThroughTheBuilder() {
         HPacket p = packet().appendString("hi").appendInt(2).appendInt(7);
 
-        assertEquals(new Chat("hi", ChatBarStyle.ROBOT, 7), CHAT.parse(p));
+        assertEquals(new Chat("hi", ChatBarStyle.ROBOT.value(), 7), CHAT.parse(p));
     }
 
     @Test
     void appendReadsThroughTheGetters() {
         HPacket out = packet();
 
-        CHAT.append(new Chat("hi", ChatBarStyle.ROBOT, 7), out);
+        CHAT.append(new Chat("hi", ChatBarStyle.ROBOT.value(), 7), out);
 
         assertEquals(bytes(packet().appendString("hi").appendInt(2).appendInt(7)), bytes(out));
     }
@@ -79,7 +79,9 @@ class BinderTest {
 
     @Test
     void unknownEnumValuesBecomeNull() {
-        assertNull(CHAT.parse(packet().appendString("hi").appendInt(999).appendInt(7)).style());
+        Schema<UserDirectionUpdate> schema = Schema.of(UserDirectionUpdate.class).enumInt("bodyDirection", Direction.class);
+
+        assertNull(schema.parse(packet().appendInt(999)).bodyDirection());
     }
 
     @Test

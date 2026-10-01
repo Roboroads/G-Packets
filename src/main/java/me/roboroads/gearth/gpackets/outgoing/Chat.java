@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
-import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -22,11 +21,16 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 public class Chat implements Packet, JsonSerializable {
     public static final PacketType<Chat> TYPE = PacketType.of("Chat", HMessage.Direction.TOSERVER, Schema.of(Chat.class)
             .string("text")
-            .enumInt("style", ChatBarStyle.class)
+            .integer("style")
             .integer("trackingId"));
 
     private String text;
-    private ChatBarStyle style;
+    // The chat bubble style id. Static styles (below 1000) are the ChatBarStyle values. The client
+    // also sends NFT styles (1000-9999) and purchasable styles (10000-99999), only if the user owns
+    // them: see isNftChatStyle and isPurchasableStyle in
+    // com/sulake/habbo/ui/widget/chatinput/RoomChatInputView.as, and the style list in
+    // binaryData/455_chatstyles_xml. New styles ship as data, so this stays a plain int.
+    private Integer style;
     @Builder.Default
     private int trackingId = -1;
 

@@ -12,13 +12,13 @@ Call `toJson` on any packet:
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 
-Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT).trackingId(3).build();
+Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT.value()).trackingId(3).build();
 
 String json = chat.toJson();
 // {"text":"hi","style":2,"trackingId":3}
 ```
 
-Enums are written as their wire value, so `ROBOT` becomes `2`.
+Enums are written as their wire value, so a user's `dir` of `Direction.EAST` becomes `2`.
 
 ## Reading a packet from JSON
 

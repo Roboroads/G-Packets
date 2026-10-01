@@ -32,7 +32,7 @@ class HandlerDiscoveryTest {
     }
 
     private static HPacket chat() {
-        return new Chat("hi", ChatBarStyle.DEFAULT, -1).toPacket();
+        return new Chat("hi", ChatBarStyle.DEFAULT.value(), -1).toPacket();
     }
 
     @Test
