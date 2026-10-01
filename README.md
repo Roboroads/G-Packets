@@ -7,10 +7,11 @@ See [Sulek](https://sulek.dev) for an overview of packets. This is a work in pro
 ## Contents
 
 - [Installation](#installation)
-- [Quick start](#quick-start)
+- [How to use](#how-to-use)
+  - [Option 1: the annotation style (recommended)](#option-1-the-annotation-style-recommended)
+  - [Option 2: the TYPE descriptor](#option-2-the-type-descriptor)
+  - [Option 3: raw interception](#option-3-raw-interception)
 - [Changing an intercepted packet](#changing-an-intercepted-packet)
-- [Without reflection: TYPE](#without-reflection-type)
-- [Raw](#raw)
 - [Creating and sending packets](#creating-and-sending-packets)
 - [JSON](#json)
 - [Contributing a packet](#contributing-a-packet)
@@ -50,7 +51,11 @@ dependencies {
 }
 ```
 
-## Quick start
+## How to use
+
+There are three ways to read intercepted packets, from a recommended annotation style down to raw interception. They all work with the same packet classes, so pick one.
+
+### Option 1: the annotation style (recommended)
 
 Call `GPackets.init(this)` once from your extension, then annotate a method with `@Intercept`. Init scans the extension for annotated methods and registers each one through G-Earth's own `intercept(...)`. If you never call init, nothing is scanned.
 
@@ -113,21 +118,7 @@ void onEither(Packet packet, HMessage message) {
 
 Init fails fast. If an annotated method is static, returns a value, has parameters it cannot accept, or names a packet class without a `TYPE`, `init` throws `IllegalStateException` naming the method and the problem, and registers nothing. Calling init twice registers the handlers twice.
 
-## Changing an intercepted packet
-
-Editing a parsed packet does not change the message on its own. To send your edit, call `replaceIn(message)`:
-
-```java
-@Intercept(Chat.class)
-void onChat(Chat chat, HMessage message) {
-    chat.text(chat.text().toUpperCase());
-    chat.replaceIn(message); // without this call, the original text goes through
-}
-```
-
-`replaceIn` keeps the message's original header, swaps in your packet's body, and marks the packet edited so G-Earth forwards the changed version. It throws `IllegalArgumentException` if the message direction does not match the packet's direction.
-
-## Without reflection: TYPE
+### Option 2: the TYPE descriptor
 
 Every packet class exposes a `PacketType` as `public static final PacketType<X> TYPE`. It holds the header, direction and parser, and it is the single source of truth for that packet.
 
@@ -152,7 +143,7 @@ intercept(Users.TYPE.direction(), Users.TYPE.header(), Users.TYPE.listen((users,
 
 `replaceIn` works here too.
 
-## Raw
+### Option 3: raw interception
 
 At the lowest level, register with the header and direction from `TYPE` and parse the packet yourself with `fromPacket`:
 
@@ -164,6 +155,20 @@ intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
 ```
 
 `fromPacket` reads from the packet's current read index, so parse before anything else reads it.
+
+## Changing an intercepted packet
+
+Editing a parsed packet does not change the message on its own. To send your edit, call `replaceIn(message)`:
+
+```java
+@Intercept(Chat.class)
+void onChat(Chat chat, HMessage message) {
+    chat.text(chat.text().toUpperCase());
+    chat.replaceIn(message); // without this call, the original text goes through
+}
+```
+
+`replaceIn` keeps the message's original header, swaps in your packet's body, and marks the packet edited so G-Earth forwards the changed version. It throws `IllegalArgumentException` if the message direction does not match the packet's direction. It works the same whichever option you use.
 
 ## Creating and sending packets
 
