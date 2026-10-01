@@ -2,6 +2,7 @@ package me.roboroads.gearth.gpackets;
 
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.support.Packet;
+import me.roboroads.gearth.gpackets.support.PacketType;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
@@ -48,15 +49,22 @@ public class PacketImplementationTest {
                 fail("Class " + clazz.getName() + " must implement static method: public static " + clazz.getSimpleName() + " fromJson(String json)");
             }
 
-            // Check HEADER field
+            // Check TYPE field
             try {
-                java.lang.reflect.Field headerField = clazz.getDeclaredField("HEADER");
-                assertTrue(Modifier.isPublic(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be public");
-                assertTrue(Modifier.isStatic(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be static");
-                assertTrue(Modifier.isFinal(headerField.getModifiers()), "HEADER field in " + clazz.getName() + " must be final");
-                assertEquals(String.class, headerField.getType(), "HEADER field in " + clazz.getName() + " must be of type String");
+                java.lang.reflect.Field typeField = clazz.getDeclaredField("TYPE");
+                assertTrue(Modifier.isPublic(typeField.getModifiers()), "TYPE field in " + clazz.getName() + " must be public");
+                assertTrue(Modifier.isStatic(typeField.getModifiers()), "TYPE field in " + clazz.getName() + " must be static");
+                assertTrue(Modifier.isFinal(typeField.getModifiers()), "TYPE field in " + clazz.getName() + " must be final");
+                assertEquals(PacketType.class, typeField.getType(), "TYPE field in " + clazz.getName() + " must be of type PacketType");
+
+                PacketType<?> type = (PacketType<?>) typeField.get(null);
+                assertNotNull(type, "TYPE field in " + clazz.getName() + " must not be null");
+                assertNotNull(type.header(), "TYPE.header() in " + clazz.getName() + " must not be null");
+                assertNotNull(type.direction(), "TYPE.direction() in " + clazz.getName() + " must not be null");
             } catch (NoSuchFieldException e) {
-                fail("Class " + clazz.getName() + " must have a public static final String HEADER field");
+                fail("Class " + clazz.getName() + " must have a public static final PacketType TYPE field");
+            } catch (IllegalAccessException e) {
+                fail("TYPE field in " + clazz.getName() + " must be accessible");
             }
         }
     }

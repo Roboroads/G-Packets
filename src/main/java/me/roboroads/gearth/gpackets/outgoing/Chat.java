@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
+import me.roboroads.gearth.gpackets.support.PacketType;
 
 @Data
 @Builder
@@ -18,7 +19,7 @@ import me.roboroads.gearth.gpackets.support.Packet;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Chat implements Packet, JsonSerializable {
-    public static final String HEADER = "Chat";
+    public static final PacketType<Chat> TYPE = new PacketType<>("Chat", HMessage.Direction.TOSERVER, Chat::fromPacket);
 
     private String text;
     private ChatBarStyle style;
@@ -39,7 +40,7 @@ public class Chat implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(HEADER, HMessage.Direction.TOSERVER);
+        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
         packet.appendString(text);
         packet.appendInt(style != null ? style.value() : 0);
         packet.appendInt(trackingId);

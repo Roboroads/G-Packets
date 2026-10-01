@@ -9,6 +9,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.user.User;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
+import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.Utils;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class Users implements Packet, JsonSerializable {
-    public static final String HEADER = "Users";
+    public static final PacketType<Users> TYPE = new PacketType<>("Users", HMessage.Direction.TOCLIENT, Users::fromPacket);
 
     List<User> users;
 
@@ -32,7 +33,7 @@ public class Users implements Packet, JsonSerializable {
     }
 
     public HPacket toPacket() {
-        HPacket packet = new HPacket(HEADER, HMessage.Direction.TOCLIENT);
+        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
 
         packet.appendInt(users.size());
         for (User user : users) {
