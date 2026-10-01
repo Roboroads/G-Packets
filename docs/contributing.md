@@ -245,7 +245,7 @@ private Boolean unknownBoolean12;
 
 `@Deprecated` makes the compiler warn wherever an extension uses it; Lombok copies it onto the getter and the builder method. `@Unused` says why, for the packet reference and for tools. Mark an enum constant or a packet class the same way. `UnusedMarkerTest` fails when one of the two is missing.
 
-Only mark what you've checked in the client's code: the value is stored and nothing reads it, or the handler does nothing with the packet. Marking isn't a breaking change, so the pull request title needs no `!`. In your tests, put `@SuppressWarnings("deprecation")` on a test that sets or reads a marked parameter.
+Only mark what you've checked in the client's code: the value is stored and nothing reads it, or the handler does nothing with the packet. The client is only half the picture, though: a value it ignores can still matter on the server. `RoomSettingsData.maximumVisitorsLimit` is a limit the server uses, even though the client only logs it. If a value looks like server state, a limit or a setting, ask in the pull request before you mark it. Marking isn't a breaking change, so the pull request title needs no `!`. In your tests, put `@SuppressWarnings("deprecation")` on a test that sets or reads a marked parameter.
 
 ## Limits
 
