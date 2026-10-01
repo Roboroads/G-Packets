@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      # All minor and patch bumps land in a single PR.
+      # Majors fall outside the group, so each gets its own PR per package.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+    ignore:
+      # G-Earth is not on a public registry (local repo / JitPack), so Dependabot
+      # cannot resolve it.
+      - dependency-name: "G-Earth:G-Earth"
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
