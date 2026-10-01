@@ -45,5 +45,11 @@ not_in_nav: |
   /packets/*.md
 
 nav:
+  - Digging deeper:
+      - Packet parameters: parameters.md
+  - The basics:
+      - JSON: json.md
+  - Contributing:
+      - Contributing a packet: contributing.md
   - Reference:
       - Packet reference: packets/index.md
