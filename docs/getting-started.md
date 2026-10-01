@@ -44,7 +44,7 @@ dependencies {
 
 ## Your first handler
 
-Here is a complete extension that prints how many users each `Users` packet holds. The server sends one when you enter a room, listing everyone there, and another whenever someone joins:
+Here is what G-Packets adds to your extension class. It prints how many users each `Users` packet holds; the server sends one when you enter a room, listing everyone there, and another whenever someone joins. Your extension's usual G-Earth setup, such as `@ExtensionInfo` and the code that launches it, stays as it is.
 
 ```java
 import gearth.extensions.ExtensionForm;
