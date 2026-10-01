@@ -120,6 +120,11 @@ public final class Schema<T> {
         return with(new BranchParameter(discriminator, false, cases));
     }
 
+    /** Parameters read only if the packet has bytes left, and written only if any of their values is set. */
+    public Schema<T> optional(UnaryOperator<Schema<T>> body) {
+        return with(new OptionalParameter(Objects.requireNonNull(body, "body").apply(Schema.of(type))));
+    }
+
     /** Reads values from the packet's current read index, keyed by parameter name in wire order. */
     public Map<String, Object> read(HPacket packet) {
         Map<String, Object> values = new LinkedHashMap<>();
