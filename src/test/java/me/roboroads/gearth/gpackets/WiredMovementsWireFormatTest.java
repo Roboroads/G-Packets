@@ -12,9 +12,12 @@ import me.roboroads.gearth.gpackets.model.enums.WiredMovementType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class WiredMovementsWireFormatTest {
 
@@ -91,5 +94,13 @@ class WiredMovementsWireFormatTest {
     @Test
     void fromPacketReadsTheWireFormat() {
         assertEquals(sample(), WiredMovements.fromPacket(expectedPacket()));
+    }
+
+    @Test
+    void valuesOnlyHoldConditionalParametersThatWereSent() {
+        List<?> movements = (List<?>) WiredMovements.TYPE.read(expectedPacket()).get("movements");
+
+        assertEquals(3, ((Map<?, ?>) movements.get(0)).get("jumpPower"));
+        assertFalse(((Map<?, ?>) movements.get(1)).containsKey("jumpPower"));
     }
 }
