@@ -13,6 +13,7 @@ See [Sulek](https://sulek.dev) for an overview of packets. This is a work in pro
   - [Option 3: raw interception](#option-3-raw-interception)
 - [Changing an intercepted packet](#changing-an-intercepted-packet)
 - [Creating and sending packets](#creating-and-sending-packets)
+- [Reading and writing parameters](#reading-and-writing-parameters)
 - [JSON](#json)
 - [Contributing a packet](#contributing-a-packet)
 
@@ -120,7 +121,7 @@ Init fails fast. If an annotated method is static, returns a value, has paramete
 
 ### Option 2: the TYPE descriptor
 
-Every packet class exposes a `PacketType` as `public static final PacketType<X> TYPE`. It holds the header, direction and parser, and it is the single source of truth for that packet.
+Every packet class exposes a `PacketType` as `public static final PacketType<X> TYPE`. It holds the header, direction and schema, and it is the single source of truth for that packet.
 
 `TYPE.intercept` registers a handler without annotations or `init`:
 
@@ -185,6 +186,43 @@ Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).tra
 sendToServer(chat.toPacket());
 ```
 
+## Reading and writing parameters
+
+Every `TYPE` carries a schema: the packet's parameters in wire order, with their names and types. Use it to show or edit packets without writing code for each one, for example in a packet inspector.
+
+```java
+for (Parameter parameter : Users.TYPE.schema().parameters()) {
+    System.out.println(parameter.name());
+}
+```
+
+There are five kinds of parameter:
+
+- `ValueParameter`: one value. `wireType()` is `INT`, `STRING`, `BOOLEAN`, `SHORT`, `LONG` or `BYTE`. For an enum, `enumOptions()` maps each constant's name to its wire value.
+- `ListParameter`: an int count, then that many elements. `elementType()` is set for a list of values, `elementSchema()` for a list of structures.
+- `StructParameter`: a nested structure, `schema()`.
+- `BranchParameter`: parameters that depend on an earlier value, `on()`. `cases()` maps each wire value to the parameters that follow and the subclass the packet then is.
+- `OptionalParameter`: parameters at the end of a packet that the server may leave out.
+
+`TYPE.read` turns a raw packet into named values, and `TYPE.write` turns values back into a packet:
+
+```java
+intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
+    Map<String, Object> values = Users.TYPE.read(message.getPacket());
+    // {users=[{id=1, name=Alice, ..., type=1, sex=F, ...}]}
+});
+
+HPacket packet = Users.TYPE.write(values);
+```
+
+Values are plain Java: boxed primitives, `List`s and `Map`s. An enum holds its wire value, so a value the library doesn't know survives a round trip. The values of a branch or optional sit in the same map as the values around them. When writing, a missing or null value writes `0`, `""` or `false`.
+
+`PacketTypes` lists every implemented packet and finds one by its header:
+
+```java
+Optional<PacketType<?>> type = PacketTypes.find(HMessage.Direction.TOCLIENT, "Users");
+```
+
 ## JSON
 
 Packets serialize to and from JSON with `toJson` and `fromJson`:
@@ -200,9 +238,18 @@ sendToServer(again.toPacket());
 
 A packet class needs four things:
 
-- `public static final PacketType<X> TYPE` with the header, direction and `X::fromPacket`
-- a static `fromPacket(HPacket)`
+- `public static final PacketType<X> TYPE = PacketType.of(header, direction, schema)`, where the schema lists the packet's parameters in wire order
+- a static `fromPacket(HPacket)` that returns `TYPE.schema().parse(packet)`
 - a static `fromJson(String)`
-- an instance `toPacket()`
+- an instance `toPacket()` that returns `TYPE.toPacket(this)`
 
-`PacketImplementationTest` checks every `Packet` implementation for these and fails the build if one is missing. Follow the existing classes in `incoming` and `outgoing`, and open a pull request or file a packet request issue.
+```java
+public static final PacketType<Chat> TYPE = PacketType.of("Chat", HMessage.Direction.TOSERVER, Schema.of(Chat.class)
+        .string("text")
+        .enumInt("style", ChatBarStyle.class)
+        .integer("trackingId"));
+```
+
+Parameter names must match the class's field names. A sub-structure exposes `public static final Schema<X> SCHEMA`, and a polymorphic base like `User` declares each subtype with `branch`. Add the new `TYPE` to `PacketTypes`.
+
+`PacketImplementationTest` checks every `Packet` implementation for these, checks that every parameter has a matching getter and builder method, and fails the build if something is missing. Follow the existing classes in `incoming` and `outgoing`, and open a pull request or file a packet request issue.
