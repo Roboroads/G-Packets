@@ -65,6 +65,29 @@ Writing is forgiving where it can be:
 
 A branch can't guess, though. If a user's `type` is missing or null, writing throws.
 
+## Bytes the schema doesn't know
+
+A packet can carry more than its schema describes, for example when a newer client adds a field at the end. `TYPE.read` and `TYPE.parse` stop after the last parameter they know. `TYPE.trailingBytes` returns the bytes after it, so an inspector can show them or warn about them:
+
+```java
+byte[] unknown = Users.TYPE.trailingBytes(message.getPacket());
+if (unknown.length > 0) {
+    System.out.println("Users has " + unknown.length + " bytes G-Packets doesn't know");
+}
+```
+
+It returns an empty array when the schema reads the whole body.
+
+`replaceIn` keeps these bytes, for values and for the typed classes: it puts the message's trailing bytes back after your packet. It keeps nothing when the message's original body doesn't parse as this type. It also drops them when you leave out an optional parameter they came after, because the schema would then read them as that parameter.
+
+`TYPE.write` builds a new packet, so there is nothing to keep. To send a captured packet again with its trailing bytes, append them yourself:
+
+```java
+Map<String, Object> values = Chat.TYPE.read(captured);
+values.put("text", "Sent again");
+sendToServer(Chat.TYPE.write(values).appendBytes(Chat.TYPE.trailingBytes(captured)));
+```
+
 ## Errors
 
 When reading or writing fails, G-Packets throws an `IllegalArgumentException` whose message starts with the path to the value:

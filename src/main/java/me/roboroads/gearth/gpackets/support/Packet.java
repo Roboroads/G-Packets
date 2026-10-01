@@ -17,7 +17,8 @@ public interface Packet {
      * call it: editing a parsed packet never touches the message on its own.
      *
      * <p>The message keeps its original header id, so G-Earth still recognises the packet; only
-     * the body is swapped for this packet's body.
+     * the body is swapped for this packet's body. Bytes at the end that the schema doesn't know
+     * stay, see {@link PacketType#trailingBytes}.
      *
      * @throws IllegalArgumentException if the message's destination does not match this packet's direction.
      * @throws IllegalStateException    if this packet class has no {@code public static final PacketType TYPE}.

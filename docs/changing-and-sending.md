@@ -18,7 +18,7 @@ void onChat(Chat chat, HMessage message) {
 
 The example uses annotations, but `replaceIn` works the same with whichever [intercepting option](intercepting.md#introduction) you picked: all it needs is the packet and the `HMessage`.
 
-`replaceIn` keeps the message's original header id, swaps in your packet's body, and marks the packet edited, so G-Earth forwards the changed version. It throws an `IllegalArgumentException` if the message travels the other way from the packet, for example when you put a `Chat` into a message going to the client.
+`replaceIn` keeps the message's original header id, swaps in your packet's body, and marks the packet edited, so G-Earth forwards the changed version. Bytes at the end that G-Packets doesn't know, such as a field a newer client added, stay in the message; see [Bytes the schema doesn't know](parameters.md#bytes-the-schema-doesnt-know). It throws an `IllegalArgumentException` if the message travels the other way from the packet, for example when you put a `Chat` into a message going to the client.
 
 To drop a packet instead of changing it, block it with G-Earth's `message.setBlocked(true)`.
 

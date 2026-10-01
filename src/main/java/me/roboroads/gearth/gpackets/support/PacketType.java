@@ -86,6 +86,21 @@ public final class PacketType<T extends Packet> {
     }
 
     /**
+     * The bytes after the last parameter the schema knows, for example a field a newer client
+     * added; empty when the schema reads the whole body. Restores the read index, like {@link #read}.
+     */
+    public byte[] trailingBytes(HPacket packet) {
+        int previous = packet.getReadIndex();
+        try {
+            packet.resetReadIndex();
+            schema.read(packet);
+            return packet.readBytes(packet.getBytesLength() - packet.getReadIndex());
+        } finally {
+            packet.setReadIndex(previous);
+        }
+    }
+
+    /**
      * Builds a packet of this type from named values. A missing or null value writes the wire
      * default.
      *
@@ -106,7 +121,8 @@ public final class PacketType<T extends Packet> {
     /**
      * Replaces the intercepted message's body with a packet built from named values, for example
      * values from {@link #read} that a user edited. The message keeps its original header id, so
-     * G-Earth still recognises the packet.
+     * G-Earth still recognises the packet, and its {@link #trailingBytes}, unless the values leave
+     * out the optional part they sat behind.
      *
      * @throws IllegalArgumentException if the message's destination does not match this type's direction.
      * @throws LimitException           for an outgoing type whose values break its limits or rules.
@@ -126,11 +142,29 @@ public final class PacketType<T extends Packet> {
                     "Cannot replace a " + message.getDestination() + " message with a " + direction + " packet (" + header + ")");
         }
 
+        byte[] trailing = trailingBytesOrNone(message.getPacket());
         byte[] built = replacement.get().toBytes();
         // Body = everything after the 4-byte length and 2-byte header.
         byte[] body = Arrays.copyOfRange(built, 6, built.length);
         int headerId = message.getPacket().headerId();
-        message.getPacket().setBytes(new HPacket(headerId, body).toBytes());
+        HPacket replaced = new HPacket(headerId, body);
+        if (trailing.length > 0) {
+            HPacket withTrailing = new HPacket(headerId, body).appendBytes(trailing);
+            // Keep them only where they still trail: behind a left-out optional part, the schema would read them as that part.
+            if (Arrays.equals(trailingBytesOrNone(withTrailing), trailing)) {
+                replaced = withTrailing;
+            }
+        }
+        message.getPacket().setBytes(replaced.toBytes());
+    }
+
+    /** Like {@link #trailingBytes}, but empty when the body doesn't parse as this type. */
+    private byte[] trailingBytesOrNone(HPacket packet) {
+        try {
+            return trailingBytes(packet);
+        } catch (IllegalArgumentException e) {
+            return new byte[0];
+        }
     }
 
     /**
