@@ -202,6 +202,10 @@ class PacketReferenceTest {
         String catalogPage = read(directory.resolve("incoming/CatalogPage.md"));
         assertTrue(catalogPage.contains("When `productType` is one of `\"i\"` (`ITEM`), `\"s\"` (`STUFF`)"), catalogPage);
         assertEquals(1, occurrences(catalogPage, ": `FurniProduct`\n"));
+        assertTrue(catalogPage.contains("| `unknownBoolean12` | boolean | Unused by the client: The client stores it but never reads it |"),
+                catalogPage);
+        String index = read(directory.resolve("index.md"));
+        assertTrue(index.contains("| [RoomSettingsError](incoming/RoomSettingsError.md) (unused) |"), index);
     }
 
     @Test

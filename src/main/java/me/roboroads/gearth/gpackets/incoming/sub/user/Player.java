@@ -8,6 +8,7 @@ import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.Json;
+import me.roboroads.gearth.gpackets.support.Unused;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -16,6 +17,9 @@ import me.roboroads.gearth.gpackets.support.Json;
 public class Player extends User {
     private Gender sex;
     private Integer groupId;
+    // The client's parser reads it and RoomUsersHandler copies it into UserData, but nothing reads it there.
+    @Unused("The client copies it into its user data but nothing reads it")
+    @Deprecated
     private Integer groupStatus;
     private String groupName;
     private String swimFigure;

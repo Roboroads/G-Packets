@@ -24,6 +24,7 @@ import java.util.Arrays;
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("deprecation") // tests RoomSettingsError
 class RoomSettingsWireFormatTest {
 
     // ---- RoomSettingsData ----

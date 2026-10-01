@@ -32,6 +32,7 @@ import java.util.Optional;
  * packet is missing from it.
  */
 public final class PacketTypes {
+    @SuppressWarnings("deprecation") // lists packets the client ignores too, such as RoomSettingsError
     private static final List<PacketType<?>> ALL = Collections.unmodifiableList(Arrays.<PacketType<?>>asList(
             CatalogIndex.TYPE,
             CatalogPage.TYPE,
