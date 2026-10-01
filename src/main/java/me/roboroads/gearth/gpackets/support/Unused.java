@@ -15,7 +15,8 @@ import java.lang.annotation.Target;
  * <p>Always paired with {@link Deprecated}, which makes the compiler and IDE warn wherever an
  * extension uses the element; Lombok copies it onto the generated getter, setter and builder
  * method. Here the deprecation means "the client ignores this", not "this will be removed".
- * Silence a deliberate use with {@code @SuppressWarnings("deprecation")}.
+ * Silence a deliberate use with {@code @SuppressWarnings("deprecation")}. On Java 8 the import
+ * of an unused packet class warns too and can't be suppressed; use its full class name instead.
  *
  * <p>Tools read the reason through {@code Parameter.unused()}, {@code PacketType.unused()} and
  * {@code ValueParameter.unusedOptions()}.
