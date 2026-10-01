@@ -61,18 +61,20 @@ public final class ListParameter extends Parameter {
         }
         List<?> list = (List<?>) value;
         packet.appendInt(list.size());
-        for (int i = 0; i < list.size(); i++) {
-            String at = here + "[" + i + "]";
+        // Iterate rather than get(i), which costs O(n) per call on a LinkedList.
+        int i = 0;
+        for (Object item : list) {
+            String at = here + "[" + i++ + "]";
             if (elementType != null) {
                 Object element;
                 try {
-                    element = elementType.coerce(list.get(i));
+                    element = elementType.coerce(item);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(at + ": " + e.getMessage());
                 }
                 elementType.write(packet, element);
             } else {
-                elementSchema().writeFrom(asValues(list.get(i), at), packet, at);
+                elementSchema().writeFrom(asValues(item, at), packet, at);
             }
         }
     }

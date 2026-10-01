@@ -4,10 +4,13 @@ import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractSequentialList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,6 +78,40 @@ class SchemaListStructTest {
         SCHEMA.write(SCHEMA.read(fullPacket()), out);
 
         assertEquals(bytes(fullPacket()), bytes(out));
+    }
+
+    /** A list that only supports iteration, so a test fails if writing uses get(i), which is O(n) per call on a LinkedList. */
+    private static List<Object> iterationOnly(Object... elements) {
+        List<Object> backing = Arrays.asList(elements);
+        return new AbstractSequentialList<Object>() {
+            @Override
+            public ListIterator<Object> listIterator(int index) {
+                return backing.listIterator(index);
+            }
+
+            @Override
+            public int size() {
+                return backing.size();
+            }
+
+            @Override
+            public Object get(int index) {
+                throw new UnsupportedOperationException("random access");
+            }
+        };
+    }
+
+    @Test
+    void writesListsWithoutRandomAccess() {
+        HPacket out = packet();
+
+        SCHEMA.write(map("numbers", iterationOnly((short) 1, (short) 2), "items", iterationOnly(map("a", 7, "b", "x"))), out);
+
+        HPacket expected = packet();
+        expected.appendInt(2).appendShort((short) 1).appendShort((short) 2)
+                .appendInt(1).appendInt(7).appendString("x")
+                .appendInt(0).appendString("");
+        assertEquals(bytes(expected), bytes(out));
     }
 
     @Test
