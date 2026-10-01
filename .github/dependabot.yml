@@ -24,6 +24,11 @@ updates:
       # G-Earth is not on a public registry (local repo / JitPack), so Dependabot
       # cannot resolve it.
       - dependency-name: "G-Earth:G-Earth"
+      # JUnit 6 needs Java 17 and the library builds on Java 8. Remove this
+      # rule when the Java version goes up.
+      - dependency-name: "org.junit.jupiter:*"
+        update-types:
+          - "version-update:semver-major"
     groups:
       minor-and-patch:
         update-types:
