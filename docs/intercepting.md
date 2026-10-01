@@ -86,7 +86,7 @@ void onEither(Packet packet, HMessage message) {
 
 ### Handlers in other classes
 
-Handlers don't have to live in your extension class. Pass any other objects to `init` and their `@Intercept` methods are registered too:
+Handlers don't have to live in your extension class. Put `@Intercept` methods in any class in your extension's package, or a package below it, and `GPackets.init(this)` finds the class, creates it and registers its methods. There's nothing to list:
 
 ```java
 public class ChatLogger {
@@ -97,16 +97,36 @@ public class ChatLogger {
 }
 ```
 
+To create a handler, `init` uses a constructor that takes your extension, so the handler can send packets, or else a constructor without parameters:
+
 ```java
-@Override
-protected void initExtension() {
-    GPackets.init(this, new ChatLogger());
+public class AutoReply {
+    private final YourExtension extension;
+
+    public AutoReply(YourExtension extension) {
+        this.extension = extension;
+    }
+
+    @Intercept
+    void onChat(Chat chat) {
+        if (chat.text().equals("ping")) {
+            extension.sendToServer(new Chat("pong", ChatBarStyle.DEFAULT, -1).toPacket());
+        }
+    }
 }
 ```
 
+If a handler needs anything else in its constructor, create it yourself and pass it to `init`. A class you pass an instance of isn't created a second time:
+
+```java
+GPackets.init(this, new ChatLogger(database));
+```
+
+Handlers run in this order: your extension, then the handlers you passed, then the ones `init` found, sorted by class name. The order matters when one handler blocks a packet before the next one sees it.
+
 ### When init fails
 
-`init` checks every annotated method before it registers anything. If one is static, returns a value, takes parameters it can't fill, or names a packet class without a `TYPE`, it throws an `IllegalStateException` that names the method and the problem, and registers nothing.
+`init` checks everything before it registers anything. If an annotated method is static, returns a value, takes parameters it can't fill, or names a packet class without a `TYPE`, or if a handler class it found has no constructor it can use or its constructor throws, `init` throws an `IllegalStateException` that names the method or class and the problem, and registers nothing.
 
 !!! warning
     Calling `init` twice registers every handler twice, so each packet reaches your methods twice. Call it once, from `initExtension`.
