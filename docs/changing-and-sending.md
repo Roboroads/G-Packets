@@ -36,6 +36,17 @@ Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
 Chat chat = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
 ```
 
+A chat style can be newer than your version of G-Packets: the hotel adds styles without a client update. `ChatBarStyle` names every style the library knows, and `ChatBarStyle.of(id)` takes any other id:
+
+```java
+ChatBarStyle style = ChatBarStyle.of(1028);
+
+style.known(); // false: G-Packets has no name for it
+style.value(); // 1028
+```
+
+A packet you read keeps such an id, and sends it back unchanged. Compare with `==` against a named style (`chat.style() == ChatBarStyle.ROBOT`), and with `equals` when both sides can be ids the library doesn't name. These types don't work in a `switch`. `ActivityPointType` works the same way.
+
 ## Sending a packet
 
 Send an outgoing packet to the server with G-Earth's `sendToServer`:
@@ -55,6 +66,31 @@ CatalogPublished published = CatalogPublished.builder()
 
 sendToClient(published.toPacket());
 ```
+
+## Limits
+
+The Habbo client keeps some values within limits before it sends them: a room name is at most 60 characters, a room has at most two tags, an idle timeout is 30 to 3600 seconds. G-Packets knows these limits and checks them when you build an outgoing packet. If a value breaks one, `toPacket()` throws a `LimitException` that lists every broken limit:
+
+```java
+try {
+    sendToServer(settings.toPacket());
+} catch (LimitException e) {
+    for (Violation violation : e.violations()) {
+        System.out.println(violation.path() + ": " + violation.message());
+        // name: at most 60 characters, got 61
+    }
+}
+```
+
+When you mean to send something the client wouldn't, for example to see how the server reacts, skip the check with `toPacketUnchecked()`:
+
+```java
+sendToServer(settings.toPacketUnchecked());
+```
+
+The same goes for values: `TYPE.write(values)` and `TYPE.replaceIn(message, values)` check, and `TYPE.writeUnchecked(values)` and `TYPE.replaceInUnchecked(message, values)` don't. To check without sending or throwing, for example while someone fills in a form, call `TYPE.violations(packet)` or `TYPE.violations(values)`; it returns an empty list when everything fits.
+
+Only packets you send to the server are checked. Packets from the server are never checked, so a value the server sends always parses and writes. The [packet reference](packets/index.md) lists each packet's limits.
 
 ## Fields you leave empty
 

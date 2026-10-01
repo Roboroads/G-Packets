@@ -12,6 +12,8 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import testfixtures.NoTypePacket;
+import testfixtures.limits.LimitFixtures;
+import testfixtures.openenum.OpenEnumFixtures.Shade;
 import testfixtures.unused.UnusedFixtures;
 
 import java.io.IOException;
@@ -22,7 +24,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.UnaryOperator;
 
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.maxLength;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.notEmpty;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.range;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.requiresVip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PacketReferenceTest {
@@ -88,6 +95,35 @@ class PacketReferenceTest {
     }
 
     @Test
+    void notesTheLimits() {
+        Schema<Plain> schema = Schema.of(Plain.class)
+                .string("name", notEmpty(), maxLength(5))
+                .integer("sleep", range(30, 3600).orZero(), requiresVip());
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `name` | string | not empty; at most 5 characters |\n"
+                        + "| `sleep` | int | 30 to 3600, or 0; VIP only |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void listsTheRulesAfterTheTable() {
+        Schema<Plain> schema = Schema.of(Plain.class).integer("a").rule("a is positive", values -> true);
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `a` | int |  |\n"
+                        + "\nRules:\n\n- a is positive\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void anOutgoingPageWithLimitsSaysTheyAreChecked() {
+        assertTrue(PacketReference.page(LimitFixtures.Outgoing.TYPE).contains(
+                "```\n\nLimits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n## Parameters"));
+        assertFalse(PacketReference.page(LimitFixtures.Incoming.TYPE).contains("Limits are checked"));
+    }
+
+    @Test
     void saysSoWhenThereAreNoParameters() {
         assertEquals("## Parameters\n\nNo parameters.\n", PacketReference.body(Schema.of(Plain.class)));
     }
@@ -121,6 +157,16 @@ class PacketReferenceTest {
         String body = PacketReference.body(schema);
 
         assertTrue(body.endsWith("\n`mode` (`Mode`): `ON` = `1`, `OFF` = `0` (unused)\n"), body);
+    }
+
+    @Test
+    void saysWhenAnEnumKeepsOtherIds() {
+        Schema<Plain> schema = Schema.of(Plain.class).enumInt("shade", Shade.class);
+
+        String body = PacketReference.body(schema);
+
+        assertTrue(body.contains("| `shade` | int → `Shade` |  |\n"), body);
+        assertTrue(body.endsWith("\n`shade` (`Shade`): `LIGHT` = `1`, `DARK` = `2`, `FADED` = `3` (unused). Other ids pass through.\n"), body);
     }
 
     @Test
@@ -173,6 +219,7 @@ class PacketReferenceTest {
                 + "- Direction: outgoing (to server)\n"
                 + "- Class: `me.roboroads.gearth.gpackets.outgoing.Chat`\n\n"
                 + "```java\n@Intercept\nvoid onChat(Chat packet) {\n    // ...\n}\n```\n\n"
+                + "Limits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n"
                 + "## Parameters\n\n"));
     }
 
@@ -204,6 +251,8 @@ class PacketReferenceTest {
         assertEquals(1, occurrences(catalogPage, ": `FurniProduct`\n"));
         assertTrue(catalogPage.contains("| `unknownBoolean12` | boolean | Unused by the client: The client stores it but never reads it |"),
                 catalogPage);
+        String chat = read(directory.resolve("outgoing/Chat.md"));
+        assertTrue(chat.contains("`NFT_MONEY` = `1027`, `RECYCLED` = `10000`. Other ids pass through.\n"), chat);
         String index = read(directory.resolve("index.md"));
         assertTrue(index.contains("| [RoomSettingsError](incoming/RoomSettingsError.md) (unused) |"), index);
     }

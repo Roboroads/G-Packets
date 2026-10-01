@@ -158,6 +158,24 @@ class CatalogWireFormatTest {
     }
 
     @Test
+    void anOfferKeepsAnActivityPointTypeTheLibraryDoesNotName() {
+        HPacket in = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        in.appendInt(7).appendString("seasonal").appendBoolean(false)
+                .appendInt(0).appendInt(10).appendInt(2000).appendInt(0)
+                .appendBoolean(true)
+                .appendInt(0)
+                .appendInt(0).appendBoolean(false).appendBoolean(false).appendString("");
+
+        Offer offer = Offer.fromPacket(in);
+        HPacket out = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        offer.appendPacket(out);
+
+        assertFalse(offer.activityPointType().known());
+        assertEquals(2000, offer.activityPointType().value());
+        assertSameBytes(in, out);
+    }
+
+    @Test
     void catalogPageToPacket() {
         assertSameBytes(catalogPagePacket(true), catalogPage(frontPageItems()).toPacket());
     }

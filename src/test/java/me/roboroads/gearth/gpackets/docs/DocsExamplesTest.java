@@ -15,6 +15,7 @@ import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
@@ -24,6 +25,10 @@ import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.StructParameter;
 import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
+import me.roboroads.gearth.gpackets.support.schema.limit.Limit;
+import me.roboroads.gearth.gpackets.support.schema.limit.LimitException;
+import me.roboroads.gearth.gpackets.support.schema.limit.MaxLength;
+import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -125,6 +130,36 @@ class DocsExamplesTest {
             return unused;
         }
 
+        // changing-and-sending.md: "Limits"
+        void saveSettings(SaveRoomSettings settings) {
+            try {
+                sendToServer(settings.toPacket());
+            } catch (LimitException e) {
+                for (Violation violation : e.violations()) {
+                    print(violation.path() + ": " + violation.message());
+                }
+            }
+        }
+
+        // changing-and-sending.md: "Limits", sending anyway
+        void saveSettingsAnyway(SaveRoomSettings settings) {
+            sendToServer(settings.toPacketUnchecked());
+        }
+
+        // parameters.md: "Limits and rules"
+        void describeLimits() {
+            for (Parameter parameter : SaveRoomSettings.TYPE.schema().parameters()) {
+                for (Limit limit : parameter.limits()) {
+                    print(parameter.name() + ": " + limit.describe());
+                }
+                for (Limit limit : parameter.limits()) {
+                    if (limit instanceof MaxLength) {
+                        print(parameter.name() + " fits in a field of " + ((MaxLength) limit).max() + " characters");
+                    }
+                }
+            }
+        }
+
         private void print(String line) {
             printed.add(line);
         }
@@ -134,6 +169,44 @@ class DocsExamplesTest {
     void unusedParametersListsWhatTheClientIgnores() {
         assertEquals(Collections.singletonList("unknownBoolean12: The client stores it but never reads it"),
                 new Examples().unusedOfferParameters());
+    }
+
+    private static SaveRoomSettings settingsWithALongName() {
+        StringBuilder name = new StringBuilder();
+        for (int i = 0; i < 61; i++) {
+            name.append('a');
+        }
+        return SaveRoomSettings.builder().roomId(1).name(name.toString()).build();
+    }
+
+    @Test
+    void limitsReportWhatsWrongInsteadOfSending() {
+        Examples extension = new Examples();
+
+        extension.saveSettings(settingsWithALongName());
+
+        assertTrue(extension.sentToServer.isEmpty());
+        assertEquals(Collections.singletonList("name: at most 60 characters, got 61"), extension.printed);
+    }
+
+    @Test
+    void uncheckedSendsAnyway() {
+        Examples extension = new Examples();
+
+        extension.saveSettingsAnyway(settingsWithALongName());
+
+        assertEquals(1, extension.sentToServer.size());
+    }
+
+    @Test
+    void toolsCanReadTheLimits() {
+        Examples extension = new Examples();
+
+        extension.describeLimits();
+
+        assertTrue(extension.printed.contains("name: at most 60 characters"), extension.printed.toString());
+        assertTrue(extension.printed.contains("name fits in a field of 60 characters"), extension.printed.toString());
+        assertTrue(extension.printed.contains("idleSleepTimeoutSeconds: VIP only"), extension.printed.toString());
     }
 
     private static Users oneUser() {
@@ -350,5 +423,18 @@ class DocsExamplesTest {
 
         assertEquals("{\"text\":\"hi\",\"style\":2,\"trackingId\":3}", chat.toJson());
         assertEquals(chat, Chat.fromJson(chat.toJson()));
+    }
+
+    // changing-and-sending.md: "Creating a packet", a style newer than the library
+    @Test
+    void anUnnamedChatStyleKeepsItsId() {
+        ChatBarStyle style = ChatBarStyle.of(1028);
+
+        assertFalse(style.known());
+        assertEquals(1028, style.value());
+
+        Chat chat = Chat.fromPacket(new Chat("hi", ChatBarStyle.ROBOT, -1).toPacket());
+        assertTrue(chat.style() == ChatBarStyle.ROBOT);
+        assertTrue(ChatBarStyle.of(1028).equals(style));
     }
 }
