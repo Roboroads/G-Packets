@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
 import me.roboroads.gearth.gpackets.model.enums.DoorMode;
+import me.roboroads.gearth.gpackets.model.enums.MaximumVisitors;
 import me.roboroads.gearth.gpackets.model.enums.RoomModerationPermission;
 import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
 import me.roboroads.gearth.gpackets.model.enums.TradeMode;
@@ -39,7 +40,7 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
             .string("description")
             .enumInt("doorMode", DoorMode.class)
             .string("password")
-            .integer("maximumVisitors")
+            .enumInt("maximumVisitors", MaximumVisitors.class)
             .integer("categoryId")
             .list("tags", WireType.STRING)
             .enumInt("tradeMode", TradeMode.class)
@@ -66,7 +67,7 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
     private DoorMode doorMode;
     // The client sends "" unless the door mode is password.
     private String password;
-    private Integer maximumVisitors;
+    private MaximumVisitors maximumVisitors;
     private Integer categoryId;
     private List<String> tags;
     private TradeMode tradeMode;

@@ -10,6 +10,7 @@ import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
 import me.roboroads.gearth.gpackets.incoming.sub.room.RoomModerationSettings;
 import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
 import me.roboroads.gearth.gpackets.model.enums.DoorMode;
+import me.roboroads.gearth.gpackets.model.enums.MaximumVisitors;
 import me.roboroads.gearth.gpackets.model.enums.RoomModerationPermission;
 import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
 import me.roboroads.gearth.gpackets.model.enums.TradeMode;
@@ -19,7 +20,9 @@ import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -162,7 +165,7 @@ class RoomSettingsWireFormatTest {
     static SaveRoomSettings saveRoomSettings() {
         return SaveRoomSettings.builder()
                 .roomId(42).name("My room").description("Chill").doorMode(DoorMode.PASSWORD).password("secret")
-                .maximumVisitors(25).categoryId(3).tags(Arrays.asList("chill", "music"))
+                .maximumVisitors(MaximumVisitors.VISITORS_25).categoryId(3).tags(Arrays.asList("chill", "music"))
                 .tradeMode(TradeMode.EVERYONE).allowPets(true).allowFoodConsume(false).allowWalkThrough(true).hideWalls(false)
                 .wallThickness(RoomThickness.THIN).floorThickness(RoomThickness.NORMAL)
                 .whoCanMute(RoomModerationPermission.RIGHTS).whoCanKick(RoomModerationPermission.GROUP_ADMINS)
@@ -192,6 +195,21 @@ class RoomSettingsWireFormatTest {
     @Test
     void saveRoomSettingsFromPacket() {
         assertEquals(saveRoomSettings(), SaveRoomSettings.fromPacket(saveRoomSettingsPacket()));
+    }
+
+    @Test
+    void maximumVisitorsAreTheClientsDropdownValues() {
+        // RoomSettingsCtrl.refreshMaxVisitors: 10 to 50 in steps of 5, up to 75 with VIP.
+        List<Integer> expected = new ArrayList<>();
+        for (int visitors = 10; visitors <= 75; visitors += 5) {
+            expected.add(visitors);
+        }
+        List<Integer> actual = new ArrayList<>();
+        for (MaximumVisitors visitors : MaximumVisitors.values()) {
+            actual.add(visitors.value());
+        }
+
+        assertEquals(expected, actual);
     }
 
     // ---- WiredGetRoomSettings ----
