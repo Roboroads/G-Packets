@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The code examples from the documentation pages, compiled and run against the real API. */
@@ -197,6 +198,25 @@ class DocsExamplesTest {
             });
         }
 
+        // intercepting.md: Option 2, "Blocking a packet"
+        void blockSpoilersWithType() {
+            Chat.TYPE.intercept(this, (chat, message) -> {
+                if (chat.text().contains("spoiler")) {
+                    message.setBlocked(true);
+                }
+            });
+        }
+
+        // intercepting.md: Option 3, "Blocking a packet"
+        void blockSpoilersRaw() {
+            intercept(Chat.TYPE.direction(), Chat.TYPE.header(), message -> {
+                Chat chat = Chat.fromPacket(message.getPacket());
+                if (chat.text().contains("spoiler")) {
+                    message.setBlocked(true);
+                }
+            });
+        }
+
         // changing-and-sending.md: "Changing an intercepted packet"
         void shout() {
             Chat.TYPE.intercept(this, (chat, message) -> {
@@ -231,6 +251,22 @@ class DocsExamplesTest {
         assertTrue(extension.blocked);
         assertTrue(chat.isBlocked());
         assertEquals(Collections.singletonList("no spoiler please"), logger.said);
+    }
+
+    @Test
+    void everyInterceptingOptionCanBlock() {
+        InterceptingExamples withType = new InterceptingExamples();
+        withType.blockSpoilersWithType();
+        InterceptingExamples raw = new InterceptingExamples();
+        raw.blockSpoilersRaw();
+
+        HMessage blockedByType = withType.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage blockedRaw = raw.fire(new Chat("spoiler!", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+        HMessage passed = raw.fire(new Chat("hello", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+
+        assertTrue(blockedByType.isBlocked());
+        assertTrue(blockedRaw.isBlocked());
+        assertFalse(passed.isBlocked());
     }
 
     @Test
