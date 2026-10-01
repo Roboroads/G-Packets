@@ -173,6 +173,39 @@ class SchemaBranchTest {
     }
 
     @Test
+    void aCaseNameThatClashesWithAnOuterNameIsRejected() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).enumInt("kind", UserType.class).integer("level")
+                        .branch("kind", cases -> cases.on(UserType.PET, Animal.class, s -> s.integer("level"))));
+
+        assertEquals("Sample already has a parameter named level", e.getMessage());
+    }
+
+    @Test
+    void anOuterNameThatClashesWithAnEarlierCaseIsRejected() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> SCHEMA.string("saddleColor"));
+
+        assertEquals("Sample already has a parameter named saddleColor", e.getMessage());
+    }
+
+    @Test
+    void aWhenBodyNameThatClashesWithAnOuterNameIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).bool("flag").integer("extra").when("flag", true, w -> w.integer("extra")));
+    }
+
+    @Test
+    void casesOfOneBranchMayShareNames() {
+        Schema<Sample> schema = Schema.of(Sample.class).enumInt("kind", UserType.class)
+                .branch("kind", cases -> cases
+                        .on(UserType.PLAYER, Person.class, s -> s.integer("seconds"))
+                        .on(UserType.PET, Animal.class, s -> s.integer("seconds")));
+
+        assertEquals(2, schema.parameters().size());
+    }
+
+    @Test
     void aCaseSubclassMustExtendTheSchemaClass() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> Schema.of(Person.class).enumInt("kind", UserType.class).branch("kind", cases -> cases

@@ -4,10 +4,12 @@ import gearth.protocol.HPacket;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -173,16 +175,33 @@ public final class Schema<T> {
     }
 
     private Schema<T> with(Parameter parameter) {
-        String name = parameter.name();
-        if (name != null) {
-            for (Parameter existing : parameters) {
-                if (name.equals(existing.name())) {
-                    throw new IllegalArgumentException(type.getSimpleName() + " already has a parameter named " + name);
-                }
+        // Branch and optional values share the enclosing map, so their names must not clash with it.
+        Set<String> taken = valueNames(parameters);
+        for (String name : valueNames(Collections.singletonList(parameter))) {
+            if (taken.contains(name)) {
+                throw new IllegalArgumentException(type.getSimpleName() + " already has a parameter named " + name);
             }
         }
         List<Parameter> next = new ArrayList<>(parameters);
         next.add(parameter);
         return new Schema<>(type, next);
+    }
+
+    /** The keys these parameters put in the enclosing values, including those of branch cases and optionals. */
+    private static Set<String> valueNames(List<Parameter> parameters) {
+        Set<String> names = new HashSet<>();
+        for (Parameter parameter : parameters) {
+            if (parameter instanceof BranchParameter) {
+                // Cases exclude each other, so names shared between cases of one branch are fine.
+                for (BranchParameter.Case c : ((BranchParameter) parameter).cases().values()) {
+                    names.addAll(valueNames(c.schema().parameters()));
+                }
+            } else if (parameter instanceof OptionalParameter) {
+                names.addAll(valueNames(((OptionalParameter) parameter).schema().parameters()));
+            } else {
+                names.add(parameter.name());
+            }
+        }
+        return names;
     }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SchemaOptionalTest {
 
@@ -74,6 +75,14 @@ class SchemaOptionalTest {
         HPacket expected = packet();
         expected.appendBoolean(false).appendString("").appendInt(0);
         assertEquals(bytes(expected), bytes(out));
+    }
+
+    @Test
+    void anOptionalNameThatClashesWithAnOuterNameIsRejected() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).string("hash").optional(o -> o.string("hash")));
+
+        assertEquals("Sample already has a parameter named hash", e.getMessage());
     }
 
     @Test
