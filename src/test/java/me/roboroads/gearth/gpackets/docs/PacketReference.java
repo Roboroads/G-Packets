@@ -1,5 +1,8 @@
 package me.roboroads.gearth.gpackets.docs;
 
+import gearth.protocol.HMessage;
+import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
 import me.roboroads.gearth.gpackets.support.schema.ListParameter;
 import me.roboroads.gearth.gpackets.support.schema.OptionalParameter;
@@ -9,9 +12,15 @@ import me.roboroads.gearth.gpackets.support.schema.StructParameter;
 import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -23,11 +32,63 @@ import java.util.Set;
 
 /**
  * Writes the packet reference pages of the documentation site from the packet schemas: one Markdown
- * page per packet plus an index.
+ * page per packet plus an index. The docs workflow runs it as
+ * {@code java -cp ... me.roboroads.gearth.gpackets.docs.PacketReference docs/packets}.
  */
 public final class PacketReference {
 
     private PacketReference() {
+    }
+
+    /** Writes the reference into the directory given as the only argument, for example {@code docs/packets}. */
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.err.println("Usage: PacketReference <output directory>");
+            System.exit(2);
+        }
+        write(PacketTypes.all(), Paths.get(args[0]));
+    }
+
+    static void write(List<PacketType<?>> types, Path directory) throws IOException {
+        Files.createDirectories(directory);
+        Files.write(directory.resolve("index.md"), index(types).getBytes(StandardCharsets.UTF_8));
+        for (PacketType<?> type : types) {
+            Files.write(directory.resolve(type.header() + ".md"), page(type).getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    static String index(List<PacketType<?>> types) {
+        StringBuilder out = new StringBuilder("# Packet reference\n\n"
+                + "Every packet G-Packets implements, generated from the packet schemas. "
+                + "Each page lists the packet's parameters in the order they appear on the wire.\n");
+        indexTable(out, "Incoming (to client)", types, HMessage.Direction.TOCLIENT);
+        indexTable(out, "Outgoing (to server)", types, HMessage.Direction.TOSERVER);
+        return out.toString();
+    }
+
+    private static void indexTable(StringBuilder out, String title, List<PacketType<?>> types, HMessage.Direction direction) {
+        List<PacketType<?>> matching = new ArrayList<>();
+        for (PacketType<?> type : types) {
+            if (type.direction() == direction) {
+                matching.add(type);
+            }
+        }
+        matching.sort(Comparator.comparing((PacketType<?> type) -> type.header()));
+        out.append("\n## ").append(title).append("\n\n| Header | Class |\n|---|---|\n");
+        for (PacketType<?> type : matching) {
+            out.append("| [").append(type.header()).append("](").append(type.header()).append(".md) | `")
+                    .append(type.schema().type().getName()).append("` |\n");
+        }
+    }
+
+    static String page(PacketType<?> type) {
+        String name = type.schema().type().getSimpleName();
+        String direction = type.direction() == HMessage.Direction.TOCLIENT ? "incoming (to client)" : "outgoing (to server)";
+        return "# " + type.header() + "\n\n"
+                + "- Direction: " + direction + "\n"
+                + "- Class: `" + type.schema().type().getName() + "`\n\n"
+                + "```java\n@Intercept\nvoid on" + name + "(" + name + " packet) {\n    // ...\n}\n```\n\n"
+                + body(type.schema());
     }
 
     /** The "Parameters" section of a packet page, followed by one section per nested structure. */

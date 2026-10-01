@@ -1,14 +1,25 @@
 package me.roboroads.gearth.gpackets.docs;
 
+import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
+import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PacketReferenceTest {
 
@@ -106,5 +117,54 @@ class PacketReferenceTest {
                         + "| `indoor` | boolean |  |\n"
                         + "| `room` | string | only when `indoor` is `true` |\n",
                 PacketReference.body(schema));
+    }
+
+    @Test
+    void pageShowsDirectionClassAndAnInterceptSnippet() {
+        assertTrue(PacketReference.page(Chat.TYPE).startsWith("# Chat\n\n"
+                + "- Direction: outgoing (to server)\n"
+                + "- Class: `me.roboroads.gearth.gpackets.outgoing.Chat`\n\n"
+                + "```java\n@Intercept\nvoid onChat(Chat packet) {\n    // ...\n}\n```\n\n"
+                + "## Parameters\n\n"));
+    }
+
+    @Test
+    void indexListsPacketsByDirection() {
+        assertEquals("# Packet reference\n\n"
+                        + "Every packet G-Packets implements, generated from the packet schemas. "
+                        + "Each page lists the packet's parameters in the order they appear on the wire.\n"
+                        + "\n## Incoming (to client)\n\n| Header | Class |\n|---|---|\n"
+                        + "| [Users](Users.md) | `me.roboroads.gearth.gpackets.incoming.Users` |\n"
+                        + "\n## Outgoing (to server)\n\n| Header | Class |\n|---|---|\n"
+                        + "| [Chat](Chat.md) | `me.roboroads.gearth.gpackets.outgoing.Chat` |\n",
+                PacketReference.index(Arrays.<PacketType<?>>asList(Users.TYPE, Chat.TYPE)));
+    }
+
+    @Test
+    void writesAnIndexAndAPagePerPacket(@TempDir Path directory) throws IOException {
+        PacketReference.write(PacketTypes.all(), directory);
+
+        assertTrue(Files.exists(directory.resolve("index.md")));
+        for (PacketType<?> type : PacketTypes.all()) {
+            assertTrue(Files.exists(directory.resolve(type.header() + ".md")), type.header() + ".md is missing");
+        }
+        String catalogIndex = read(directory.resolve("CatalogIndex.md"));
+        assertEquals(1, occurrences(catalogIndex, "\n## CatalogNode\n"));
+        assertTrue(catalogIndex.contains("| `children` | list of [CatalogNode](#catalognode) |  |"));
+        String catalogPage = read(directory.resolve("CatalogPage.md"));
+        assertTrue(catalogPage.contains("When `productType` is one of `\"i\"` (`ITEM`), `\"s\"` (`STUFF`)"), catalogPage);
+        assertEquals(1, occurrences(catalogPage, ": `FurniProduct`\n"));
+    }
+
+    private static String read(Path file) throws IOException {
+        return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+    }
+
+    private static int occurrences(String text, String part) {
+        int count = 0;
+        for (int i = text.indexOf(part); i >= 0; i = text.indexOf(part, i + 1)) {
+            count++;
+        }
+        return count;
     }
 }
