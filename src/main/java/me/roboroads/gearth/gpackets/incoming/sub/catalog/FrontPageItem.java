@@ -30,21 +30,21 @@ public abstract class FrontPageItem implements SubPacket, JsonSerializable {
             .enumInt("type", FrontPageItemType.class)
             .branch("type", cases -> cases
                     .on(FrontPageItemType.PAGE_LINK, PageLinkFrontPageItem.class, s -> s
-                            .string("cataloguePageLocation")
-                            .integer("secondsToExpiration"))
+                            .string("catalogPageLocation")
+                            .integer("secondsToExpiry"))
                     .on(FrontPageItemType.PRODUCT_OFFER, ProductOfferFrontPageItem.class, s -> s
                             .integer("productOfferId")
-                            .integer("secondsToExpiration"))
+                            .integer("secondsToExpiry"))
                     .on(FrontPageItemType.PRODUCT_CODE, ProductCodeFrontPageItem.class, s -> s
                             .string("productCode")
-                            .integer("secondsToExpiration")));
+                            .integer("secondsToExpiry")));
 
     private Integer position;
     private String itemName;
     private String itemPromoImage;
     private FrontPageItemType type;
-    // 0 = never expires; otherwise seconds from "now".
-    private Integer secondsToExpiration;
+    // 0 = never expires; otherwise seconds from "now". The client calls it secondsToExpiration.
+    private Integer secondsToExpiry;
 
     public static FrontPageItem fromPacket(HPacket packet) {
         return SCHEMA.parse(packet);

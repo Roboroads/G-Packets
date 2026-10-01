@@ -10,7 +10,8 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @Jacksonized
 public class WallItemMove extends WiredMovement {
-    private Integer itemId;
+    // The client calls it itemId.
+    private Integer furniId;
     private Boolean isDirectionRight;
     private Integer oldWallX;
     private Integer oldWallY;

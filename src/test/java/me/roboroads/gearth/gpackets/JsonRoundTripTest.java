@@ -58,15 +58,15 @@ public class JsonRoundTripTest {
     public void usersRoundTripKeepsSubtypes() {
         Users users = Users.builder().users(Arrays.asList(
                 Player.builder()
-                        .id(1).name("Owner").custom("motto").figure("hd-180-1").roomIndex(0)
-                        .x(1).y(2).z("0.0").dir(Direction.EAST).type(UserType.PLAYER)
+                        .id(1).name("Owner").motto("motto").figure("hd-180-1").userIndex(0)
+                        .x(1).y(2).z("0.0").bodyDirection(Direction.EAST).type(UserType.PLAYER)
                         .sex(Gender.MALE).groupId(-1).groupStatus(0).groupName("").swimFigure("")
                         .achievementScore(10).isModerator(false).badgesRank(-1)
                         .build(),
                 Bot.builder()
-                        .id(2).name("Bot").custom("").figure("hd-180-1").roomIndex(1)
-                        .x(3).y(4).z("0.0").dir(Direction.NORTH).type(UserType.BOT)
-                        .sex(Gender.FEMALE).ownerId(1).ownerName("Owner").botSkills(Arrays.asList((short) 1, (short) 2))
+                        .id(2).name("Bot").motto("").figure("hd-180-1").userIndex(1)
+                        .x(3).y(4).z("0.0").bodyDirection(Direction.NORTH).type(UserType.BOT)
+                        .sex(Gender.FEMALE).ownerId(1).ownerName("Owner").skills(Arrays.asList((short) 1, (short) 2))
                         .build()
         )).build();
 

@@ -12,11 +12,12 @@ import me.roboroads.gearth.gpackets.support.Json;
 @SuperBuilder
 @Jacksonized
 public class PageLinkFrontPageItem extends FrontPageItem {
-    private String cataloguePageLocation;
+    // The client calls it cataloguePageLocation.
+    private String catalogPageLocation;
 
-    public PageLinkFrontPageItem(Integer position, String itemName, String itemPromoImage, FrontPageItemType type, Integer secondsToExpiration, String cataloguePageLocation) {
-        super(position, itemName, itemPromoImage, type, secondsToExpiration);
-        this.cataloguePageLocation = cataloguePageLocation;
+    public PageLinkFrontPageItem(Integer position, String itemName, String itemPromoImage, FrontPageItemType type, Integer secondsToExpiry, String catalogPageLocation) {
+        super(position, itemName, itemPromoImage, type, secondsToExpiry);
+        this.catalogPageLocation = catalogPageLocation;
     }
 
     public static PageLinkFrontPageItem fromJson(String json) {

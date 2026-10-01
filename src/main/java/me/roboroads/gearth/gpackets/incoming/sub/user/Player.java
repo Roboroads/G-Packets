@@ -29,8 +29,8 @@ public class Player extends User {
     // when it is below 0. UserChange.badgesRank updates it.
     private Integer badgesRank;
 
-    public Player(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type, Gender sex, Integer groupId, Integer groupStatus, String groupName, String swimFigure, Integer achievementScore, Boolean isModerator, Integer badgesRank) {
-        super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
+    public Player(Integer id, String name, String motto, String figure, Integer userIndex, Integer x, Integer y, String z, Direction bodyDirection, UserType type, Gender sex, Integer groupId, Integer groupStatus, String groupName, String swimFigure, Integer achievementScore, Boolean isModerator, Integer badgesRank) {
+        super(id, name, motto, figure, userIndex, x, y, z, bodyDirection, type);
         this.sex = sex;
         this.groupId = groupId;
         this.groupStatus = groupStatus;

@@ -26,13 +26,13 @@ public abstract class User implements SubPacket, JsonSerializable {
     public static final Schema<User> SCHEMA = Schema.of(User.class)
             .integer("id")
             .string("name")
-            .string("custom")
+            .string("motto")
             .string("figure")
-            .integer("roomIndex")
+            .integer("userIndex")
             .integer("x")
             .integer("y")
             .string("z")
-            .enumInt("dir", Direction.class)
+            .enumInt("bodyDirection", Direction.class)
             .enumInt("type", UserType.class)
             .branch("type", cases -> cases
                     .on(UserType.PLAYER, Player.class, s -> s
@@ -55,24 +55,28 @@ public abstract class User implements SubPacket, JsonSerializable {
                             .bool("canHarvest")
                             .bool("canRevive")
                             .bool("hasBreedingPermission")
-                            .integer("petLevel")
-                            .string("petPosture"))
+                            .integer("level")
+                            .string("posture"))
                     .on(UserType.OLD_BOT, OldBot.class, s -> s)
                     .on(UserType.BOT, Bot.class, s -> s
                             .enumString("sex", Gender.class)
                             .integer("ownerId")
                             .string("ownerName")
-                            .list("botSkills", WireType.SHORT)));
+                            .list("skills", WireType.SHORT)));
 
     private Integer id;
     private String name;
-    private String custom;
+    // The client calls it custom.
+    private String motto;
     private String figure;
-    private Integer roomIndex;
+    // The user's index in this room, which room packets use to name the user. The client calls it
+    // roomIndex.
+    private Integer userIndex;
     private Integer x;
     private Integer y;
     private String z;
-    private Direction dir;
+    // The client calls it dir.
+    private Direction bodyDirection;
     private UserType type;
 
     public static User fromPacket(HPacket packet) {

@@ -42,11 +42,11 @@ class CatalogWireFormatTest {
 
     static CatalogIndex catalogIndex() {
         CatalogNode child = CatalogNode.builder()
-                .visible(true).icon(5).pageId(10).pageName("frontpage").localization("Front page")
+                .visible(true).icon(5).pageId(10).pageName("frontpage").pageTitle("Front page")
                 .offerIds(Arrays.asList(11, 12)).children(Collections.emptyList())
                 .build();
         CatalogNode root = CatalogNode.builder()
-                .visible(true).icon(0).pageId(-1).pageName("root").localization("Root")
+                .visible(true).icon(0).pageId(-1).pageName("root").pageTitle("Root")
                 .offerIds(Collections.emptyList()).children(Collections.singletonList(child))
                 .build();
         return CatalogIndex.builder().root(root).newAdditionsAvailable(false).catalogType(CatalogType.NORMAL).build();
@@ -221,7 +221,7 @@ class CatalogWireFormatTest {
 
     @Test
     void catalogPublishedWithHashRoundTrips() {
-        CatalogPublished sample = CatalogPublished.builder().instantlyRefreshCatalogue(true).newFurniDataHash("abc123").build();
+        CatalogPublished sample = CatalogPublished.builder().instantlyRefreshCatalog(true).newFurniDataHash("abc123").build();
 
         assertSameBytes(catalogPublishedPacket(true), sample.toPacket());
         assertEquals(sample, CatalogPublished.fromPacket(catalogPublishedPacket(true)));
@@ -229,13 +229,13 @@ class CatalogWireFormatTest {
 
     @Test
     void catalogPublishedValuesLeaveOutTheMissingTail() {
-        assertEquals(Collections.singletonList("instantlyRefreshCatalogue"),
+        assertEquals(Collections.singletonList("instantlyRefreshCatalog"),
                 new ArrayList<>(CatalogPublished.TYPE.read(catalogPublishedPacket(false)).keySet()));
     }
 
     @Test
     void catalogPublishedWithoutHashRoundTrips() {
-        CatalogPublished sample = CatalogPublished.builder().instantlyRefreshCatalogue(false).build();
+        CatalogPublished sample = CatalogPublished.builder().instantlyRefreshCatalog(false).build();
 
         assertSameBytes(catalogPublishedPacket(false), sample.toPacket());
         assertEquals(sample, CatalogPublished.fromPacket(catalogPublishedPacket(false)));

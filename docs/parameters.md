@@ -16,7 +16,7 @@ Map<String, Object> values = Users.TYPE.read(message.getPacket());
 
 ```java
 Map<String, Object> values = Users.TYPE.read(message.getPacket());
-// {users=[{id=1, name=Alice, custom=motto, ..., dir=2, type=1, sex=F, groupId=7, ...}]}
+// {users=[{id=1, name=Alice, motto=Hello, ..., bodyDirection=2, type=1, sex=F, groupId=7, ...}]}
 ```
 
 The values follow a few rules:

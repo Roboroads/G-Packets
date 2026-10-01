@@ -351,7 +351,7 @@ class DocsExamplesTest {
             sendToServer(chat.toPacket());
 
             CatalogPublished published = CatalogPublished.builder()
-                    .instantlyRefreshCatalogue(true)
+                    .instantlyRefreshCatalog(true)
                     .build();
             sendToClient(published.toPacket());
         }

@@ -57,7 +57,7 @@ public abstract class WiredMovement implements SubPacket, JsonSerializable {
                             .bool("hasCurve")
                             .when("hasCurve", true, c -> c.integer("curveStrength")))
                     .on(WiredMovementType.WALL_ITEM_MOVE, WallItemMove.class, s -> s
-                            .integer("itemId")
+                            .integer("furniId")
                             .bool("isDirectionRight")
                             .integer("oldWallX")
                             .integer("oldWallY")

@@ -61,7 +61,7 @@ Incoming packets go to the client with `sendToClient`. The client then acts as i
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 
 CatalogPublished published = CatalogPublished.builder()
-        .instantlyRefreshCatalogue(true)
+        .instantlyRefreshCatalog(true)
         .build();
 
 sendToClient(published.toPacket());

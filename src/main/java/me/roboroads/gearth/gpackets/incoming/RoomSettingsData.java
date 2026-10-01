@@ -52,7 +52,7 @@ public class RoomSettingsData implements Packet, JsonSerializable {
             .integer("idleAutokickTimeoutSeconds")
             .bool("muteAllPets")
             .struct("roomModerationSettings", RoomModerationSettings.SCHEMA)
-            .bool("hiddenByBc"));
+            .bool("lockedByBuildersClub"));
 
     private Integer roomId;
     private String name;
@@ -79,8 +79,10 @@ public class RoomSettingsData implements Packet, JsonSerializable {
     private Integer idleAutokickTimeoutSeconds;
     private Boolean muteAllPets;
     private RoomModerationSettings roomModerationSettings;
-    // The client shows doormode_override_info when this is set.
-    private Boolean hiddenByBc;
+    // The client shows doormode_override_info when this is set: Builders Club locks a room with its
+    // furni when the owner has no paid membership (notification.builders_club.room_locked.*). The
+    // client calls it hiddenByBc.
+    private Boolean lockedByBuildersClub;
 
     public static RoomSettingsData fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);

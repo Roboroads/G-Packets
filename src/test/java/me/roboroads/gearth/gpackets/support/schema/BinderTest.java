@@ -43,7 +43,7 @@ class BinderTest {
     private static final Schema<WiredMovement> MOVEMENT = Schema.of(WiredMovement.class)
             .enumInt("movementType", WiredMovementType.class)
             .branch("movementType", cases -> cases
-                    .on(WiredMovementType.WALL_ITEM_MOVE, WallItemMove.class, s -> s.integer("itemId"))
+                    .on(WiredMovementType.WALL_ITEM_MOVE, WallItemMove.class, s -> s.integer("furniId"))
                     .on(WiredMovementType.USER_DIRECTION_UPDATE, UserDirectionUpdate.class, s -> s
                             .integer("userIndex")
                             .enumInt("bodyDirection", Direction.class)
@@ -157,7 +157,7 @@ class BinderTest {
         WiredMovements parsed = schema.parse(p);
 
         assertInstanceOf(WallItemMove.class, parsed.movements().get(0));
-        assertEquals(55, ((WallItemMove) parsed.movements().get(0)).itemId());
+        assertEquals(55, ((WallItemMove) parsed.movements().get(0)).furniId());
         assertInstanceOf(UserDirectionUpdate.class, parsed.movements().get(1));
     }
 

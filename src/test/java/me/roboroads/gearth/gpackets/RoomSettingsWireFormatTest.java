@@ -46,7 +46,7 @@ class RoomSettingsWireFormatTest {
                 .idleAutokickEnabled(false).idleAutokickTimeoutSeconds(0).muteAllPets(false)
                 .roomModerationSettings(new RoomModerationSettings(
                         RoomModerationPermission.RIGHTS, RoomModerationPermission.GROUP_ADMINS, RoomModerationPermission.NONE))
-                .hiddenByBc(false)
+                .lockedByBuildersClub(false)
                 .build();
     }
 

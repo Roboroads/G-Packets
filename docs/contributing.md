@@ -94,7 +94,7 @@ public static final Schema<CatalogNode> SCHEMA = Schema.of(CatalogNode.class)
         .integer("icon")
         .integer("pageId")
         .string("pageName")
-        .string("localization")
+        .string("pageTitle")
         .list("offerIds", WireType.INT)
         .list("children", () -> CatalogNode.SCHEMA);
 ```
@@ -188,7 +188,7 @@ Some servers leave parameters off the end of a packet. Wrap those in `optional`:
 
 ```java
 public static final PacketType<CatalogPublished> TYPE = PacketType.of("CatalogPublished", HMessage.Direction.TOCLIENT, Schema.of(CatalogPublished.class)
-        .bool("instantlyRefreshCatalogue")
+        .bool("instantlyRefreshCatalog")
         .optional(s -> s.string("newFurniDataHash")));
 ```
 

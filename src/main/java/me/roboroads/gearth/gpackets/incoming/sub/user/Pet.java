@@ -23,11 +23,13 @@ public class Pet extends User {
     Boolean canHarvest;
     Boolean canRevive;
     Boolean hasBreedingPermission;
-    Integer petLevel;
-    String petPosture;
+    // The client calls it petLevel.
+    Integer level;
+    // The client calls it petPosture.
+    String posture;
 
-    public Pet(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type, Integer subType, Integer ownerId, String ownerName, Integer rarityLevel, Boolean hasSaddle, Boolean isRiding, Boolean canBreed, Boolean canHarvest, Boolean canRevive, Boolean hasBreedingPermission, Integer petLevel, String petPosture) {
-        super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
+    public Pet(Integer id, String name, String motto, String figure, Integer userIndex, Integer x, Integer y, String z, Direction bodyDirection, UserType type, Integer subType, Integer ownerId, String ownerName, Integer rarityLevel, Boolean hasSaddle, Boolean isRiding, Boolean canBreed, Boolean canHarvest, Boolean canRevive, Boolean hasBreedingPermission, Integer level, String posture) {
+        super(id, name, motto, figure, userIndex, x, y, z, bodyDirection, type);
         this.subType = subType;
         this.ownerId = ownerId;
         this.ownerName = ownerName;
@@ -38,8 +40,8 @@ public class Pet extends User {
         this.canHarvest = canHarvest;
         this.canRevive = canRevive;
         this.hasBreedingPermission = hasBreedingPermission;
-        this.petLevel = petLevel;
-        this.petPosture = petPosture;
+        this.level = level;
+        this.posture = posture;
     }
 
     public static Pet fromJson(String json) {

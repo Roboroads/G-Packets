@@ -23,7 +23,7 @@ public class ClickCharacter implements Packet, JsonSerializable {
     public static final PacketType<ClickCharacter> TYPE = PacketType.of("ClickCharacter", HMessage.Direction.TOSERVER, Schema.of(ClickCharacter.class)
             .integer("userIndex"));
 
-    // The clicked avatar's room index (User.roomIndex), not an account id: __s1u.clickRoomObject
+    // The clicked avatar's room index (User.userIndex), not an account id: __s1u.clickRoomObject
     // sends the room object id of anything in the avatar category.
     private Integer userIndex;
 

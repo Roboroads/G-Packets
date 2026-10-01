@@ -19,14 +19,15 @@ public class Bot extends User {
     private Gender sex;
     private Integer ownerId;
     private String ownerName;
-    private List<Short> botSkills;
+    // The client calls it botSkills.
+    private List<Short> skills;
 
-    public Bot(Integer id, String name, String custom, String figure, Integer roomIndex, Integer x, Integer y, String z, Direction dir, UserType type, Gender sex, Integer ownerId, String ownerName, List<Short> botSkills) {
-        super(id, name, custom, figure, roomIndex, x, y, z, dir, type);
+    public Bot(Integer id, String name, String motto, String figure, Integer userIndex, Integer x, Integer y, String z, Direction bodyDirection, UserType type, Gender sex, Integer ownerId, String ownerName, List<Short> skills) {
+        super(id, name, motto, figure, userIndex, x, y, z, bodyDirection, type);
         this.sex = sex;
         this.ownerId = ownerId;
         this.ownerName = ownerName;
-        this.botSkills = botSkills;
+        this.skills = skills;
     }
 
     public static Bot fromJson(String json) {

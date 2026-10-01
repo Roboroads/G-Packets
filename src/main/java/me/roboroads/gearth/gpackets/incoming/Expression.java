@@ -25,7 +25,7 @@ public class Expression implements Packet, JsonSerializable {
             .integer("userIndex")
             .enumInt("expressionType", ExpressionType.class));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    // The user's room index (User.userIndex), not their account id. The client calls it userId.
     private Integer userIndex;
     private ExpressionType expressionType;
 

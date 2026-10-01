@@ -28,7 +28,7 @@ public class UserUpdateData implements SubPacket, JsonSerializable {
             .integer("jumpPower")
             .string("actions");
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it id.
+    // The user's room index (User.userIndex), not their account id. The client calls it id.
     private Integer userIndex;
     private Integer x;
     private Integer y;

@@ -34,14 +34,14 @@ public class UserChange implements Packet, JsonSerializable {
             .list("unknownList7", UnknownUserChangeEntry.SCHEMA)
             .integer("badgesRank"));
 
-    // The user's room index (User.roomIndex), not their account id: the client looks it up with
+    // The user's room index (User.userIndex), not their account id: the client looks it up with
     // UserDataManager.getUserDataByIndex.
     private Integer userIndex;
     private String figure;
     // "M" or "F". A plain string, not Gender: the client upper-cases it after reading, so the
     // server may send it in lower case, and an enum would change the bytes on a write.
     private String sex;
-    // The client calls it customInfo, like User.custom.
+    // The client calls it customInfo.
     private String motto;
     private Integer achievementScore;
     @Unused("The client reads it and throws it away")
