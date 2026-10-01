@@ -179,7 +179,7 @@ class DocsExamplesTest {
             this.users = users.users().size();
         }
 
-        // intercepting.md: "Blocking a packet"
+        // intercepting.md: Option 1, "Working with the HMessage"
         @Intercept(Chat.class)
         void onChat(Chat chat, HMessage message) {
             if (chat.text().contains("spoiler")) {
@@ -210,7 +210,7 @@ class DocsExamplesTest {
             });
         }
 
-        // intercepting.md: Option 2, "Blocking a packet"
+        // intercepting.md: Option 2, "Working with the HMessage"
         void blockSpoilersWithType() {
             Chat.TYPE.intercept(this, (chat, message) -> {
                 if (chat.text().contains("spoiler")) {
@@ -219,7 +219,7 @@ class DocsExamplesTest {
             });
         }
 
-        // intercepting.md: Option 3, "Blocking a packet"
+        // intercepting.md: Option 3, "Working with the HMessage"
         void blockSpoilersRaw() {
             intercept(Chat.TYPE.direction(), Chat.TYPE.header(), message -> {
                 Chat chat = Chat.fromPacket(message.getPacket());
