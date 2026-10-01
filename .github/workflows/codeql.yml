@@ -3,11 +3,10 @@ name: CodeQL
 on:
   push:
     branches: [ main ]
+  # No paths filter: the main ruleset requires CodeQL results on every PR,
+  # so a skipped run would block docs-only PRs from merging.
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
