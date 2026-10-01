@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets;
 
+import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Bot;
@@ -82,5 +83,12 @@ public class JsonRoundTripTest {
 
         assertEquals(movements, parsed);
         assertInstanceOf(UserMove.class, parsed.movements().get(0));
+    }
+
+    @Test
+    public void roomSettingsDataRoundTripKeepsTheModerationSettings() {
+        RoomSettingsData data = RoomSettingsWireFormatTest.roomSettingsData();
+
+        assertEquals(data, RoomSettingsData.fromJson(data.toJson()));
     }
 }

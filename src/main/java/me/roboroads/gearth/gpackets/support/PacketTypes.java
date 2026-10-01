@@ -5,12 +5,21 @@ import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
 import me.roboroads.gearth.gpackets.incoming.CatalogPage;
 import me.roboroads.gearth.gpackets.incoming.CatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
+import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
+import me.roboroads.gearth.gpackets.incoming.RoomSettingsError;
+import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
+import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
+import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
+import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,12 +37,21 @@ public final class PacketTypes {
             CatalogPage.TYPE,
             CatalogPageWithEarliestExpiry.TYPE,
             CatalogPublished.TYPE,
+            RoomSettingsData.TYPE,
+            RoomSettingsError.TYPE,
+            RoomSettingsSaved.TYPE,
+            RoomSettingsSaveError.TYPE,
             Users.TYPE,
             WiredMovements.TYPE,
+            WiredRoomSettings.TYPE,
             Chat.TYPE,
             GetCatalogIndex.TYPE,
             GetCatalogPage.TYPE,
-            GetCatalogPageWithEarliestExpiry.TYPE
+            GetCatalogPageWithEarliestExpiry.TYPE,
+            GetRoomSettings.TYPE,
+            SaveRoomSettings.TYPE,
+            WiredGetRoomSettings.TYPE,
+            WiredSetRoomSettings.TYPE
     ));
 
     private PacketTypes() {
