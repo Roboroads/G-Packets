@@ -6,6 +6,8 @@ import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import org.junit.jupiter.api.Test;
+import testfixtures.trailing.TrailingFixtures.Inner;
+import testfixtures.trailing.TrailingFixtures.NestedOptional;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,6 +75,18 @@ class PacketReplaceTest {
         CatalogPublished.TYPE.replaceIn(message, values);
 
         assertArrayEquals(new byte[]{1}, body(message.getPacket()));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void replaceInDropsTheTrailingBytesWhenANestedOptionalPartBeforeThemIsLeftOut() {
+        HMessage message = messageWithBodyOf(new NestedOptional(new Inner(1, "abc")).toPacket().appendInt(42), HMessage.Direction.TOCLIENT);
+        Map<String, Object> values = NestedOptional.TYPE.read(message.getPacket());
+        ((Map<String, Object>) values.get("inner")).remove("label");
+
+        NestedOptional.TYPE.replaceIn(message, values);
+
+        assertArrayEquals(new byte[]{0, 0, 0, 1}, body(message.getPacket()));
     }
 
     @Test

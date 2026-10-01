@@ -4,14 +4,22 @@ import gearth.extensions.ExtensionBase;
 import gearth.extensions.IExtension;
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
+import me.roboroads.gearth.gpackets.support.schema.ListParameter;
+import me.roboroads.gearth.gpackets.support.schema.OptionalParameter;
+import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.StructParameter;
 import me.roboroads.gearth.gpackets.support.schema.limit.LimitException;
 import me.roboroads.gearth.gpackets.support.schema.limit.Violation;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -24,6 +32,8 @@ public final class PacketType<T extends Packet> {
     private final String header;
     private final HMessage.Direction direction;
     private final Schema<T> schema;
+    // Computed on first use: a list's element schema may be a supplier for a schema built later.
+    private volatile Boolean hasOptional;
 
     private PacketType(String header, HMessage.Direction direction, Schema<T> schema) {
         this.header = header;
@@ -151,11 +161,49 @@ public final class PacketType<T extends Packet> {
         if (trailing.length > 0) {
             HPacket withTrailing = new HPacket(headerId, body).appendBytes(trailing);
             // Keep them only where they still trail: behind a left-out optional part, the schema would read them as that part.
-            if (Arrays.equals(trailingBytesOrNone(withTrailing), trailing)) {
+            if (!hasOptional() || Arrays.equals(trailingBytesOrNone(withTrailing), trailing)) {
                 replaced = withTrailing;
             }
         }
         message.getPacket().setBytes(replaced.toBytes());
+    }
+
+    /** Whether the schema, or any schema inside it, has an optional part. */
+    private boolean hasOptional() {
+        Boolean cached = hasOptional;
+        if (cached == null) {
+            cached = hasOptional(schema, Collections.newSetFromMap(new IdentityHashMap<>()));
+            hasOptional = cached;
+        }
+        return cached;
+    }
+
+    private static boolean hasOptional(Schema<?> schema, Set<Schema<?>> seen) {
+        if (!seen.add(schema)) {
+            return false;
+        }
+        for (Parameter parameter : schema.parameters()) {
+            if (parameter instanceof OptionalParameter) {
+                return true;
+            }
+            if (parameter instanceof StructParameter && hasOptional(((StructParameter) parameter).schema(), seen)) {
+                return true;
+            }
+            if (parameter instanceof ListParameter) {
+                Schema<?> element = ((ListParameter) parameter).elementSchema();
+                if (element != null && hasOptional(element, seen)) {
+                    return true;
+                }
+            }
+            if (parameter instanceof BranchParameter) {
+                for (BranchParameter.Case c : ((BranchParameter) parameter).cases().values()) {
+                    if (hasOptional(c.schema(), seen)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /** Like {@link #trailingBytes}, but empty when the body doesn't parse as this type. */
