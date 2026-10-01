@@ -4,7 +4,7 @@
 
 Every packet type carries a schema: its parameters in the order they appear on the wire, each with a name and a type. G-Packets uses the schema to read and write the typed classes, and you may use it directly when you want to handle packets generically, for example in a packet logger, an inspector, or an editor where someone changes values by hand.
 
-Most extensions never need this page. If you know which packet you want, the typed classes are easier to work with. Every schema is also listed in the [packet reference](packets/index.md).
+Most extensions never need this page. If you know which packet you want, the typed classes from [Intercepting packets](intercepting.md) are easier to work with. Every schema is also listed in the [packet reference](packets/index.md).
 
 ```java
 Map<String, Object> values = Users.TYPE.read(message.getPacket());

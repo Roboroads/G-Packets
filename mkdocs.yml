@@ -45,10 +45,12 @@ not_in_nav: |
   /packets/*.md
 
 nav:
+  - The basics:
+      - Intercepting packets: intercepting.md
+      - Changing and sending packets: changing-and-sending.md
+      - JSON: json.md
   - Digging deeper:
       - Packet parameters: parameters.md
-  - The basics:
-      - JSON: json.md
   - Contributing:
       - Contributing a packet: contributing.md
   - Reference:

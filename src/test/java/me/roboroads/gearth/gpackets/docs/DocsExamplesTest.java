@@ -3,7 +3,10 @@ package me.roboroads.gearth.gpackets.docs;
 import gearth.extensions.FakeExtension;
 import gearth.protocol.HMessage;
 import gearth.services.packet_info.PacketInfo;
+import me.roboroads.gearth.gpackets.GPackets;
+import me.roboroads.gearth.gpackets.Intercept;
 import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
+import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
@@ -11,6 +14,7 @@ import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
 import me.roboroads.gearth.gpackets.support.schema.ListParameter;
@@ -140,6 +144,110 @@ class DocsExamplesTest {
         Examples extension = new Examples();
         extension.logEveryKnownPacket();
         extension.sayHello();
+    }
+
+    // intercepting.md: "Handlers in other classes"
+    static class ChatLogger {
+        final List<String> said = new ArrayList<>();
+
+        @Intercept
+        void onChat(Chat chat) {
+            said.add(chat.text());
+        }
+    }
+
+    static class InterceptingExamples extends FakeExtension {
+        int users;
+        boolean blocked;
+
+        // intercepting.md: "Intercepting with annotations"
+        @Intercept
+        void onUsers(Users users) {
+            this.users = users.users().size();
+        }
+
+        // intercepting.md: "Blocking a packet"
+        @Intercept(Chat.class)
+        void onChat(Chat chat, HMessage message) {
+            if (chat.text().contains("spoiler")) {
+                message.setBlocked(true);
+                blocked = true;
+            }
+        }
+
+        // intercepting.md: "Intercepting several packets in one method"
+        @Intercept({Users.class, Chat.class})
+        void onEither(Packet packet, HMessage message) {
+            if (packet instanceof Chat) {
+                // ...
+            }
+        }
+
+        // intercepting.md: "Using the TYPE descriptor" and "Raw interception"
+        void registerByHand() {
+            Users.TYPE.intercept(this, (users, message) -> {
+                System.out.println(users.users().size() + " users");
+            });
+            intercept(Users.TYPE.direction(), Users.TYPE.header(), Users.TYPE.listen((users, message) -> {
+                // ...
+            }));
+            intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
+                Users users = Users.fromPacket(message.getPacket());
+                // ...
+            });
+        }
+
+        // changing-and-sending.md: "Changing an intercepted packet"
+        void shout() {
+            Chat.TYPE.intercept(this, (chat, message) -> {
+                chat.text(chat.text().toUpperCase());
+                chat.replaceIn(message);
+            });
+        }
+
+        // changing-and-sending.md: "Sending a packet"
+        void send() {
+            Chat chat = new Chat("Hello, world!", ChatBarStyle.DEFAULT, -1);
+            Chat same = Chat.builder().text("Hello, world!").style(ChatBarStyle.DEFAULT).trackingId(-1).build();
+            sendToServer(chat.toPacket());
+
+            CatalogPublished published = CatalogPublished.builder()
+                    .instantlyRefreshCatalogue(true)
+                    .build();
+            sendToClient(published.toPacket());
+        }
+    }
+
+    @Test
+    void annotatedHandlersRunAndBlock() {
+        InterceptingExamples extension = new InterceptingExamples();
+        ChatLogger logger = new ChatLogger();
+        GPackets.init(extension, logger);
+
+        extension.fire(oneUser().toPacket(), HMessage.Direction.TOCLIENT);
+        HMessage chat = extension.fire(new Chat("no spoiler please", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+
+        assertEquals(1, extension.users);
+        assertTrue(extension.blocked);
+        assertTrue(chat.isBlocked());
+        assertEquals(Collections.singletonList("no spoiler please"), logger.said);
+    }
+
+    @Test
+    void shoutReplacesTheText() {
+        InterceptingExamples extension = new InterceptingExamples();
+        extension.shout();
+
+        HMessage message = extension.fire(new Chat("hi", ChatBarStyle.DEFAULT, -1).toPacket(), HMessage.Direction.TOSERVER);
+
+        assertEquals("HI", Chat.TYPE.parse(message.getPacket()).text());
+    }
+
+    @Test
+    void theOtherInterceptingExamplesRun() {
+        InterceptingExamples extension = new InterceptingExamples();
+        extension.registerByHand();
+        extension.send();
     }
 
     // json.md
