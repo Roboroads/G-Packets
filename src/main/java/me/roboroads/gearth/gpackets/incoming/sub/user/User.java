@@ -42,7 +42,8 @@ public abstract class User implements SubPacket, JsonSerializable {
                             .string("groupName")
                             .string("swimFigure")
                             .integer("achievementScore")
-                            .bool("isModerator"))
+                            .bool("isModerator")
+                            .integer("badgesRank"))
                     .on(UserType.PET, Pet.class, s -> s
                             .integer("subType")
                             .integer("ownerId")
