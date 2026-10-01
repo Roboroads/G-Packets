@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.DanceStyle;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -21,13 +22,12 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class Dance implements Packet, JsonSerializable {
     public static final PacketType<Dance> TYPE = PacketType.of("Dance", HMessage.Direction.TOCLIENT, Schema.of(Dance.class)
-            .integer("userId")
-            .integer("danceStyle"));
+            .integer("userIndex")
+            .enumInt("danceStyle", DanceStyle.class));
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer userId;
-    // 0 when the user stops dancing (AvatarInfoWidgetHandler: isDancing = danceStyle != 0).
-    private Integer danceStyle;
+    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    private Integer userIndex;
+    private DanceStyle danceStyle;
 
     public static Dance fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);

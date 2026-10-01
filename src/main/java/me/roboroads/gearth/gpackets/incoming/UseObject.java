@@ -21,11 +21,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class UseObject implements Packet, JsonSerializable {
     public static final PacketType<UseObject> TYPE = PacketType.of("UseObject", HMessage.Direction.TOCLIENT, Schema.of(UseObject.class)
-            .integer("userId")
+            .integer("userIndex")
             .integer("itemType"));
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer userId;
+    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    private Integer userIndex;
     private Integer itemType;
 
     public static UseObject fromPacket(HPacket packet) {

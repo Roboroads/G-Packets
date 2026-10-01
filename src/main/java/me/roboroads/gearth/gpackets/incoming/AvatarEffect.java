@@ -21,12 +21,12 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class AvatarEffect implements Packet, JsonSerializable {
     public static final PacketType<AvatarEffect> TYPE = PacketType.of("AvatarEffect", HMessage.Direction.TOCLIENT, Schema.of(AvatarEffect.class)
-            .integer("userId")
+            .integer("userIndex")
             .integer("effectId")
             .integer("delayMilliSeconds"));
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer userId;
+    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    private Integer userIndex;
     private Integer effectId;
     private Integer delayMilliSeconds;
 

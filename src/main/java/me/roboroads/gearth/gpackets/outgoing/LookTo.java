@@ -1,4 +1,4 @@
-package me.roboroads.gearth.gpackets.incoming;
+package me.roboroads.gearth.gpackets.outgoing;
 
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
@@ -13,27 +13,29 @@ import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** The hand item a user in the room carries. */
+/**
+ * Turns your avatar towards a tile. The client sends the tile of the avatar you click, unless the
+ * room has a wired trigger for clicking users.
+ */
 @Data
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarryObject implements Packet, JsonSerializable {
-    public static final PacketType<CarryObject> TYPE = PacketType.of("CarryObject", HMessage.Direction.TOCLIENT, Schema.of(CarryObject.class)
-            .integer("userIndex")
-            .integer("itemType"));
+public class LookTo implements Packet, JsonSerializable {
+    public static final PacketType<LookTo> TYPE = PacketType.of("LookTo", HMessage.Direction.TOSERVER, Schema.of(LookTo.class)
+            .integer("x")
+            .integer("y"));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
-    private Integer userIndex;
-    private Integer itemType;
+    private Integer x;
+    private Integer y;
 
-    public static CarryObject fromPacket(HPacket packet) {
+    public static LookTo fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);
     }
 
-    public static CarryObject fromJson(String json) {
-        return Json.parse(CarryObject.class, json);
+    public static LookTo fromJson(String json) {
+        return Json.parse(LookTo.class, json);
     }
 
     @Override

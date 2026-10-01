@@ -22,11 +22,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class Expression implements Packet, JsonSerializable {
     public static final PacketType<Expression> TYPE = PacketType.of("Expression", HMessage.Direction.TOCLIENT, Schema.of(Expression.class)
-            .integer("userId")
+            .integer("userIndex")
             .enumInt("expressionType", ExpressionType.class));
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer userId;
+    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    private Integer userIndex;
     private ExpressionType expressionType;
 
     public static Expression fromPacket(HPacket packet) {

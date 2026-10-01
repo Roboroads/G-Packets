@@ -20,13 +20,23 @@ import me.roboroads.gearth.gpackets.incoming.UserUpdate;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
 import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.AvatarExpression;
+import me.roboroads.gearth.gpackets.outgoing.ChangeMotto;
+import me.roboroads.gearth.gpackets.outgoing.ChangePosture;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.outgoing.ClickCharacter;
+import me.roboroads.gearth.gpackets.outgoing.CustomizeAvatarWithFurni;
 import me.roboroads.gearth.gpackets.outgoing.DropCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.LookTo;
+import me.roboroads.gearth.gpackets.outgoing.MoveAvatar;
+import me.roboroads.gearth.gpackets.outgoing.PassCarryItem;
+import me.roboroads.gearth.gpackets.outgoing.PassCarryItemToPet;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.Sign;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
 
@@ -67,13 +77,24 @@ public final class PacketTypes {
             Users.TYPE,
             WiredMovements.TYPE,
             WiredRoomSettings.TYPE,
+            AvatarExpression.TYPE,
+            ChangeMotto.TYPE,
+            ChangePosture.TYPE,
             Chat.TYPE,
+            ClickCharacter.TYPE,
+            CustomizeAvatarWithFurni.TYPE,
+            me.roboroads.gearth.gpackets.outgoing.Dance.TYPE,
             DropCarryItem.TYPE,
             GetCatalogIndex.TYPE,
             GetCatalogPage.TYPE,
             GetCatalogPageWithEarliestExpiry.TYPE,
             GetRoomSettings.TYPE,
+            LookTo.TYPE,
+            MoveAvatar.TYPE,
+            PassCarryItem.TYPE,
+            PassCarryItemToPet.TYPE,
             SaveRoomSettings.TYPE,
+            Sign.TYPE,
             WiredGetRoomSettings.TYPE,
             WiredSetRoomSettings.TYPE
     ));

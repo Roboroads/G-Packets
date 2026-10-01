@@ -1,4 +1,4 @@
-package me.roboroads.gearth.gpackets.incoming;
+package me.roboroads.gearth.gpackets.outgoing;
 
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
@@ -13,27 +13,25 @@ import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** The hand item a user in the room carries. */
+/** Changes your motto. */
 @Data
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarryObject implements Packet, JsonSerializable {
-    public static final PacketType<CarryObject> TYPE = PacketType.of("CarryObject", HMessage.Direction.TOCLIENT, Schema.of(CarryObject.class)
-            .integer("userIndex")
-            .integer("itemType"));
+public class ChangeMotto implements Packet, JsonSerializable {
+    public static final PacketType<ChangeMotto> TYPE = PacketType.of("ChangeMotto", HMessage.Direction.TOSERVER, Schema.of(ChangeMotto.class)
+            .string("motto"));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
-    private Integer userIndex;
-    private Integer itemType;
+    // The infostand's motto field (InfoStandUserView, user_view layout) sets no maximum length.
+    private String motto;
 
-    public static CarryObject fromPacket(HPacket packet) {
+    public static ChangeMotto fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);
     }
 
-    public static CarryObject fromJson(String json) {
-        return Json.parse(CarryObject.class, json);
+    public static ChangeMotto fromJson(String json) {
+        return Json.parse(ChangeMotto.class, json);
     }
 
     @Override

@@ -21,11 +21,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class HandItemReceived implements Packet, JsonSerializable {
     public static final PacketType<HandItemReceived> TYPE = PacketType.of("HandItemReceived", HMessage.Direction.TOCLIENT, Schema.of(HandItemReceived.class)
-            .integer("giverUserId")
+            .integer("giverUserIndex")
             .integer("handItemType"));
 
-    // The giver's room index (User.roomIndex), not their account id.
-    private Integer giverUserId;
+    // The giver's room index (User.roomIndex), not their account id. The client calls it giverUserId.
+    private Integer giverUserIndex;
     private Integer handItemType;
 
     public static HandItemReceived fromPacket(HPacket packet) {

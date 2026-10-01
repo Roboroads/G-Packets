@@ -1,4 +1,4 @@
-package me.roboroads.gearth.gpackets.incoming;
+package me.roboroads.gearth.gpackets.outgoing;
 
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
@@ -13,27 +13,26 @@ import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** The hand item a user in the room carries. */
+/** Tells the server you clicked a user, pet or bot in the room. */
 @Data
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarryObject implements Packet, JsonSerializable {
-    public static final PacketType<CarryObject> TYPE = PacketType.of("CarryObject", HMessage.Direction.TOCLIENT, Schema.of(CarryObject.class)
-            .integer("userIndex")
-            .integer("itemType"));
+public class ClickCharacter implements Packet, JsonSerializable {
+    public static final PacketType<ClickCharacter> TYPE = PacketType.of("ClickCharacter", HMessage.Direction.TOSERVER, Schema.of(ClickCharacter.class)
+            .integer("userIndex"));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    // The clicked avatar's room index (User.roomIndex), not an account id: __s1u.clickRoomObject
+    // sends the room object id of anything in the avatar category.
     private Integer userIndex;
-    private Integer itemType;
 
-    public static CarryObject fromPacket(HPacket packet) {
+    public static ClickCharacter fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);
     }
 
-    public static CarryObject fromJson(String json) {
-        return Json.parse(CarryObject.class, json);
+    public static ClickCharacter fromJson(String json) {
+        return Json.parse(ClickCharacter.class, json);
     }
 
     @Override

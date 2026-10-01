@@ -21,11 +21,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class UserRemove implements Packet, JsonSerializable {
     public static final PacketType<UserRemove> TYPE = PacketType.of("UserRemove", HMessage.Direction.TOCLIENT, Schema.of(UserRemove.class)
-            .string("id"));
+            .string("userIndex"));
 
     // The room index (User.roomIndex) as a string: the client turns it into an int and passes it to
     // UserDataManager.removeUserDataByRoomIndex.
-    private String id;
+    private String userIndex;
 
     public static UserRemove fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);

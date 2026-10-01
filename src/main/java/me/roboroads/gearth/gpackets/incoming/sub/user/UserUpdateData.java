@@ -19,23 +19,26 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class UserUpdateData implements SubPacket, JsonSerializable {
     public static final Schema<UserUpdateData> SCHEMA = Schema.of(UserUpdateData.class)
-            .integer("id")
+            .integer("userIndex")
             .integer("x")
             .integer("y")
             .string("z")
-            .enumInt("dirHead", Direction.class)
-            .enumInt("dir", Direction.class)
-            .integer("jumpingPower")
+            .enumInt("headDirection", Direction.class)
+            .enumInt("bodyDirection", Direction.class)
+            .integer("jumpPower")
             .string("actions");
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer id;
+    // The user's room index (User.roomIndex), not their account id. The client calls it id.
+    private Integer userIndex;
     private Integer x;
     private Integer y;
     private String z;
-    private Direction dirHead;
-    private Direction dir;
-    private Integer jumpingPower;
+    // The client calls it dirHead.
+    private Direction headDirection;
+    // The client calls it dir.
+    private Direction bodyDirection;
+    // The client calls it jumpingPower and only uses it while the user moves.
+    private Integer jumpPower;
     // Slash-separated actions, each a type and its parameters split by spaces, like
     // "/mv 3,4,0.0/sit 1.0 1/". The client reads "mv" (target x,y,z), "sit" (height, then "1" when
     // the user can stand up), "lay" (height) and "wf" (skip the position update).

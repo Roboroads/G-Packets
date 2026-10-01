@@ -1,4 +1,4 @@
-package me.roboroads.gearth.gpackets.incoming;
+package me.roboroads.gearth.gpackets.outgoing;
 
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
@@ -7,33 +7,31 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.Posture;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** The hand item a user in the room carries. */
+/** Sits down or stands up. */
 @Data
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarryObject implements Packet, JsonSerializable {
-    public static final PacketType<CarryObject> TYPE = PacketType.of("CarryObject", HMessage.Direction.TOCLIENT, Schema.of(CarryObject.class)
-            .integer("userIndex")
-            .integer("itemType"));
+public class ChangePosture implements Packet, JsonSerializable {
+    public static final PacketType<ChangePosture> TYPE = PacketType.of("ChangePosture", HMessage.Direction.TOSERVER, Schema.of(ChangePosture.class)
+            .enumInt("posture", Posture.class));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
-    private Integer userIndex;
-    private Integer itemType;
+    private Posture posture;
 
-    public static CarryObject fromPacket(HPacket packet) {
+    public static ChangePosture fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);
     }
 
-    public static CarryObject fromJson(String json) {
-        return Json.parse(CarryObject.class, json);
+    public static ChangePosture fromJson(String json) {
+        return Json.parse(ChangePosture.class, json);
     }
 
     @Override

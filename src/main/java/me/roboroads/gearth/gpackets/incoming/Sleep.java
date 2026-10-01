@@ -21,11 +21,11 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 @AllArgsConstructor
 public class Sleep implements Packet, JsonSerializable {
     public static final PacketType<Sleep> TYPE = PacketType.of("Sleep", HMessage.Direction.TOCLIENT, Schema.of(Sleep.class)
-            .integer("userId")
+            .integer("userIndex")
             .bool("sleeping"));
 
-    // The user's room index (User.roomIndex), not their account id.
-    private Integer userId;
+    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
+    private Integer userIndex;
     private Boolean sleeping;
 
     public static Sleep fromPacket(HPacket packet) {

@@ -1,4 +1,4 @@
-package me.roboroads.gearth.gpackets.incoming;
+package me.roboroads.gearth.gpackets.outgoing;
 
 import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
@@ -13,27 +13,27 @@ import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** The hand item a user in the room carries. */
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.range;
+
+/** Holds up a sign above your avatar. */
 @Data
 @Builder
 @Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarryObject implements Packet, JsonSerializable {
-    public static final PacketType<CarryObject> TYPE = PacketType.of("CarryObject", HMessage.Direction.TOCLIENT, Schema.of(CarryObject.class)
-            .integer("userIndex")
-            .integer("itemType"));
+public class Sign implements Packet, JsonSerializable {
+    public static final PacketType<Sign> TYPE = PacketType.of("Sign", HMessage.Direction.TOSERVER, Schema.of(Sign.class)
+            .integer("sign", range(0, 17)));
 
-    // The user's room index (User.roomIndex), not their account id. The client calls it userId.
-    private Integer userIndex;
-    private Integer itemType;
+    // RoomSession.sendSignMessage only sends 0 to 17, both from the sign grid and from ":sign N".
+    private Integer sign;
 
-    public static CarryObject fromPacket(HPacket packet) {
+    public static Sign fromPacket(HPacket packet) {
         return TYPE.schema().parse(packet);
     }
 
-    public static CarryObject fromJson(String json) {
-        return Json.parse(CarryObject.class, json);
+    public static Sign fromJson(String json) {
+        return Json.parse(Sign.class, json);
     }
 
     @Override

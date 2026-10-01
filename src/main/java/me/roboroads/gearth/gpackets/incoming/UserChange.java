@@ -25,10 +25,10 @@ import java.util.List;
 @AllArgsConstructor
 public class UserChange implements Packet, JsonSerializable {
     public static final PacketType<UserChange> TYPE = PacketType.of("UserChange", HMessage.Direction.TOCLIENT, Schema.of(UserChange.class)
-            .integer("id")
+            .integer("userIndex")
             .string("figure")
             .string("sex")
-            .string("customInfo")
+            .string("motto")
             .integer("achievementScore")
             .string("unknownString6")
             .list("unknownList7", UnknownUserChangeEntry.SCHEMA)
@@ -36,13 +36,13 @@ public class UserChange implements Packet, JsonSerializable {
 
     // The user's room index (User.roomIndex), not their account id: the client looks it up with
     // UserDataManager.getUserDataByIndex.
-    private Integer id;
+    private Integer userIndex;
     private String figure;
     // "M" or "F". A plain string, not Gender: the client upper-cases it after reading, so the
     // server may send it in lower case, and an enum would change the bytes on a write.
     private String sex;
-    // The motto.
-    private String customInfo;
+    // The client calls it customInfo, like User.custom.
+    private String motto;
     private Integer achievementScore;
     @Unused("The client reads it and throws it away")
     @Deprecated
