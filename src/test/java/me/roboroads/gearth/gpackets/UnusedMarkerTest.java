@@ -7,6 +7,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.user.User;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
+import me.roboroads.gearth.gpackets.support.schema.OpenIntEnum;
 import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,9 @@ class UnusedMarkerTest {
             String where = field.getDeclaringClass().getName() + "." + field.getName();
             assertTrue(field.isAnnotationPresent(Deprecated.class), where + " has @Unused but not @Deprecated");
             assertFalse(field.getAnnotation(Unused.class).value().trim().isEmpty(), where + " has @Unused without a reason");
-            if (field.getDeclaringClass().isEnum()) {
+            // An enum or open-enum constant has no getter or builder method.
+            Class<?> owner = field.getDeclaringClass();
+            if (owner.isEnum() || OpenIntEnum.class.isAssignableFrom(owner)) {
                 continue;
             }
             assertTrue(getter(field).isAnnotationPresent(Deprecated.class), where + ": the getter is not @Deprecated");

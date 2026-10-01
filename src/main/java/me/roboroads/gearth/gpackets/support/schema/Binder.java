@@ -154,7 +154,7 @@ final class Binder {
             return null;
         }
         if (parameter instanceof ValueParameter) {
-            return field instanceof Enum ? ValueParameter.wireValue((Enum<?>) field) : field;
+            return field instanceof IntEnum || field instanceof StringEnum ? ValueParameter.wireValue(field) : field;
         }
         if (parameter instanceof ListParameter) {
             ListParameter list = (ListParameter) parameter;

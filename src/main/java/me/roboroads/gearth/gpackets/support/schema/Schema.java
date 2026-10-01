@@ -79,9 +79,16 @@ public final class Schema<T> {
         return value(name, WireType.BYTE, null, limits);
     }
 
-    /** An int on the wire that maps to {@code enumType} through {@link IntEnum#value()}. */
-    public <E extends Enum<E> & IntEnum> Schema<T> enumInt(String name, Class<E> enumType, Limit... limits) {
-        return value(name, WireType.INT, Objects.requireNonNull(enumType, "enumType"), limits);
+    /**
+     * An int on the wire that maps to {@code enumType} through {@link IntEnum#value()}: an enum, or
+     * an {@link OpenIntEnum} that also keeps ids it doesn't name.
+     */
+    public <E extends IntEnum> Schema<T> enumInt(String name, Class<E> enumType, Limit... limits) {
+        Objects.requireNonNull(enumType, "enumType");
+        if (!enumType.isEnum() && !OpenIntEnum.class.isAssignableFrom(enumType)) {
+            throw new IllegalArgumentException(name + ": " + enumType.getName() + " is neither an enum nor an OpenIntEnum");
+        }
+        return value(name, WireType.INT, enumType, limits);
     }
 
     /** A string on the wire that maps to {@code enumType} through {@link StringEnum#code()}. */
@@ -279,7 +286,7 @@ public final class Schema<T> {
         return false;
     }
 
-    private Schema<T> value(String name, WireType wireType, Class<? extends Enum<?>> enumType, Limit... limits) {
+    private Schema<T> value(String name, WireType wireType, Class<?> enumType, Limit... limits) {
         return with(new ValueParameter(Objects.requireNonNull(name, "name"), wireType, enumType), limits);
     }
 
