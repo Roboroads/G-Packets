@@ -15,7 +15,9 @@ import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.PageLinkFrontPageItem;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.ProductCodeFrontPageItem;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.ProductOfferFrontPageItem;
+import me.roboroads.gearth.gpackets.model.enums.ActivityPointType;
 import me.roboroads.gearth.gpackets.model.enums.CatalogType;
+import me.roboroads.gearth.gpackets.model.enums.ClubLevel;
 import me.roboroads.gearth.gpackets.model.enums.FrontPageItemType;
 import me.roboroads.gearth.gpackets.model.enums.ProductType;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
@@ -97,7 +99,7 @@ class CatalogWireFormatTest {
     static CatalogPage catalogPage(List<FrontPageItem> frontPageItems) {
         Offer offer = Offer.builder()
                 .offerId(99).localizationId("rare_dragon").isRent(false)
-                .priceInCredits(25).priceInActivityPoints(5).activityPointType(0).priceInSilver(0)
+                .priceInCredits(25).priceInActivityPoints(5).activityPointType(ActivityPointType.DUCKETS).priceInSilver(0)
                 .giftable(true)
                 .products(Arrays.asList(
                         FurniProduct.builder().productType(ProductType.STUFF)
@@ -109,7 +111,7 @@ class CatalogWireFormatTest {
                                 .uniqueLimitedItem(false)
                                 .build(),
                         BadgeProduct.builder().productType(ProductType.BADGE).extraParam("ACH_1").build()))
-                .clubLevel(1).bundlePurchaseAllowed(true).unknownBoolean12(false).previewImage("dragon.png")
+                .clubLevel(ClubLevel.CLUB).bundlePurchaseAllowed(true).unknownBoolean12(false).previewImage("dragon.png")
                 .build();
         return CatalogPage.builder()
                 .pageId(10).catalogType(CatalogType.NORMAL).layoutCode("default_3x3")

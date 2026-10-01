@@ -5,15 +5,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
-// Values and names from the client's purse constants (com.sulake.habbo.catalog.purse).
-// The wire only carries the int, so callers may keep the raw int and treat this as
-// documentation only.
+// Values and names from the client's purse constants (com.sulake.habbo.catalog.purse), which
+// list every type the client knows.
 @RequiredArgsConstructor
 public enum ActivityPointType implements IntEnum {
     DUCKETS(0),
     NO_OP_1(1),
     NO_OP_2(2),
-    // Client constant is obfuscated and has no descriptive usage, unverified.
+    // Client constant is obfuscated and has no descriptive usage, and the hotel's
+    // activitypoint.name.* variables don't name it. Old texts call type 3 "gift points".
     UNKNOWN_3(3),
     NO_OP_4(4),
     // Client constant is obfuscated; its icon style is gated by the "diamonds.enabled" property.
