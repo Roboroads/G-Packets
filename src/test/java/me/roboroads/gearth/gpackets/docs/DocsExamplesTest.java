@@ -212,7 +212,7 @@ class DocsExamplesTest {
     private static Users oneUser() {
         return Users.builder().users(Collections.singletonList(
                 new Player(1, "Alice", "motto", "hd-180-1", 0, 3, 4, "0.0", Direction.EAST, UserType.PLAYER,
-                        Gender.FEMALE, 7, 1, "Group", "swim", 120, true)
+                        Gender.FEMALE, 7, 1, "Group", "swim", 120, true, 5)
         )).build();
     }
 

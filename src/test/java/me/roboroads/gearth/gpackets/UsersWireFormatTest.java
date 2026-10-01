@@ -24,7 +24,7 @@ class UsersWireFormatTest {
     static Users sample() {
         return Users.builder().users(Arrays.asList(
                 new Player(1, "Alice", "motto", "hd-180-1", 0, 3, 4, "0.0", Direction.EAST, UserType.PLAYER,
-                        Gender.FEMALE, 7, 1, "Group", "swim", 120, true),
+                        Gender.FEMALE, 7, 1, "Group", "swim", 120, true, 5),
                 new Pet(2, "Rex", "", "pet-fig", 1, 5, 6, "0.5", Direction.SOUTH, UserType.PET,
                         3, 1, "Alice", 2, true, false, true, false, true, false, 10, "std"),
                 new OldBot(3, "Old", "", "bot-fig", 2, 7, 8, "1.0", Direction.WEST, UserType.OLD_BOT),
@@ -40,7 +40,7 @@ class UsersWireFormatTest {
         p.appendInt(1).appendString("Alice").appendString("motto").appendString("hd-180-1")
                 .appendInt(0).appendInt(3).appendInt(4).appendString("0.0").appendInt(2).appendInt(1);
         p.appendString("F").appendInt(7).appendInt(1).appendString("Group").appendString("swim")
-                .appendInt(120).appendBoolean(true);
+                .appendInt(120).appendBoolean(true).appendInt(5);
         // Pet
         p.appendInt(2).appendString("Rex").appendString("").appendString("pet-fig")
                 .appendInt(1).appendInt(5).appendInt(6).appendString("0.5").appendInt(4).appendInt(2);
