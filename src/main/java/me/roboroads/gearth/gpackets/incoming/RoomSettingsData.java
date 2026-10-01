@@ -8,6 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.incoming.sub.room.RoomModerationSettings;
+import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
+import me.roboroads.gearth.gpackets.model.enums.DoorMode;
+import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
+import me.roboroads.gearth.gpackets.model.enums.TradeMode;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -28,19 +32,19 @@ public class RoomSettingsData implements Packet, JsonSerializable {
             .integer("roomId")
             .string("name")
             .string("description")
-            .integer("doorMode")
+            .enumInt("doorMode", DoorMode.class)
             .integer("categoryId")
             .integer("maximumVisitors")
             .integer("maximumVisitorsLimit")
             .list("tags", WireType.STRING)
-            .integer("tradeMode")
+            .enumInt("tradeMode", TradeMode.class)
             .integer("allowPets")
             .integer("allowFoodConsume")
             .integer("allowWalkThrough")
             .integer("hideWalls")
-            .integer("wallThickness")
-            .integer("floorThickness")
-            .integer("chatFloodSensitivity")
+            .enumInt("wallThickness", RoomThickness.class)
+            .enumInt("floorThickness", RoomThickness.class)
+            .enumInt("chatFloodSensitivity", ChatFloodSensitivity.class)
             .bool("leaveOnDoorTileEnabled")
             .bool("idleSleepEnabled")
             .integer("idleSleepTimeoutSeconds")
@@ -53,26 +57,21 @@ public class RoomSettingsData implements Packet, JsonSerializable {
     private Integer roomId;
     private String name;
     private String description;
-    // 0 open, 1 doorbell, 2 password, 3 invisible (the client's doormode_* radio buttons).
-    // The client also knows 4, which has no button.
-    private Integer doorMode;
+    private DoorMode doorMode;
     private Integer categoryId;
     private Integer maximumVisitors;
     private Integer maximumVisitorsLimit;
     private List<String> tags;
-    // Index into the client's trade dropdown: 0 trade_not_allowed, 1 trade_not_with_Controller,
-    // 2 trade_allowed (localization keys under navigator.roomsettings).
-    private Integer tradeMode;
+    private TradeMode tradeMode;
     // The four flags below are sent as ints: 1 is on, 0 is off. SaveRoomSettings sends them as booleans.
     private Integer allowPets;
     private Integer allowFoodConsume;
     private Integer allowWalkThrough;
     private Integer hideWalls;
-    // -2 to 1; the client's thickness dropdown.
-    private Integer wallThickness;
-    private Integer floorThickness;
+    private RoomThickness wallThickness;
+    private RoomThickness floorThickness;
     // The client builds its chat settings from this alone (fromFloodSensitivity).
-    private Integer chatFloodSensitivity;
+    private ChatFloodSensitivity chatFloodSensitivity;
     private Boolean leaveOnDoorTileEnabled;
     private Boolean idleSleepEnabled;
     private Integer idleSleepTimeoutSeconds;

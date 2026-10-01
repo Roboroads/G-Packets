@@ -26,7 +26,10 @@ public class RoomSettingsSaveError implements Packet, JsonSerializable {
             .string("info"));
 
     private Integer roomId;
-    // The client declares 1 to 13 and 16; their names are obfuscated.
+    // The client declares 1 to 13 and 16 but only explains some, so this stays an int:
+    // 5 password missing, 7 name missing, 8 name has unacceptable words, 10 description has
+    // unacceptable words, 11 a tag has unacceptable words, 12 a tag users can't choose,
+    // 13 a tag is too long, 16 a custom error described by info.
     private Integer errorCode;
     private String info;
 

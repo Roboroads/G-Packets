@@ -8,7 +8,11 @@ import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
 import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
 import me.roboroads.gearth.gpackets.incoming.sub.room.RoomModerationSettings;
+import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
+import me.roboroads.gearth.gpackets.model.enums.DoorMode;
 import me.roboroads.gearth.gpackets.model.enums.RoomModerationPermission;
+import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
+import me.roboroads.gearth.gpackets.model.enums.TradeMode;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
@@ -26,10 +30,11 @@ class RoomSettingsWireFormatTest {
 
     static RoomSettingsData roomSettingsData() {
         return RoomSettingsData.builder()
-                .roomId(42).name("My room").description("Chill").doorMode(2).categoryId(3)
+                .roomId(42).name("My room").description("Chill").doorMode(DoorMode.PASSWORD).categoryId(3)
                 .maximumVisitors(25).maximumVisitorsLimit(50).tags(Arrays.asList("chill", "music"))
-                .tradeMode(2).allowPets(1).allowFoodConsume(0).allowWalkThrough(1).hideWalls(0)
-                .wallThickness(-1).floorThickness(0).chatFloodSensitivity(1)
+                .tradeMode(TradeMode.EVERYONE).allowPets(1).allowFoodConsume(0).allowWalkThrough(1).hideWalls(0)
+                .wallThickness(RoomThickness.THIN).floorThickness(RoomThickness.NORMAL)
+                .chatFloodSensitivity(ChatFloodSensitivity.NORMAL)
                 .leaveOnDoorTileEnabled(true).idleSleepEnabled(true).idleSleepTimeoutSeconds(600)
                 .idleAutokickEnabled(false).idleAutokickTimeoutSeconds(0).muteAllPets(false)
                 .roomModerationSettings(new RoomModerationSettings(
@@ -155,12 +160,12 @@ class RoomSettingsWireFormatTest {
 
     static SaveRoomSettings saveRoomSettings() {
         return SaveRoomSettings.builder()
-                .roomId(42).name("My room").description("Chill").doorMode(2).password("secret")
+                .roomId(42).name("My room").description("Chill").doorMode(DoorMode.PASSWORD).password("secret")
                 .maximumVisitors(25).categoryId(3).tags(Arrays.asList("chill", "music"))
-                .tradeMode(2).allowPets(true).allowFoodConsume(false).allowWalkThrough(true).hideWalls(false)
-                .wallThickness(-1).floorThickness(0)
+                .tradeMode(TradeMode.EVERYONE).allowPets(true).allowFoodConsume(false).allowWalkThrough(true).hideWalls(false)
+                .wallThickness(RoomThickness.THIN).floorThickness(RoomThickness.NORMAL)
                 .whoCanMute(RoomModerationPermission.RIGHTS).whoCanKick(RoomModerationPermission.GROUP_ADMINS)
-                .whoCanBan(RoomModerationPermission.NONE).chatFloodSensitivity(1)
+                .whoCanBan(RoomModerationPermission.NONE).chatFloodSensitivity(ChatFloodSensitivity.NORMAL)
                 .leaveOnDoorTileEnabled(true).idleSleepEnabled(true).idleSleepTimeoutSeconds(600)
                 .idleAutokickEnabled(false).idleAutokickTimeoutSeconds(0).muteAllPets(false)
                 .build();

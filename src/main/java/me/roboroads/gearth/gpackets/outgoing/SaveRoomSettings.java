@@ -7,7 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
+import me.roboroads.gearth.gpackets.model.enums.DoorMode;
 import me.roboroads.gearth.gpackets.model.enums.RoomModerationPermission;
+import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
+import me.roboroads.gearth.gpackets.model.enums.TradeMode;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -33,22 +37,22 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
             .integer("roomId")
             .string("name")
             .string("description")
-            .integer("doorMode")
+            .enumInt("doorMode", DoorMode.class)
             .string("password")
             .integer("maximumVisitors")
             .integer("categoryId")
             .list("tags", WireType.STRING)
-            .integer("tradeMode")
+            .enumInt("tradeMode", TradeMode.class)
             .bool("allowPets")
             .bool("allowFoodConsume")
             .bool("allowWalkThrough")
             .bool("hideWalls")
-            .integer("wallThickness")
-            .integer("floorThickness")
+            .enumInt("wallThickness", RoomThickness.class)
+            .enumInt("floorThickness", RoomThickness.class)
             .enumInt("whoCanMute", RoomModerationPermission.class)
             .enumInt("whoCanKick", RoomModerationPermission.class)
             .enumInt("whoCanBan", RoomModerationPermission.class)
-            .integer("chatFloodSensitivity")
+            .enumInt("chatFloodSensitivity", ChatFloodSensitivity.class)
             .bool("leaveOnDoorTileEnabled")
             .bool("idleSleepEnabled")
             .integer("idleSleepTimeoutSeconds")
@@ -59,26 +63,23 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
     private Integer roomId;
     private String name;
     private String description;
-    // 0 open, 1 doorbell, 2 password, 3 invisible (the client's doormode_* radio buttons).
-    private Integer doorMode;
+    private DoorMode doorMode;
     // The client sends "" unless the door mode is password.
     private String password;
     private Integer maximumVisitors;
     private Integer categoryId;
     private List<String> tags;
-    // 0 trade_not_allowed, 1 trade_not_with_Controller, 2 trade_allowed (localization keys under navigator.roomsettings).
-    private Integer tradeMode;
+    private TradeMode tradeMode;
     private Boolean allowPets;
     private Boolean allowFoodConsume;
     private Boolean allowWalkThrough;
     private Boolean hideWalls;
-    // -2 to 1; the client's thickness dropdown.
-    private Integer wallThickness;
-    private Integer floorThickness;
+    private RoomThickness wallThickness;
+    private RoomThickness floorThickness;
     private RoomModerationPermission whoCanMute;
     private RoomModerationPermission whoCanKick;
     private RoomModerationPermission whoCanBan;
-    private Integer chatFloodSensitivity;
+    private ChatFloodSensitivity chatFloodSensitivity;
     private Boolean leaveOnDoorTileEnabled;
     private Boolean idleSleepEnabled;
     private Integer idleSleepTimeoutSeconds;
