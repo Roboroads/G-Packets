@@ -12,6 +12,7 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import testfixtures.NoTypePacket;
+import testfixtures.limits.LimitFixtures;
 import testfixtures.unused.UnusedFixtures;
 
 import java.io.IOException;
@@ -22,7 +23,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.UnaryOperator;
 
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.maxLength;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.notEmpty;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.range;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.requiresVip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PacketReferenceTest {
@@ -85,6 +91,35 @@ class PacketReferenceTest {
                         + "| `flag` | boolean |  |\n"
                         + "| `hash` | string | optional: only present if the packet has bytes left |\n",
                 PacketReference.body(schema));
+    }
+
+    @Test
+    void notesTheLimits() {
+        Schema<Plain> schema = Schema.of(Plain.class)
+                .string("name", notEmpty(), maxLength(5))
+                .integer("sleep", range(30, 3600).orZero(), requiresVip());
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `name` | string | not empty; at most 5 characters |\n"
+                        + "| `sleep` | int | 30 to 3600, or 0; VIP only |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void listsTheRulesAfterTheTable() {
+        Schema<Plain> schema = Schema.of(Plain.class).integer("a").rule("a is positive", values -> true);
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `a` | int |  |\n"
+                        + "\nRules:\n\n- a is positive\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void anOutgoingPageWithLimitsSaysTheyAreChecked() {
+        assertTrue(PacketReference.page(LimitFixtures.Outgoing.TYPE).contains(
+                "```\n\nLimits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n## Parameters"));
+        assertFalse(PacketReference.page(LimitFixtures.Incoming.TYPE).contains("Limits are checked"));
     }
 
     @Test
