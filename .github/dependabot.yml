@@ -25,7 +25,11 @@ updates:
       # cannot resolve it.
       - dependency-name: "G-Earth:G-Earth"
       # JUnit 6 needs Java 17 and the library builds on Java 8. Remove this
-      # rule when the Java version goes up.
+      # rule when the Java version goes up. #6 and #7 also left an ignore in
+      # GitHub's Dependabot state; clear it then by commenting
+      # `@dependabot unignore org.junit.jupiter:junit-jupiter-api` and
+      # `@dependabot unignore org.junit.jupiter:junit-jupiter-engine` on any
+      # open Dependabot PR.
       - dependency-name: "org.junit.jupiter:*"
         update-types:
           - "version-update:semver-major"
