@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * The wire format of a packet or sub-packet: its parameters in wire order, bound to the Java class
@@ -71,6 +72,31 @@ public final class Schema<T> {
     /** A string on the wire that maps to {@code enumType} through {@link StringEnum#code()}. */
     public <E extends Enum<E> & StringEnum> Schema<T> enumString(String name, Class<E> enumType) {
         return value(name, WireType.STRING, Objects.requireNonNull(enumType, "enumType"));
+    }
+
+    /** A list of primitives: an int count, then that many values. */
+    public Schema<T> list(String name, WireType elementType) {
+        return with(new ListParameter(Objects.requireNonNull(name, "name"), Objects.requireNonNull(elementType, "elementType"), null));
+    }
+
+    /** A list of structures: an int count, then that many {@code elementSchema}s. */
+    public Schema<T> list(String name, Schema<?> elementSchema) {
+        Objects.requireNonNull(elementSchema, "elementSchema");
+        return list(name, () -> elementSchema);
+    }
+
+    /**
+     * A list of structures whose schema is looked up when used, for a structure that contains
+     * itself: {@code .list("children", () -> CatalogNode.SCHEMA)}. Use the qualified name; Java
+     * rejects a simple-name self-reference in a field's own initializer.
+     */
+    public Schema<T> list(String name, Supplier<? extends Schema<?>> elementSchema) {
+        return with(new ListParameter(Objects.requireNonNull(name, "name"), null, Objects.requireNonNull(elementSchema, "elementSchema")));
+    }
+
+    /** A nested structure, read inline. */
+    public Schema<T> struct(String name, Schema<?> schema) {
+        return with(new StructParameter(Objects.requireNonNull(name, "name"), Objects.requireNonNull(schema, "schema")));
     }
 
     /** Reads values from the packet's current read index, keyed by parameter name in wire order. */

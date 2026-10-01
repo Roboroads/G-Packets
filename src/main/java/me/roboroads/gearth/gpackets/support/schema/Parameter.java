@@ -2,6 +2,7 @@ package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -35,5 +36,16 @@ public abstract class Parameter {
         } catch (RuntimeException e) {
             throw new IllegalArgumentException(path + ": packet ended before this " + type + " could be read", e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> asValues(Object value, String path) {
+        if (value == null) {
+            return new LinkedHashMap<>();
+        }
+        if (value instanceof Map) {
+            return (Map<String, Object>) value;
+        }
+        throw new IllegalArgumentException(path + ": expected a Map, got " + value.getClass().getName());
     }
 }
