@@ -29,3 +29,11 @@ updates:
         update-types:
           - minor
           - patch
+
+  # The MkDocs Material pin for the documentation site.
+  - package-ecosystem: pip
+    directory: /docs
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: docs
