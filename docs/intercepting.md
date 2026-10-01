@@ -116,13 +116,13 @@ public class AutoReply {
 }
 ```
 
-If a handler needs anything else in its constructor, create it yourself and pass it to `init`. A class you pass an instance of isn't created a second time:
+The rest of your code can't reach the instances `init` creates. If a handler needs anything else in its constructor, or other code needs the same instance (a singleton, or state your GUI shows), create it yourself and pass it to `init`. A class you pass an instance of isn't created a second time:
 
 ```java
 GPackets.init(this, new ChatLogger(database));
 ```
 
-Handlers run in this order: your extension, then the handlers you passed, then the ones `init` found, sorted by class name. The order matters when one handler blocks a packet before the next one sees it.
+When several handlers take the same packet, G-Earth calls them in no particular order, and each one still gets the packet after another one blocked it. Check `message.isBlocked()` if a handler should leave blocked packets alone.
 
 ### When init fails
 
