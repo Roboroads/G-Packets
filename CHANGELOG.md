@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.2.0...G-Packets-v0.3.0) (2026-10-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* use enums for an offer's activity point type and club level ([#81](https://github.com/Roboroads/G-Packets/issues/81))
+
+### Features
+
+* add the room settings packets ([#20](https://github.com/Roboroads/G-Packets/issues/20)) ([dc48535](https://github.com/Roboroads/G-Packets/commit/dc4853519db292455989ad6fe84b5e8c813a7c05))
+* mark parameters, values and packets the client ignores ([#83](https://github.com/Roboroads/G-Packets/issues/83)) ([f85ecaf](https://github.com/Roboroads/G-Packets/commit/f85ecafd890f61a20b9845641652110bf7608c6d))
+* use enums for an offer's activity point type and club level ([#81](https://github.com/Roboroads/G-Packets/issues/81)) ([4070265](https://github.com/Roboroads/G-Packets/commit/407026591d2a70f93a86c1cf18aceb3eda615622))
+
 ## [0.2.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.1.0...G-Packets-v0.2.0) (2026-10-01)
 
 
