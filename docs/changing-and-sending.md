@@ -20,7 +20,7 @@ The example uses annotations, but `replaceIn` works the same with whichever [int
 
 `replaceIn` keeps the message's original header id, swaps in your packet's body, and marks the packet edited, so G-Earth forwards the changed version. It throws an `IllegalArgumentException` if the message travels the other way from the packet, for example when you put a `Chat` into a message going to the client.
 
-To drop a packet instead of changing it, block it through its `HMessage`; see [What the HMessage gives you](intercepting.md#what-the-hmessage-gives-you).
+To drop a packet instead of changing it, block it with G-Earth's `message.setBlocked(true)`.
 
 ## Creating a packet
 

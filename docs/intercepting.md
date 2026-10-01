@@ -12,7 +12,7 @@ There are three ways to intercept. They are alternatives: pick the one you like 
 | [Option 2: the TYPE descriptor](#option-2-the-type-descriptor) | a lambda per packet type | You prefer lambdas, or you add and remove handlers at runtime |
 | [Option 3: raw interception](#option-3-raw-interception) | G-Earth's own `intercept`, with `fromPacket` inside | You already have raw G-Earth listeners and only want the parsing |
 
-All three use the same packet classes and give you the same G-Earth `HMessage`, so [changing a packet](changing-and-sending.md) and [working with the HMessage](#what-the-hmessage-gives-you) work the same way in each.
+All three use the same packet classes and give you the same G-Earth `HMessage`, so [changing a packet](changing-and-sending.md) and working with the `HMessage` work the same way in each.
 
 ## Option 1: annotations (recommended)
 
@@ -58,7 +58,7 @@ void onUsers(HMessage message) { } // no packet parameter, so the type is listed
 
 ### Working with the HMessage
 
-Add an `HMessage` parameter after the packet to get G-Earth's message around it. With it you may block the packet, check its direction, reach the raw `HPacket`, and [more](#what-the-hmessage-gives-you). This handler blocks chat messages that mention a spoiler:
+Add an `HMessage` parameter after the packet to get G-Earth's message around it, and use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages that mention a spoiler:
 
 ```java
 @Intercept(Chat.class)
@@ -128,7 +128,7 @@ protected void initExtension() {
 
 ### Working with the HMessage
 
-The handler gets G-Earth's `HMessage` as its second argument. With it you may block the packet, check its direction, reach the raw `HPacket`, and [more](#what-the-hmessage-gives-you). This handler blocks chat messages that mention a spoiler:
+The handler gets G-Earth's `HMessage` as its second argument. Use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages that mention a spoiler:
 
 ```java
 Chat.TYPE.intercept(this, (chat, message) -> {
@@ -163,7 +163,7 @@ intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
 
 ### Working with the HMessage
 
-G-Earth's listener already hands you the `HMessage`; the typed packet is something you parse from it. With the message you may block the packet, check its direction, and [more](#what-the-hmessage-gives-you). This listener blocks chat messages that mention a spoiler:
+G-Earth's listener already hands you the `HMessage`; the typed packet is something you parse from it. Use the message as you would in any G-Earth extension, for example to block the packet. This listener blocks chat messages that mention a spoiler:
 
 ```java
 intercept(Chat.TYPE.direction(), Chat.TYPE.header(), message -> {
@@ -176,20 +176,5 @@ intercept(Chat.TYPE.direction(), Chat.TYPE.header(), message -> {
 
 !!! note "Read index"
     `fromPacket` reads from the packet's current read index, so call it before anything else reads the packet. Options 1 and 2 don't have this catch: they read from the start of the packet and put the read index back afterwards, so several handlers can read the same packet.
-
-## What the HMessage gives you
-
-Whichever option you picked, the `HMessage` is G-Earth's own object for the intercepted message. These are the methods you'll reach for most:
-
-| Method | What it does |
-|---|---|
-| `setBlocked(true)` | Stops the packet from reaching the other side. |
-| `isBlocked()` | Tells you whether a handler already blocked it. |
-| `getPacket()` | Returns the raw `HPacket`, for example to call `fromPacket` or `TYPE.read` yourself. |
-| `getDestination()` | Returns `TOCLIENT` or `TOSERVER`, handy when one handler sees both directions. |
-| `getIndex()` | Returns G-Earth's running number for this message. |
-| `isCorrupted()` | Tells you whether G-Earth marked the packet as corrupted. |
-
-G-Packets adds one thing on top: a packet's `replaceIn(message)` puts your edited packet into the message. See [Changing and sending packets](changing-and-sending.md).
 
 Once you have a packet, [Changing and sending packets](changing-and-sending.md) shows how to edit it or send your own. To handle packets without their typed classes, see [Packet parameters](parameters.md).
