@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets;
 
+import me.roboroads.gearth.gpackets.incoming.CatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsError;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
@@ -68,6 +69,7 @@ class UnusedMarkerTest {
     void theClientIgnoresTheseParameters() {
         assertEquals("The client stores it but never reads it", parameter(Offer.SCHEMA, "unknownBoolean12").unused());
         assertEquals("The client copies it into its user data but nothing reads it", parameter(playerSchema(), "groupStatus").unused());
+        assertEquals("The client stores it but never reads it", parameter(CatalogPageWithEarliestExpiry.TYPE.schema(), "image").unused());
     }
 
     @Test
