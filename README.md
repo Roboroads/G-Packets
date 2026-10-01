@@ -4,6 +4,17 @@ G-Packets parses, builds and serializes Habbo packets for G-Earth extensions, so
 
 See [Sulek](https://sulek.dev) for an overview of packets. This is a work in progress, so not every packet is implemented yet. If the one you need is missing, open a pull request.
 
+## Contents
+
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Changing an intercepted packet](#changing-an-intercepted-packet)
+- [Without reflection: TYPE](#without-reflection-type)
+- [Raw](#raw)
+- [Creating and sending packets](#creating-and-sending-packets)
+- [JSON](#json)
+- [Contributing a packet](#contributing-a-packet)
+
 ## Installation
 
 G-Packets is published through JitPack. It needs Java 8 or later and a G-Earth extension to run inside.
