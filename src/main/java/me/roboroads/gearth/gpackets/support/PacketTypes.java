@@ -6,7 +6,6 @@ import me.roboroads.gearth.gpackets.incoming.CatalogPage;
 import me.roboroads.gearth.gpackets.incoming.CatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
-import me.roboroads.gearth.gpackets.incoming.RoomSettingsError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
 import me.roboroads.gearth.gpackets.incoming.Users;
@@ -32,13 +31,16 @@ import java.util.Optional;
  * packet is missing from it.
  */
 public final class PacketTypes {
+    // Also lists packets the client ignores. Those are written out in full instead of imported,
+    // because Java 8 warns on the import of a deprecated class and @SuppressWarnings can't reach it.
+    @SuppressWarnings("deprecation")
     private static final List<PacketType<?>> ALL = Collections.unmodifiableList(Arrays.<PacketType<?>>asList(
             CatalogIndex.TYPE,
             CatalogPage.TYPE,
             CatalogPageWithEarliestExpiry.TYPE,
             CatalogPublished.TYPE,
             RoomSettingsData.TYPE,
-            RoomSettingsError.TYPE,
+            me.roboroads.gearth.gpackets.incoming.RoomSettingsError.TYPE,
             RoomSettingsSaved.TYPE,
             RoomSettingsSaveError.TYPE,
             Users.TYPE,

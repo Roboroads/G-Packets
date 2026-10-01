@@ -11,9 +11,13 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /** The server can't send a room's settings. */
+// The client's handler (onRoomSettingsError) only takes the parser and does nothing else.
+@Unused("The client's handler takes the packet and does nothing with it")
+@Deprecated
 @Data
 @Builder
 @Jacksonized

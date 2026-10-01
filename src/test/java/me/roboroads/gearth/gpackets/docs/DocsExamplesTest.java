@@ -8,6 +8,7 @@ import me.roboroads.gearth.gpackets.Intercept;
 import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.incoming.Users;
+import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
@@ -113,9 +114,26 @@ class DocsExamplesTest {
             }
         }
 
+        // parameters.md: "Unused parameters"
+        List<String> unusedOfferParameters() {
+            List<String> unused = new ArrayList<>();
+            for (Parameter parameter : Offer.SCHEMA.parameters()) {
+                if (parameter.unused() != null) {
+                    unused.add(parameter.name() + ": " + parameter.unused());
+                }
+            }
+            return unused;
+        }
+
         private void print(String line) {
             printed.add(line);
         }
+    }
+
+    @Test
+    void unusedParametersListsWhatTheClientIgnores() {
+        assertEquals(Collections.singletonList("unknownBoolean12: The client stores it but never reads it"),
+                new Examples().unusedOfferParameters());
     }
 
     private static Users oneUser() {

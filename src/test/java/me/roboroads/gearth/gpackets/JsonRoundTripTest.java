@@ -45,6 +45,7 @@ public class JsonRoundTripTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // sets Player.groupStatus
     public void usersRoundTripKeepsSubtypes() {
         Users users = Users.builder().users(Arrays.asList(
                 Player.builder()

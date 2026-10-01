@@ -1,6 +1,7 @@
 package me.roboroads.gearth.gpackets.support.schema;
 
 import gearth.protocol.HPacket;
+import me.roboroads.gearth.gpackets.support.Unused;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +34,29 @@ public final class ValueParameter extends Parameter {
         if (enumType != null) {
             for (Enum<?> constant : enumType.getEnumConstants()) {
                 options.put(constant.name(), wireValue(constant));
+            }
+        }
+        return Collections.unmodifiableMap(options);
+    }
+
+    /**
+     * The enum constants the current client ignores, by name, with the reason from their
+     * {@link Unused}, in declaration order. Empty for a plain value or when the client uses every
+     * constant.
+     */
+    public Map<String, String> unusedOptions() {
+        Map<String, String> options = new LinkedHashMap<>();
+        if (enumType != null) {
+            for (Enum<?> constant : enumType.getEnumConstants()) {
+                Unused unused;
+                try {
+                    unused = enumType.getField(constant.name()).getAnnotation(Unused.class);
+                } catch (NoSuchFieldException e) {
+                    throw new AssertionError(constant.name() + " is a constant of " + enumType.getName(), e);
+                }
+                if (unused != null) {
+                    options.put(constant.name(), unused.value());
+                }
             }
         }
         return Collections.unmodifiableMap(options);

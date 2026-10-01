@@ -10,6 +10,7 @@ import me.roboroads.gearth.gpackets.model.enums.ActivityPointType;
 import me.roboroads.gearth.gpackets.model.enums.ClubLevel;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
+import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
@@ -49,6 +50,8 @@ public class Offer implements SubPacket, JsonSerializable {
     private Boolean bundlePurchaseAllowed;
     // The client stores it but never exposes or reads it; G-Rust calls it "_unused".
     // Possibly an "is pet" flag (other emulators), unverified.
+    @Unused("The client stores it but never reads it")
+    @Deprecated
     private Boolean unknownBoolean12;
     private String previewImage;
 

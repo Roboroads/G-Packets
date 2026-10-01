@@ -113,13 +113,13 @@ The loop registers the listener for both directions, so you see what the server 
 
 | Kind | What it is | What you can ask it |
 |---|---|---|
-| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()` |
+| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()` |
 | `ListParameter` | an int count, then that many elements | `elementType()` for values, `elementSchema()` for structures |
 | `StructParameter` | a nested structure | `schema()` |
 | `BranchParameter` | parameters that depend on an earlier value | `on()`, `exhaustive()`, `cases()` |
 | `OptionalParameter` | parameters the server may leave off the end | `schema()` |
 
-Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing.
+Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing.
 
 This method prints any schema as an indented tree:
 
@@ -172,6 +172,24 @@ describe(CatalogIndex.TYPE.schema(), "", Collections.newSetFromMap(new IdentityH
 
 !!! warning
     A schema can contain itself: a `CatalogNode` has `children` that are `CatalogNode`s. When you walk schemas, keep a set of the ones you've seen, compared by identity, as the example does. Without it the walk never ends.
+
+## Unused parameters
+
+Some parameters are on the wire, but the current Habbo client ignores them: it reads the value and never uses it. G-Packets keeps them, so packets still parse and write in full, and marks them `@Deprecated`. When your code reads or sets one, your IDE strikes it through and the compiler reports it as deprecated. The same goes for an enum value or a whole packet the client ignores, and the [packet reference](packets/index.md) marks them with the reason.
+
+If you use one on purpose, put `@SuppressWarnings("deprecation")` on your method. On Java 8 the compiler also warns about the import of an unused packet class, and `@SuppressWarnings` can't reach an import. Write the full class name where you use it instead, for example `me.roboroads.gearth.gpackets.incoming.RoomSettingsError`.
+
+Tools can ask the schema instead. `unused()` returns why the client ignores a parameter, or `null` when it uses it. `unusedOptions()` does the same for the values of an enum parameter, and `TYPE.unused()` for a whole packet:
+
+```java
+List<String> unused = new ArrayList<>();
+for (Parameter parameter : Offer.SCHEMA.parameters()) {
+    if (parameter.unused() != null) {
+        unused.add(parameter.name() + ": " + parameter.unused());
+    }
+}
+// [unknownBoolean12: The client stores it but never reads it]
+```
 
 ## Typed objects from a schema
 
