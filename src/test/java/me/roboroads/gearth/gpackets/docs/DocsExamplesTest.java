@@ -2,6 +2,7 @@ package me.roboroads.gearth.gpackets.docs;
 
 import gearth.extensions.FakeExtension;
 import gearth.protocol.HMessage;
+import gearth.protocol.HPacket;
 import gearth.services.packet_info.PacketInfo;
 import me.roboroads.gearth.gpackets.GPackets;
 import me.roboroads.gearth.gpackets.Intercept;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -85,6 +87,21 @@ class DocsExamplesTest {
             values.put("text", "Hello from values");
             values.put("style", ChatBarStyle.DEFAULT);
             sendToServer(Chat.TYPE.write(values));
+        }
+
+        // parameters.md: "Bytes the schema doesn't know"
+        void warnAboutUnknownBytes(HMessage message) {
+            byte[] unknown = Users.TYPE.trailingBytes(message.getPacket());
+            if (unknown.length > 0) {
+                print("Users has " + unknown.length + " bytes G-Packets doesn't know");
+            }
+        }
+
+        // parameters.md: "Bytes the schema doesn't know", sending a captured packet again
+        void sendAgain(HPacket captured) {
+            Map<String, Object> values = Chat.TYPE.read(captured);
+            values.put("text", "Sent again");
+            sendToServer(Chat.TYPE.write(values).appendBytes(Chat.TYPE.trailingBytes(captured)));
         }
 
         // parameters.md: "Listing the parameters"
@@ -224,6 +241,26 @@ class DocsExamplesTest {
         HMessage message = extension.fire(oneUser().toPacket(), HMessage.Direction.TOCLIENT);
 
         assertEquals("Hidden", Users.TYPE.parse(message.getPacket()).users().get(0).name());
+    }
+
+    @Test
+    void warnAboutUnknownBytesCountsThem() {
+        Examples extension = new Examples();
+
+        extension.warnAboutUnknownBytes(new HMessage(oneUser().toPacket().appendInt(42), HMessage.Direction.TOCLIENT, 0));
+
+        assertEquals(Collections.singletonList("Users has 4 bytes G-Packets doesn't know"), extension.printed);
+    }
+
+    @Test
+    void sendAgainKeepsTheTrailingBytes() {
+        Examples extension = new Examples();
+
+        extension.sendAgain(new Chat("hi", ChatBarStyle.DEFAULT, 7).toPacket().appendInt(42));
+
+        HPacket sent = extension.sentToServer.get(0);
+        assertEquals("Sent again", Chat.TYPE.parse(sent).text());
+        assertArrayEquals(new byte[]{0, 0, 0, 42}, Chat.TYPE.trailingBytes(sent));
     }
 
     @Test

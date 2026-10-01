@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -83,6 +84,25 @@ class PacketTypeTest {
         HPacket copy = Chat.TYPE.write(Chat.TYPE.read(original));
 
         assertEquals(Arrays.toString(original.toBytes()), Arrays.toString(copy.toBytes()));
+    }
+
+    @Test
+    void trailingBytesReturnsWhatTheSchemaDoesNotReadAndRestoresTheReadIndex() {
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+        packet.appendInt(42);
+        packet.setReadIndex(11);
+
+        byte[] trailing = Chat.TYPE.trailingBytes(packet);
+
+        assertArrayEquals(new byte[]{0, 0, 0, 42}, trailing);
+        assertEquals(11, packet.getReadIndex());
+    }
+
+    @Test
+    void trailingBytesIsEmptyWhenTheSchemaReadsTheWholeBody() {
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+
+        assertArrayEquals(new byte[0], Chat.TYPE.trailingBytes(packet));
     }
 
     @Test
