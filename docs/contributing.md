@@ -210,6 +210,20 @@ public enum Direction implements IntEnum {
 
 If you can't name every value the client knows, keep the field a plain `Integer`, use `integer(...)`, and list the values you do know in a comment. An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again.
 
+## Parameters the client ignores
+
+Sometimes the client reads a parameter and never uses it, declares an enum value it never acts on, or registers a packet and does nothing in its handler. Keep it in the schema, so the packet still parses and writes in full, and mark it with `@Unused` and `@Deprecated` together:
+
+```java
+@Unused("The client stores it but never reads it")
+@Deprecated
+private Boolean unknownBoolean12;
+```
+
+`@Deprecated` makes the compiler warn wherever an extension uses it; Lombok copies it onto the getter and the builder method. `@Unused` says why, for the packet reference and for tools. Mark an enum constant or a packet class the same way. `UnusedMarkerTest` fails when one of the two is missing.
+
+Only mark what you've checked in the client's code: the value is stored and nothing reads it, or the handler does nothing with the packet. Marking isn't a breaking change, so the pull request title needs no `!`. In your tests, put `@SuppressWarnings("deprecation")` on a test that sets or reads a marked parameter.
+
 ## Registering the packet
 
 Add the new `TYPE` to the list in `PacketTypes`:
