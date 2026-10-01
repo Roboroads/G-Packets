@@ -225,19 +225,33 @@ public final class Schema<T> {
         if (!rules.isEmpty()) {
             Map<String, Object> written = new LinkedHashMap<>(values);
             putWritten(this, values, written, path);
+            String where = path.isEmpty() ? type.getSimpleName() : path;
             for (Rule rule : rules) {
-                if (!rule.holds(written)) {
-                    out.add(new Violation(path.isEmpty() ? type.getSimpleName() : path, rule.description(), null, rule));
+                boolean holds;
+                try {
+                    holds = rule.holds(written);
+                } catch (RuntimeException e) {
+                    throw new IllegalArgumentException(where + ": the rule \"" + rule.description() + "\" failed: " + e, e);
+                }
+                if (!holds) {
+                    out.add(new Violation(where, rule.description(), null, rule));
                 }
             }
         }
     }
 
-    /** Puts every value parameter's value as it would be written, including those of optional bodies and the matching branch case. */
+    /**
+     * Puts every value as it would be written, including those of optional bodies and the matching
+     * branch case: a value parameter's wire value, and an empty list or struct for one left out.
+     */
     private static void putWritten(Schema<?> schema, Map<String, Object> values, Map<String, Object> written, String path) {
         for (Parameter parameter : schema.parameters) {
             if (parameter instanceof ValueParameter) {
                 written.put(parameter.name(), ((ValueParameter) parameter).coerce(values.get(parameter.name()), Parameter.at(path, parameter.name())));
+            } else if (parameter instanceof ListParameter && values.get(parameter.name()) == null) {
+                written.put(parameter.name(), Collections.emptyList());
+            } else if (parameter instanceof StructParameter && values.get(parameter.name()) == null) {
+                written.put(parameter.name(), Collections.emptyMap());
             } else if (parameter instanceof OptionalParameter) {
                 putWritten(((OptionalParameter) parameter).schema(), values, written, path);
             } else if (parameter instanceof BranchParameter) {

@@ -145,6 +145,30 @@ class SchemaLimitsTest {
     }
 
     @Test
+    void aRuleSeesALeftOutListAsEmptyAndALeftOutStructAsNoValues() {
+        Schema<Plain> schema = Schema.of(Plain.class)
+                .list("tags", WireType.STRING)
+                .struct("item", ITEM)
+                .rule("at most 3 tags", values -> ((List<?>) values.get("tags")).size() <= 3)
+                .rule("no item values", values -> ((Map<?, ?>) values.get("item")).isEmpty());
+
+        assertTrue(schema.violations(new HashMap<>()).isEmpty());
+    }
+
+    @Test
+    void aRuleThatThrowsFailsWithItsDescription() {
+        Schema<Plain> schema = Schema.of(Plain.class)
+                .integer("a")
+                .rule("a fits", values -> {
+                    throw new IllegalStateException("boom");
+                });
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> schema.violations(new HashMap<>()));
+
+        assertEquals("Plain: the rule \"a fits\" failed: java.lang.IllegalStateException: boom", e.getMessage());
+    }
+
+    @Test
     void hasChecksLooksThroughNestedSchemas() {
         assertFalse(Schema.of(Plain.class).integer("id").hasChecks());
         assertFalse(Schema.of(Plain.class).integer("id", requiresVip()).hasChecks());
