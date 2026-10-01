@@ -9,7 +9,6 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Describes a packet type: its header name, direction and wire format.
@@ -20,26 +19,15 @@ public final class PacketType<T extends Packet> {
     private final String header;
     private final HMessage.Direction direction;
     private final Schema<T> schema;
-    private final Function<HPacket, T> parser;
 
-    /**
-     * @deprecated use {@link #of}. Removed once every packet has a schema.
-     */
-    @Deprecated
-    public PacketType(String header, HMessage.Direction direction, Function<HPacket, T> parser) {
-        this(header, direction, null, parser);
-    }
-
-    private PacketType(String header, HMessage.Direction direction, Schema<T> schema, Function<HPacket, T> parser) {
+    private PacketType(String header, HMessage.Direction direction, Schema<T> schema) {
         this.header = header;
         this.direction = direction;
         this.schema = schema;
-        this.parser = parser;
     }
 
     public static <T extends Packet> PacketType<T> of(String header, HMessage.Direction direction, Schema<T> schema) {
-        Objects.requireNonNull(schema, "schema");
-        return new PacketType<>(Objects.requireNonNull(header, "header"), Objects.requireNonNull(direction, "direction"), schema, schema::parse);
+        return new PacketType<>(Objects.requireNonNull(header, "header"), Objects.requireNonNull(direction, "direction"), Objects.requireNonNull(schema, "schema"));
     }
 
     public String header() {
@@ -63,7 +51,7 @@ public final class PacketType<T extends Packet> {
         int previous = packet.getReadIndex();
         try {
             packet.resetReadIndex();
-            return parser.apply(packet);
+            return schema.parse(packet);
         } finally {
             packet.setReadIndex(previous);
         }
