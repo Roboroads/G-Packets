@@ -113,11 +113,13 @@ The loop registers the listener for both directions, so you see what the server 
 
 | Kind | What it is | What you can ask it |
 |---|---|---|
-| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()` |
+| `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()`, `openEnum()` |
 | `ListParameter` | an int count, then that many elements | `elementType()` for values, `elementSchema()` for structures |
 | `StructParameter` | a nested structure | `schema()` |
 | `BranchParameter` | parameters that depend on an earlier value | `on()`, `exhaustive()`, `cases()` |
 | `OptionalParameter` | parameters the server may leave off the end | `schema()` |
+
+`openEnum()` is true when the value's type keeps ids it doesn't name, like `ChatBarStyle`. `enumOptions()` then lists only the named ones.
 
 Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing.
 

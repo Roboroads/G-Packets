@@ -208,7 +208,30 @@ public enum Direction implements IntEnum {
     private final int value;
 ```
 
-If you can't name every value the client knows, keep the field a plain `Integer`, use `integer(...)`, and list the values you do know in a comment. An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again.
+An enum turns a value it doesn't have into `null`, so that value would be lost when you write the packet again. When the client gets the values as data (new ones can appear without a client update), or you can't name every value it knows, extend `OpenIntEnum` instead. It reads like an enum, and keeps an id it doesn't name. Declare the ids you can name as `public static final` fields:
+
+```java
+public final class ChatBarStyle extends OpenIntEnum {
+    public static final ChatBarStyle DEFAULT = new ChatBarStyle(0);
+    public static final ChatBarStyle GENERIC = new ChatBarStyle(1);
+    // ...
+
+    private ChatBarStyle(int value) {
+        super(value);
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static ChatBarStyle of(int value) {
+        return of(ChatBarStyle.class, value, ChatBarStyle::new);
+    }
+
+    public static List<ChatBarStyle> values() {
+        return values(ChatBarStyle.class);
+    }
+}
+```
+
+The schema line stays the same: `.enumInt("style", ChatBarStyle.class)`. `OpenIntEnumTypesTest` checks that every open enum has this shape and that no two of its fields share an id. Keep a closed set, like `Direction`, a real enum: it still works in a `switch`. For a string code you can't fully name, keep a plain `String` and list the known codes in a comment.
 
 ## Parameters the client ignores
 
