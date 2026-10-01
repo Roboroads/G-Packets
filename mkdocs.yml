@@ -41,6 +41,9 @@ markdown_extensions:
 plugins:
   - search
 
+validation:
+  anchors: warn
+
 exclude_docs: |
   /requirements.txt
 
