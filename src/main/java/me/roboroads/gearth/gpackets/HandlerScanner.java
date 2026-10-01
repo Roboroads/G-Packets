@@ -52,7 +52,9 @@ final class HandlerScanner {
 
     /**
      * The class if it is a handler, otherwise null. A class that fails to load or link is skipped:
-     * it could not run as a handler, and an unrelated broken class must not break init.
+     * it could not run as a handler, and an unrelated broken class must not break init. So is a
+     * nested class from Scala or Groovy whose name Java 8 can't parse: there isAnonymousClass throws
+     * {@code InternalError("Malformed class name")}.
      */
     static Class<?> loadHandler(String className, ClassLoader loader) {
         try {
@@ -63,7 +65,7 @@ final class HandlerScanner {
                 return null;
             }
             return GPackets.collectAnnotatedMethods(type).isEmpty() ? null : type;
-        } catch (ClassNotFoundException | LinkageError e) {
+        } catch (ClassNotFoundException | LinkageError | InternalError e) {
             return null;
         }
     }
@@ -77,7 +79,7 @@ final class HandlerScanner {
         String packagePath = packageName.replace('.', '/');
         List<String> names = new ArrayList<>();
         try {
-            Path path = Paths.get(location.toURI());
+            Path path = toPath(location);
             if (Files.isDirectory(path)) {
                 Path root = packagePath.isEmpty() ? path : path.resolve(packagePath);
                 if (Files.isDirectory(root)) {
@@ -99,11 +101,20 @@ final class HandlerScanner {
                     }
                 }
             }
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             throw new IllegalStateException("Cannot scan " + location + " for @Intercept handlers", e);
         }
         Collections.sort(names);
         return names;
+    }
+
+    /** The file at a {@code file:} URL, also when the URL leaves spaces unescaped, as {@code File.toURL()} does. */
+    private static Path toPath(URL location) {
+        try {
+            return Paths.get(location.toURI());
+        } catch (URISyntaxException e) {
+            return new File(location.getPath()).toPath();
+        }
     }
 
     /** Adds {@code com/example/Foo.class} as {@code com.example.Foo}, skipping module-info and package-info. */

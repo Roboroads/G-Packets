@@ -12,8 +12,10 @@ import testfixtures.discovery.sub.NestedPackageHandler;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -104,5 +106,34 @@ class HandlerScannerTest {
         try (URLClassLoader loader = new URLClassLoader(new URL[]{dir.toUri().toURL()}, null)) {
             assertNull(HandlerScanner.loadHandler("com.example.Broken", loader));
         }
+    }
+
+    @Test
+    void aClassWithANameJava8CannotParseIsSkipped(@TempDir Path dir) throws Exception {
+        // On Java 8, isAnonymousClass throws InternalError("Malformed class name") for Mal_X
+        copyRenamed(dir, "testfixtures/malformed/Mal.class");
+        copyRenamed(dir, "testfixtures/malformed/Mal$X.class");
+
+        try (URLClassLoader loader = new URLClassLoader(new URL[]{dir.toUri().toURL()}, null)) {
+            assertNull(HandlerScanner.loadHandler("testfixtures.malformed.Mal_X", loader));
+        }
+    }
+
+    /** Copies a compiled test class into {@code dir}, renaming Mal$X to Mal_X; same length, so the class file stays valid. */
+    private static void copyRenamed(Path dir, String resource) throws Exception {
+        byte[] bytes = Files.readAllBytes(Paths.get(HandlerScannerTest.class.getResource("/" + resource).toURI()));
+        String renamed = new String(bytes, StandardCharsets.ISO_8859_1).replace("Mal$X", "Mal_X");
+        Path file = dir.resolve(resource.replace("Mal$X", "Mal_X"));
+        Files.createDirectories(file.getParent());
+        Files.write(file, renamed.getBytes(StandardCharsets.ISO_8859_1));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void aFolderUrlWithUnescapedSpacesIsListed(@TempDir Path dir) throws IOException {
+        // File.toURL() doesn't escape spaces, and a class loader built with it reports that URL as the code source
+        Path classes = folder(Files.createDirectory(dir.resolve("my classes")));
+
+        assertEquals(EXAMPLE_CLASSES, HandlerScanner.classNames(classes.toFile().toURL(), "com.example"));
     }
 }
