@@ -1,12 +1,16 @@
 package me.roboroads.gearth.gpackets;
 
+import gearth.extensions.IExtension;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -22,6 +26,46 @@ import java.util.stream.Stream;
 final class HandlerScanner {
 
     private HandlerScanner() {
+    }
+
+    /**
+     * The handler classes next to {@code extensionClass}, sorted by name: concrete classes with an
+     * {@link Intercept} method in its package or below, in its jar or classes folder, that are not
+     * extensions themselves. Empty when the class has no {@code file:} code source.
+     */
+    static List<Class<?>> handlerClasses(Class<?> extensionClass) {
+        CodeSource source = extensionClass.getProtectionDomain().getCodeSource();
+        if (source == null || source.getLocation() == null || !"file".equals(source.getLocation().getProtocol())) {
+            return Collections.emptyList();
+        }
+        String name = extensionClass.getName();
+        String packageName = name.lastIndexOf('.') < 0 ? "" : name.substring(0, name.lastIndexOf('.'));
+        List<Class<?>> handlers = new ArrayList<>();
+        for (String className : classNames(source.getLocation(), packageName)) {
+            Class<?> handler = loadHandler(className, extensionClass.getClassLoader());
+            if (handler != null) {
+                handlers.add(handler);
+            }
+        }
+        return handlers;
+    }
+
+    /**
+     * The class if it is a handler, otherwise null. A class that fails to load or link is skipped:
+     * it could not run as a handler, and an unrelated broken class must not break init.
+     */
+    static Class<?> loadHandler(String className, ClassLoader loader) {
+        try {
+            Class<?> type = Class.forName(className, false, loader);
+            int modifiers = type.getModifiers();
+            if (type.isInterface() || type.isEnum() || type.isAnnotation() || type.isAnonymousClass() || type.isLocalClass()
+                    || Modifier.isAbstract(modifiers) || IExtension.class.isAssignableFrom(type)) {
+                return null;
+            }
+            return GPackets.collectAnnotatedMethods(type).isEmpty() ? null : type;
+        } catch (ClassNotFoundException | LinkageError e) {
+            return null;
+        }
     }
 
     /**

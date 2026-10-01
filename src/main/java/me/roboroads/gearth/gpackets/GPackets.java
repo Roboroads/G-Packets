@@ -58,7 +58,7 @@ public final class GPackets {
         }
     }
 
-    private static List<Method> collectAnnotatedMethods(Class<?> type) {
+    static List<Method> collectAnnotatedMethods(Class<?> type) {
         List<Method> methods = new ArrayList<>();
         for (Class<?> c = type; c != null && c != Object.class && !c.getName().startsWith("gearth."); c = c.getSuperclass()) {
             for (Method method : c.getDeclaredMethods()) {

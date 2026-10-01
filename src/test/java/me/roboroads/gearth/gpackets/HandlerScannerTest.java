@@ -2,8 +2,16 @@ package me.roboroads.gearth.gpackets;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import testfixtures.discovery.ConcreteChild;
+import testfixtures.discovery.DiscoveryExtension;
+import testfixtures.discovery.ExtensionArgHandler;
+import testfixtures.discovery.NoArgHandler;
+import testfixtures.discovery.PassedHandler;
+import testfixtures.discovery.sub.NestedPackageHandler;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -13,6 +21,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HandlerScannerTest {
 
@@ -68,5 +77,32 @@ class HandlerScannerTest {
     @Test
     void aPackageThatIsNotThereListsNothing(@TempDir Path dir) throws IOException {
         assertEquals(Collections.emptyList(), HandlerScanner.classNames(folder(dir).toUri().toURL(), "com.missing"));
+    }
+
+    @Test
+    void findsTheHandlerClassesNextToTheExtension() {
+        assertEquals(Arrays.<Class<?>>asList(
+                        ConcreteChild.class,
+                        ExtensionArgHandler.class,
+                        NoArgHandler.class,
+                        PassedHandler.class,
+                        NestedPackageHandler.class),
+                HandlerScanner.handlerClasses(DiscoveryExtension.class));
+    }
+
+    @Test
+    void findsNothingWithoutACodeSource() {
+        assertEquals(Collections.emptyList(), HandlerScanner.handlerClasses(String.class));
+    }
+
+    @Test
+    void aClassThatFailsToLoadIsSkipped(@TempDir Path dir) throws IOException {
+        Path broken = dir.resolve("com/example/Broken.class");
+        Files.createDirectories(broken.getParent());
+        Files.write(broken, new byte[]{1, 2, 3});
+
+        try (URLClassLoader loader = new URLClassLoader(new URL[]{dir.toUri().toURL()}, null)) {
+            assertNull(HandlerScanner.loadHandler("com.example.Broken", loader));
+        }
     }
 }
