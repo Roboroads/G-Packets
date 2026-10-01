@@ -175,6 +175,35 @@ describe(CatalogIndex.TYPE.schema(), "", Collections.newSetFromMap(new IdentityH
 !!! warning
     A schema can contain itself: a `CatalogNode` has `children` that are `CatalogNode`s. When you walk schemas, keep a set of the ones you've seen, compared by identity, as the example does. Without it the walk never ends.
 
+## Limits and rules
+
+Every parameter has `limits()`: the limits the client keeps it within. Each `Limit` has `describe()`, which gives the limit in words, and `checked()`, which is false for a limit that only describes, such as "VIP only". The limit classes carry their numbers, so a tool can use them:
+
+```java
+for (Parameter parameter : SaveRoomSettings.TYPE.schema().parameters()) {
+    for (Limit limit : parameter.limits()) {
+        System.out.println(parameter.name() + ": " + limit.describe());
+    }
+    for (Limit limit : parameter.limits()) {
+        if (limit instanceof MaxLength) {
+            System.out.println(parameter.name() + " fits in a field of " + ((MaxLength) limit).max() + " characters");
+        }
+    }
+}
+```
+
+| Limit | Holds |
+|---|---|
+| `MaxLength` | `max()` characters |
+| `NotEmpty` | at least one character |
+| `Range` | `min()` to `max()`, and 0 too when `allowsZero()` |
+| `MaxSize` | `max()` items in a list |
+| `Each` | `limit()` for every item of a list |
+| `Not` | none of `values()` |
+| `RequiresVip` | nothing to check: only VIP users can change it in the client |
+
+A schema can also have `rules()`, limits across several parameters, such as "the autokick timeout is at least the sleep timeout + 30". Each `Rule` has a `description()`. See [Limits](changing-and-sending.md#limits) for what happens when a packet breaks one.
+
 ## Unused parameters
 
 Some parameters are on the wire, but the current Habbo client ignores them: it reads the value and never uses it. G-Packets keeps them, so packets still parse and write in full, and marks them `@Deprecated`. When your code reads or sets one, your IDE strikes it through and the compiler reports it as deprecated. The same goes for an enum value or a whole packet the client ignores, and the [packet reference](packets/index.md) marks them with the reason.

@@ -22,6 +22,13 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 
 import java.util.List;
 
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.each;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.maxLength;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.maxSize;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.not;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.range;
+import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.requiresVip;
+
 /**
  * Saves a room's settings; the server answers with {@code RoomSettingsSaved} or
  * {@code RoomSettingsSaveError}. The order differs from {@code RoomSettingsData}: the maximum
@@ -34,57 +41,70 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveRoomSettings implements Packet, JsonSerializable {
+    // Limits from the client's room settings (RoomSettingsCtrl): see the field comments.
     public static final PacketType<SaveRoomSettings> TYPE = PacketType.of("SaveRoomSettings", HMessage.Direction.TOSERVER, Schema.of(SaveRoomSettings.class)
             .integer("roomId")
-            .string("name")
-            .string("description")
+            .string("name", maxLength(60))
+            .string("description", maxLength(255))
             .enumInt("doorMode", DoorMode.class)
-            .string("password")
+            .string("password", maxLength(30))
             .enumInt("maximumVisitors", MaximumVisitors.class)
             .integer("categoryId")
-            .list("tags", WireType.STRING)
+            .list("tags", WireType.STRING, maxSize(2), each(maxLength(30)))
             .enumInt("tradeMode", TradeMode.class)
             .bool("allowPets")
             .bool("allowFoodConsume")
             .bool("allowWalkThrough")
-            .bool("hideWalls")
-            .enumInt("wallThickness", RoomThickness.class)
-            .enumInt("floorThickness", RoomThickness.class)
-            .enumInt("whoCanMute", RoomModerationPermission.class)
+            .bool("hideWalls", requiresVip())
+            .enumInt("wallThickness", RoomThickness.class, requiresVip())
+            .enumInt("floorThickness", RoomThickness.class, requiresVip())
+            .enumInt("whoCanMute", RoomModerationPermission.class, not(RoomModerationPermission.ALL))
             .enumInt("whoCanKick", RoomModerationPermission.class)
-            .enumInt("whoCanBan", RoomModerationPermission.class)
+            .enumInt("whoCanBan", RoomModerationPermission.class, not(RoomModerationPermission.ALL))
             .enumInt("chatFloodSensitivity", ChatFloodSensitivity.class)
-            .bool("leaveOnDoorTileEnabled")
-            .bool("idleSleepEnabled")
-            .integer("idleSleepTimeoutSeconds")
-            .bool("idleAutokickEnabled")
-            .integer("idleAutokickTimeoutSeconds")
-            .bool("muteAllPets"));
+            .bool("leaveOnDoorTileEnabled", requiresVip())
+            .bool("idleSleepEnabled", requiresVip())
+            .integer("idleSleepTimeoutSeconds", range(30, 3600).orZero(), requiresVip())
+            .bool("idleAutokickEnabled", requiresVip())
+            .integer("idleAutokickTimeoutSeconds", range(60, 36000).orZero(), requiresVip())
+            .bool("muteAllPets")
+            .rule("idleAutokickTimeoutSeconds is at least idleSleepTimeoutSeconds + 30 when both are enabled",
+                    values -> !(Boolean) values.get("idleSleepEnabled") || !(Boolean) values.get("idleAutokickEnabled")
+                            || (Integer) values.get("idleAutokickTimeoutSeconds") >= (Integer) values.get("idleSleepTimeoutSeconds") + 30));
 
     private Integer roomId;
+    // At most 60 characters: the room name field (RoomSettingsCtrl:513) caps and truncates it.
     private String name;
+    // At most 255 characters (RoomSettingsCtrl:514).
     private String description;
     private DoorMode doorMode;
-    // The client sends "" unless the door mode is password.
+    // The client sends "" unless the door mode is password. At most 30 characters (RoomSettingsCtrl:517-518).
     private String password;
     private MaximumVisitors maximumVisitors;
     private Integer categoryId;
+    // Two tag inputs of at most 30 characters each (RoomSettingsCtrl:515-516, addTag at 1289-1301).
     private List<String> tags;
     private TradeMode tradeMode;
     private Boolean allowPets;
     private Boolean allowFoodConsume;
     private Boolean allowWalkThrough;
+    // The client only lets VIP users change hideWalls, the thicknesses, leaveOnDoorTileEnabled and the
+    // idle settings (RoomSettingsCtrl:1141-1171), and resends the stored values for other users.
     private Boolean hideWalls;
     private RoomThickness wallThickness;
     private RoomThickness floorThickness;
+    // Never ALL for mute and ban: the client offers none, rights, and for group rooms group admins (RoomSettingsCtrl:867-869).
     private RoomModerationPermission whoCanMute;
     private RoomModerationPermission whoCanKick;
     private RoomModerationPermission whoCanBan;
     private ChatFloodSensitivity chatFloodSensitivity;
     private Boolean leaveOnDoorTileEnabled;
     private Boolean idleSleepEnabled;
+    // 0 when switched off, else 30 to 3600 seconds (RoomSettingsCtrl:1143, 1247).
     private Integer idleSleepTimeoutSeconds;
     private Boolean idleAutokickEnabled;
+    // 0 when switched off, else 60 to 36000 seconds, and at least the sleep timeout + 30 when both are on
+    // (RoomSettingsCtrl:1145, 1252, 1257).
     private Integer idleAutokickTimeoutSeconds;
     private Boolean muteAllPets;
 

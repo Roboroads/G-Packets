@@ -18,6 +18,7 @@ import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
+import me.roboroads.gearth.gpackets.support.schema.limit.LimitException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ import java.util.List;
 
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("deprecation") // tests RoomSettingsError
 class RoomSettingsWireFormatTest {
@@ -195,6 +198,58 @@ class RoomSettingsWireFormatTest {
     @Test
     void saveRoomSettingsFromPacket() {
         assertEquals(saveRoomSettings(), SaveRoomSettings.fromPacket(saveRoomSettingsPacket()));
+    }
+
+    private static String repeat(char c, int times) {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            out.append(c);
+        }
+        return out.toString();
+    }
+
+    @Test
+    void saveRoomSettingsKeepsTheClientsLimits() {
+        SaveRoomSettings tooMuch = saveRoomSettings().name(repeat('a', 61))
+                .tags(Arrays.asList("a", "b", repeat('t', 31)))
+                .whoCanMute(RoomModerationPermission.ALL)
+                .idleSleepTimeoutSeconds(10);
+
+        LimitException e = assertThrows(LimitException.class, tooMuch::toPacket);
+
+        assertEquals("SaveRoomSettings breaks 5 limits (use toPacketUnchecked() to send it anyway):\n"
+                + "  name: at most 60 characters, got 61\n"
+                + "  tags: at most 2 items, got 3\n"
+                + "  tags[2]: at most 30 characters, got 31\n"
+                + "  whoCanMute: must not be ALL\n"
+                + "  idleSleepTimeoutSeconds: must be 30 to 3600, or 0, got 10",
+                e.getMessage());
+    }
+
+    @Test
+    void autokickMustComeAtLeast30SecondsAfterSleep() {
+        // The sample has idle sleep on at 600 seconds.
+        SaveRoomSettings tooSoon = saveRoomSettings().idleAutokickEnabled(true).idleAutokickTimeoutSeconds(620);
+
+        assertEquals("SaveRoomSettings: idleAutokickTimeoutSeconds is at least idleSleepTimeoutSeconds + 30 when both are enabled",
+                assertThrows(LimitException.class, tooSoon::toPacket).violations().get(0).toString());
+    }
+
+    @Test
+    void theAutokickRuleOnlyAppliesWhenBothAreEnabled() {
+        assertTrue(SaveRoomSettings.TYPE.violations(saveRoomSettings()
+                .idleAutokickEnabled(false).idleAutokickTimeoutSeconds(0)).isEmpty());
+        assertTrue(SaveRoomSettings.TYPE.violations(saveRoomSettings()
+                .idleAutokickEnabled(true).idleAutokickTimeoutSeconds(630)).isEmpty());
+    }
+
+    @Test
+    void wiredSetRoomSettingsMasksUseFourBits() {
+        LimitException e = assertThrows(LimitException.class, () -> new WiredSetRoomSettings(16, -1, "").toPacket());
+
+        assertEquals("WiredSetRoomSettings breaks 2 limits (use toPacketUnchecked() to send it anyway):\n"
+                + "  modifyPermissionMask: must be 0 to 15, got 16\n"
+                + "  readPermissionMask: must be 0 to 15, got -1", e.getMessage());
     }
 
     @Test
