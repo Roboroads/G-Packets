@@ -2,7 +2,9 @@ package me.roboroads.gearth.gpackets.support.schema;
 
 import me.roboroads.gearth.gpackets.support.Json;
 import org.junit.jupiter.api.Test;
+import testfixtures.openenum.OpenEnumFixtures;
 import testfixtures.openenum.OpenEnumFixtures.Clash;
+import testfixtures.openenum.OpenEnumFixtures.NoFactory;
 import testfixtures.openenum.OpenEnumFixtures.Shade;
 import testfixtures.openenum.OpenEnumFixtures.Tone;
 
@@ -102,21 +104,20 @@ class OpenIntEnumTest {
         assertEquals(Shade.of(9), OpenIntEnum.fromWire(Shade.class, 9));
     }
 
-    /** An open enum without of(int): fine for named ids, an error for any other. */
-    public static final class NoFactory extends OpenIntEnum {
-        public static final NoFactory ONE = new NoFactory(1);
-
-        private NoFactory(int value) {
-            super(value);
-        }
-    }
-
     @Test
     void fromWireNeedsAnOfMethodForAnUnnamedId() {
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> OpenIntEnum.fromWire(NoFactory.class, 5));
 
         assertEquals(NoFactory.class.getName() + " needs a public static of(int) to keep id 5", e.getMessage());
         assertSame(NoFactory.ONE, OpenIntEnum.fromWire(NoFactory.class, 1));
+    }
+
+    @Test
+    void fromWireKeepsAnUnnamedIdOfANonPublicType() {
+        OpenIntEnum five = OpenIntEnum.fromWire(OpenEnumFixtures.HIDDEN, 5);
+
+        assertSame(OpenEnumFixtures.HIDDEN, five.getClass());
+        assertEquals(5, five.value());
     }
 
     @Test

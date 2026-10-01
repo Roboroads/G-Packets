@@ -22,10 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Every open enum in the library has the shape {@code docs/contributing.md} describes. */
 class OpenIntEnumTypesTest {
 
-    // Only the model package: test classes elsewhere (fixtures for broken shapes) stay out.
+    // forPackage only picks the classpath roots; the filter keeps other packages (test fixtures,
+    // some broken on purpose) out.
     private static final Reflections REFLECTIONS = new Reflections(new ConfigurationBuilder()
-            .forPackage("me.roboroads.gearth.gpackets.model")
-            .filterInputsBy(new FilterBuilder().includePackage("me.roboroads.gearth.gpackets.model"))
+            .forPackage("me.roboroads.gearth.gpackets")
+            .filterInputsBy(new FilterBuilder().includePackage("me.roboroads.gearth.gpackets"))
             .setScanners(Scanners.SubTypes));
 
     @Test

@@ -169,6 +169,8 @@ public abstract class OpenIntEnum implements IntEnum {
         }
         try {
             registry.of = type.getMethod("of", int.class);
+            // A public method on a class that isn't public, such as an extension's own open enum.
+            registry.of.setAccessible(true);
         } catch (NoSuchMethodException e) {
             registry.of = null;
         }

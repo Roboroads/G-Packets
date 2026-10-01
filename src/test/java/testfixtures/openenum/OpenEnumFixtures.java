@@ -54,6 +54,32 @@ public final class OpenEnumFixtures {
         }
     }
 
+    /** Package-private, like an open enum an extension keeps to itself. */
+    static final class Hidden extends OpenIntEnum {
+        public static final Hidden ONE = new Hidden(1);
+
+        private Hidden(int value) {
+            super(value);
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static Hidden of(int value) {
+            return of(Hidden.class, value, Hidden::new);
+        }
+    }
+
+    /** {@link Hidden}, for tests outside this package. */
+    public static final Class<? extends OpenIntEnum> HIDDEN = Hidden.class;
+
+    /** No of(int): fine for named ids, an error for any other. */
+    public static final class NoFactory extends OpenIntEnum {
+        public static final NoFactory ONE = new NoFactory(1);
+
+        private NoFactory(int value) {
+            super(value);
+        }
+    }
+
     /** Two constants share a value. */
     public static final class Clash extends OpenIntEnum {
         public static final Clash FIRST = new Clash(1);
