@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * The wire format of a packet or sub-packet: its parameters in wire order, bound to the Java class
@@ -99,6 +100,26 @@ public final class Schema<T> {
         return with(new StructParameter(Objects.requireNonNull(name, "name"), Objects.requireNonNull(schema, "schema")));
     }
 
+    /**
+     * Parameters that depend on {@code on}, a value parameter added earlier to this schema. Each
+     * case names a wire value (or enum constant), the subclass the object then is, and the
+     * parameters that follow. A value without a case is an error.
+     */
+    public Schema<T> branch(String on, UnaryOperator<Cases> cases) {
+        ValueParameter discriminator = discriminator(on);
+        Cases built = Objects.requireNonNull(cases, "cases").apply(new Cases(discriminator, type));
+        return with(new BranchParameter(discriminator, true, built.cases()));
+    }
+
+    /** Parameters that only follow when {@code on}, a value parameter added earlier, equals {@code value}. */
+    public Schema<T> when(String on, Object value, UnaryOperator<Schema<T>> body) {
+        ValueParameter discriminator = discriminator(on);
+        Object key = discriminator.coerce(Objects.requireNonNull(value, "value"), type.getSimpleName() + "." + on);
+        Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
+        cases.put(key, new BranchParameter.Case(key, null, Objects.requireNonNull(body, "body").apply(Schema.of(type))));
+        return with(new BranchParameter(discriminator, false, cases));
+    }
+
     /** Reads values from the packet's current read index, keyed by parameter name in wire order. */
     public Map<String, Object> read(HPacket packet) {
         Map<String, Object> values = new LinkedHashMap<>();
@@ -125,6 +146,15 @@ public final class Schema<T> {
 
     private Schema<T> value(String name, WireType wireType, Class<? extends Enum<?>> enumType) {
         return with(new ValueParameter(Objects.requireNonNull(name, "name"), wireType, enumType));
+    }
+
+    private ValueParameter discriminator(String on) {
+        for (Parameter parameter : parameters) {
+            if (parameter instanceof ValueParameter && parameter.name().equals(on)) {
+                return (ValueParameter) parameter;
+            }
+        }
+        throw new IllegalArgumentException(type.getSimpleName() + " has no earlier value named " + on + " to branch on");
     }
 
     private Schema<T> with(Parameter parameter) {
