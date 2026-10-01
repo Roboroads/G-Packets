@@ -14,6 +14,7 @@ import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.WiredMovementType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
+import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BinderTest {
 
@@ -136,6 +138,16 @@ class BinderTest {
                 .struct("root", Schema.of(CatalogNode.class).string("pageName"));
 
         assertEquals("root", schema.parse(packet().appendString("root")).root().pageName());
+    }
+
+    @Test
+    void aWireTypeThatDoesNotFitTheFieldNamesTheParameter() {
+        Schema<GetCatalogPage> wrong = Schema.of(GetCatalogPage.class).shortValue("pageId");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> wrong.parse(packet().appendShort((short) 5)));
+
+        assertTrue(e.getMessage().startsWith("GetCatalogPage.pageId: "), e.getMessage());
     }
 
     @Test

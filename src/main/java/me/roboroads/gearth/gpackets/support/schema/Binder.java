@@ -63,7 +63,15 @@ final class Binder {
             } else if (parameter instanceof OptionalParameter) {
                 apply(((OptionalParameter) parameter).schema(), values, builder);
             } else if (values.get(parameter.name()) != null) {
-                invoke(require(builder.getClass(), parameter.name(), 1), builder, toField(parameter, values.get(parameter.name())));
+                Method setter = require(builder.getClass(), parameter.name(), 1);
+                Object field = toField(parameter, values.get(parameter.name()));
+                try {
+                    invoke(setter, builder, field);
+                } catch (IllegalArgumentException e) {
+                    // The schema's wire type does not fit the field, e.g. shortValue for an Integer field.
+                    throw new IllegalArgumentException(schema.type().getSimpleName() + "." + parameter.name()
+                            + ": cannot set a " + (field == null ? "null" : field.getClass().getName()) + " on " + setter, e);
+                }
             }
         }
     }

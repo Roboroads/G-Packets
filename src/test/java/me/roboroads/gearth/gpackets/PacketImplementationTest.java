@@ -10,11 +10,15 @@ import me.roboroads.gearth.gpackets.support.schema.OptionalParameter;
 import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.StructParameter;
+import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
+import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -99,7 +103,7 @@ public class PacketImplementationTest {
         for (Class<?> leaf : leaves(schema)) {
             for (Parameter parameter : parametersOf(schema, leaf)) {
                 assertGetter(leaf, parameter.name());
-                assertBuilderMethod(leaf, parameter.name());
+                assertBuilderMethod(leaf, parameter);
             }
         }
         for (Schema<?> nested : nestedSchemas(schema)) {
@@ -170,7 +174,8 @@ public class PacketImplementationTest {
         }
     }
 
-    private static void assertBuilderMethod(Class<?> type, String name) {
+    private static void assertBuilderMethod(Class<?> type, Parameter parameter) {
+        String name = parameter.name();
         Class<?> builder;
         try {
             builder = type.getMethod("builder").getReturnType();
@@ -180,9 +185,75 @@ public class PacketImplementationTest {
         }
         for (Method method : builder.getMethods()) {
             if (method.getName().equals(name) && method.getParameterCount() == 1) {
+                assertAccepts(type, method, parameter);
                 return;
             }
         }
         fail(builder.getName() + " has no builder method " + name + "(value) for its schema parameter");
+    }
+
+    /** The builder method must take what the schema reads: the wire type's Java class, the enum, a List of those, or the nested class. */
+    private static void assertAccepts(Class<?> type, Method setter, Parameter parameter) {
+        String where = type.getSimpleName() + "." + parameter.name();
+        Class<?> accepted = boxed(setter.getParameterTypes()[0]);
+        if (parameter instanceof ValueParameter) {
+            ValueParameter value = (ValueParameter) parameter;
+            Class<?> read = value.enumType() != null ? value.enumType() : javaType(value.wireType());
+            assertTrue(accepted.isAssignableFrom(read), where + " is a " + accepted.getSimpleName() + " but the schema reads a " + read.getSimpleName());
+        } else if (parameter instanceof ListParameter) {
+            ListParameter list = (ListParameter) parameter;
+            assertTrue(accepted.isAssignableFrom(ArrayList.class), where + " is a " + accepted.getSimpleName() + " but the schema reads a List");
+            Type generic = setter.getGenericParameterTypes()[0];
+            if (generic instanceof ParameterizedType) {
+                Type element = ((ParameterizedType) generic).getActualTypeArguments()[0];
+                Class<?> read = list.elementType() != null ? javaType(list.elementType()) : list.elementSchema().type();
+                assertTrue(element instanceof Class && ((Class<?>) element).isAssignableFrom(read),
+                        where + " holds " + element.getTypeName() + " but the schema reads " + read.getSimpleName() + " elements");
+            }
+        } else if (parameter instanceof StructParameter) {
+            Class<?> read = ((StructParameter) parameter).schema().type();
+            assertTrue(accepted.isAssignableFrom(read), where + " is a " + accepted.getSimpleName() + " but the schema reads a " + read.getSimpleName());
+        }
+    }
+
+    private static Class<?> javaType(WireType wireType) {
+        switch (wireType) {
+            case INT:
+                return Integer.class;
+            case STRING:
+                return String.class;
+            case BOOLEAN:
+                return Boolean.class;
+            case SHORT:
+                return Short.class;
+            case LONG:
+                return Long.class;
+            case BYTE:
+                return Byte.class;
+            default:
+                throw new AssertionError(wireType);
+        }
+    }
+
+    private static Class<?> boxed(Class<?> type) {
+        if (!type.isPrimitive()) {
+            return type;
+        }
+        if (type == int.class) {
+            return Integer.class;
+        }
+        if (type == boolean.class) {
+            return Boolean.class;
+        }
+        if (type == short.class) {
+            return Short.class;
+        }
+        if (type == long.class) {
+            return Long.class;
+        }
+        if (type == byte.class) {
+            return Byte.class;
+        }
+        throw new AssertionError("Unexpected primitive " + type);
     }
 }

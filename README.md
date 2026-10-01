@@ -254,4 +254,4 @@ public static final PacketType<Chat> TYPE = PacketType.of("Chat", HMessage.Direc
 
 Parameter names must match the class's field names. A sub-structure exposes `public static final Schema<X> SCHEMA`, and a polymorphic base like `User` declares each subtype with `branch`. Add the new `TYPE` to `PacketTypes`.
 
-`PacketImplementationTest` checks every `Packet` implementation for these, checks that every parameter has a matching getter and builder method, and fails the build if something is missing. Follow the existing classes in `incoming` and `outgoing`, and open a pull request or file a packet request issue.
+`PacketImplementationTest` checks every `Packet` implementation for these, checks that every parameter has a matching getter and a builder method that takes the type the schema reads, and fails the build if something is missing. Follow the existing classes in `incoming` and `outgoing`, and open a pull request or file a packet request issue.
