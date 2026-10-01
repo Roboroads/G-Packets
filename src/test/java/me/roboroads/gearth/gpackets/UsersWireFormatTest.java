@@ -13,6 +13,8 @@ import me.roboroads.gearth.gpackets.model.enums.UserType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static me.roboroads.gearth.gpackets.WireAssert.assertSameBytes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,5 +66,18 @@ class UsersWireFormatTest {
     @Test
     void fromPacketReadsTheWireFormat() {
         assertEquals(sample(), Users.fromPacket(expectedPacket()));
+    }
+
+    @Test
+    void valuesCanBeEditedAndWrittenBack() {
+        Map<String, Object> values = Users.TYPE.read(expectedPacket());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> first = (Map<String, Object>) ((List<?>) values.get("users")).get(0);
+        first.put("name", "Bob");
+
+        Users edited = Users.TYPE.parse(Users.TYPE.write(values));
+
+        assertEquals("Bob", edited.users().get(0).name());
+        assertEquals(sample().users().get(1), edited.users().get(1));
     }
 }

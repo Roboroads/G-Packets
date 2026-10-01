@@ -1,6 +1,5 @@
 package me.roboroads.gearth.gpackets.incoming.sub.user;
 
-import gearth.protocol.HPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -45,22 +44,5 @@ public class Pet extends User {
 
     public static Pet fromJson(String json) {
         return Json.parse(Pet.class, json);
-    }
-
-    @Override
-    public void appendPacket(HPacket packet) {
-        super.appendPacket(packet);
-        packet.appendInt(subType);
-        packet.appendInt(ownerId);
-        packet.appendString(ownerName);
-        packet.appendInt(rarityLevel);
-        packet.appendBoolean(hasSaddle);
-        packet.appendBoolean(isRiding);
-        packet.appendBoolean(canBreed);
-        packet.appendBoolean(canHarvest);
-        packet.appendBoolean(canRevive);
-        packet.appendBoolean(hasBreedingPermission);
-        packet.appendInt(petLevel);
-        packet.appendString(petPosture);
     }
 }

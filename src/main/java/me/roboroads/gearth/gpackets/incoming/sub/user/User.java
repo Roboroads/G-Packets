@@ -11,10 +11,8 @@ import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
-import me.roboroads.gearth.gpackets.support.Utils;
-
-import java.util.Collections;
-import java.util.List;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.WireType;
 
 // Jackson polymorphic config: use existing integer "type" field to pick subtype
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
@@ -25,6 +23,46 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class User implements SubPacket, JsonSerializable {
+    public static final Schema<User> SCHEMA = Schema.of(User.class)
+            .integer("id")
+            .string("name")
+            .string("custom")
+            .string("figure")
+            .integer("roomIndex")
+            .integer("x")
+            .integer("y")
+            .string("z")
+            .enumInt("dir", Direction.class)
+            .enumInt("type", UserType.class)
+            .branch("type", cases -> cases
+                    .on(UserType.PLAYER, Player.class, s -> s
+                            .enumString("sex", Gender.class)
+                            .integer("groupId")
+                            .integer("groupStatus")
+                            .string("groupName")
+                            .string("swimFigure")
+                            .integer("achievementScore")
+                            .bool("isModerator"))
+                    .on(UserType.PET, Pet.class, s -> s
+                            .integer("subType")
+                            .integer("ownerId")
+                            .string("ownerName")
+                            .integer("rarityLevel")
+                            .bool("hasSaddle")
+                            .bool("isRiding")
+                            .bool("canBreed")
+                            .bool("canHarvest")
+                            .bool("canRevive")
+                            .bool("hasBreedingPermission")
+                            .integer("petLevel")
+                            .string("petPosture"))
+                    .on(UserType.OLD_BOT, OldBot.class, s -> s)
+                    .on(UserType.BOT, Bot.class, s -> s
+                            .enumString("sex", Gender.class)
+                            .integer("ownerId")
+                            .string("ownerName")
+                            .list("botSkills", WireType.SHORT)));
+
     private Integer id;
     private String name;
     private String custom;
@@ -37,73 +75,11 @@ public abstract class User implements SubPacket, JsonSerializable {
     private UserType type;
 
     public static User fromPacket(HPacket packet) {
-        Integer id = packet.readInteger();
-        String name = packet.readString();
-        String custom = packet.readString();
-        String figure = packet.readString();
-        Integer roomIndex = packet.readInteger();
-        Integer x = packet.readInteger();
-        Integer y = packet.readInteger();
-        String z = packet.readString();
-        Direction dir = Direction.fromValue(packet.readInteger());
-        UserType type = UserType.fromValue(packet.readInteger());
-
-        if (type == null) {
-            throw new IllegalArgumentException("Unknown user type");
-        }
-
-        switch (type) {
-            case PLAYER: {
-                String sex = packet.readString();
-                Integer groupId = packet.readInteger();
-                Integer groupStatus = packet.readInteger();
-                String groupName = packet.readString();
-                String swimFigure = packet.readString();
-                Integer achievementScore = packet.readInteger();
-                Boolean isModerator = packet.readBoolean();
-                return new Player(id, name, custom, figure, roomIndex, x, y, z, dir, type, Gender.fromCode(sex), groupId, groupStatus, groupName, swimFigure, achievementScore, isModerator);
-            }
-            case PET: {
-                Integer subType = packet.readInteger();
-                Integer ownerId = packet.readInteger();
-                String ownerName = packet.readString();
-                Integer rarityLevel = packet.readInteger();
-                Boolean hasSaddle = packet.readBoolean();
-                Boolean isRiding = packet.readBoolean();
-                Boolean canBreed = packet.readBoolean();
-                Boolean canHarvest = packet.readBoolean();
-                Boolean canRevive = packet.readBoolean();
-                Boolean hasBreedingPermission = packet.readBoolean();
-                Integer petLevel = packet.readInteger();
-                String petPosture = packet.readString();
-                return new Pet(id, name, custom, figure, roomIndex, x, y, z, dir, type, subType, ownerId, ownerName, rarityLevel, hasSaddle, isRiding, canBreed, canHarvest, canRevive, hasBreedingPermission, petLevel, petPosture);
-            }
-            case OLD_BOT: {
-                return new OldBot(id, name, custom, figure, roomIndex, x, y, z, dir, type);
-            }
-            case BOT: {
-                String sex = packet.readString();
-                Integer ownerId = packet.readInteger();
-                String ownerName = packet.readString();
-                List<Short> botSkills = Utils.readList(packet, HPacket::readShort);
-                return new Bot(id, name, custom, figure, roomIndex, x, y, z, dir, type, Gender.fromCode(sex), ownerId, ownerName, Collections.unmodifiableList(botSkills));
-            }
-            default:
-                throw new IllegalArgumentException("Unknown user type: " + type);
-        }
+        return SCHEMA.parse(packet);
     }
 
+    @Override
     public void appendPacket(HPacket packet) {
-        packet.appendInt(id);
-        packet.appendString(name);
-        packet.appendString(custom);
-        packet.appendString(figure);
-        packet.appendInt(roomIndex);
-        packet.appendInt(x);
-        packet.appendInt(y);
-        packet.appendString(z);
-        packet.appendInt(dir != null ? dir.value() : -1);
-        packet.appendInt(type != null ? type.value() : -1);
+        SCHEMA.append(this, packet);
     }
 }
-

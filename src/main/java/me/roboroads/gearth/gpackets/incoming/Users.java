@@ -10,7 +10,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
-import me.roboroads.gearth.gpackets.support.Utils;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
@@ -18,14 +18,13 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class Users implements Packet, JsonSerializable {
-    public static final PacketType<Users> TYPE = new PacketType<>("Users", HMessage.Direction.TOCLIENT, Users::fromPacket);
+    public static final PacketType<Users> TYPE = PacketType.of("Users", HMessage.Direction.TOCLIENT, Schema.of(Users.class)
+            .list("users", User.SCHEMA));
 
     List<User> users;
 
     public static Users fromPacket(HPacket packet) {
-        List<User> list = Utils.readList(packet, User::fromPacket);
-
-        return new Users(list);
+        return TYPE.schema().parse(packet);
     }
 
     public static Users fromJson(String json) {
@@ -33,13 +32,6 @@ public class Users implements Packet, JsonSerializable {
     }
 
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-
-        packet.appendInt(users.size());
-        for (User user : users) {
-            user.appendPacket(packet);
-        }
-
-        return packet;
+        return TYPE.toPacket(this);
     }
 }
