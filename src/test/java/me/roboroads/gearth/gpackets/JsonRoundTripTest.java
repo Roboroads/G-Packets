@@ -61,7 +61,7 @@ public class JsonRoundTripTest {
                         .id(1).name("Owner").custom("motto").figure("hd-180-1").roomIndex(0)
                         .x(1).y(2).z("0.0").dir(Direction.EAST).type(UserType.PLAYER)
                         .sex(Gender.MALE).groupId(-1).groupStatus(0).groupName("").swimFigure("")
-                        .achievementScore(10).isModerator(false)
+                        .achievementScore(10).isModerator(false).badgesRank(-1)
                         .build(),
                 Bot.builder()
                         .id(2).name("Bot").custom("").figure("hd-180-1").roomIndex(1)

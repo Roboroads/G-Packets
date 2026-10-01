@@ -148,7 +148,8 @@ public static final Schema<User> SCHEMA = Schema.of(User.class)
                         .enumString("sex", Gender.class)
                         .integer("groupId")
                         // ...
-                        .bool("isModerator"))
+                        .bool("isModerator")
+                        .integer("badgesRank"))
                 .on(UserType.OLD_BOT, OldBot.class, s -> s)
                 // ...
         );
