@@ -65,7 +65,7 @@ public class YourExtension extends ExtensionForm {
 }
 ```
 
-`GPackets.init(this)` finds the `@Intercept` method and registers it with G-Earth. Every time the server sends that packet, `onUsers` receives it as a `Users` object, with each user already parsed into a `Player`, `Pet` or `Bot`.
+`GPackets.init(this)` finds the `@Intercept` method and registers it with G-Earth. Every time the server sends that packet, `onUsers` receives it as a `Users` object, with each user already parsed into a `Player`, `Pet`, `OldBot` or `Bot`.
 
 ## Finding the packet you need
 

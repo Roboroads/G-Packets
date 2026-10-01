@@ -10,36 +10,6 @@ Most extensions never need this page. If you know which packet you want, the typ
 Map<String, Object> values = Users.TYPE.read(message.getPacket());
 ```
 
-## Finding the type of any packet
-
-`PacketTypes.all()` returns every packet type G-Packets implements, and `PacketTypes.find` looks one up by direction and header name. Together with G-Earth's packet info, that lets one listener handle every packet G-Packets knows:
-
-```java
-import gearth.protocol.HMessage;
-import gearth.services.packet_info.PacketInfo;
-import me.roboroads.gearth.gpackets.support.PacketTypes;
-
-@Override
-protected void initExtension() {
-    for (HMessage.Direction direction : HMessage.Direction.values()) {
-        intercept(direction, message -> {
-            PacketInfo info = getPacketInfoManager()
-                    .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
-            if (info == null) {
-                return;
-            }
-            PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
-                System.out.println(info.getName() + " " + type.read(message.getPacket()));
-            });
-        });
-    }
-}
-```
-
-The loop registers the listener for both directions, so you see what the server sends and what your client sends.
-
-`getPacketInfoManager()` comes from G-Earth and only knows the header names while you are connected, so look packets up inside the listener, not in `initExtension` itself.
-
 ## Reading a packet as values
 
 `TYPE.read` turns a packet into a `Map<String, Object>`, with the keys in wire order. It reads from the start of the body and puts the read index back afterwards, so other handlers can still read the same packet.
@@ -51,7 +21,7 @@ Map<String, Object> values = Users.TYPE.read(message.getPacket());
 
 The values follow a few rules:
 
-- A value is a boxed primitive: `Integer`, `String`, `Boolean`, `Short`, `Long` or `Byte`.
+- A value is a `String` or a boxed primitive: `Integer`, `Boolean`, `Short`, `Long` or `Byte`.
 - A list is a `List`, and a nested structure is a `Map` of its own.
 - An enum holds its wire value, so `dir` is `2`, not `EAST`. A value the library doesn't know yet survives a read and a write unchanged.
 - The values of a branch, such as a player's `sex` and `groupId`, sit in the same map as the values around them.
@@ -107,6 +77,36 @@ Users.users[0].name: packet ended before this STRING could be read
 
 You get one for a branch value without a case (or a null one when writing), a value of the wrong Java type, and a packet that ends before the schema does.
 
+## Finding the type of any packet
+
+So far you've picked the packet type yourself. A generic tool doesn't know the type up front: `PacketTypes.all()` returns every packet type G-Packets implements, and `PacketTypes.find` looks one up by direction and header name. Together with G-Earth's packet info, that lets one listener handle every packet G-Packets knows:
+
+```java
+import gearth.protocol.HMessage;
+import gearth.services.packet_info.PacketInfo;
+import me.roboroads.gearth.gpackets.support.PacketTypes;
+
+@Override
+protected void initExtension() {
+    for (HMessage.Direction direction : HMessage.Direction.values()) {
+        intercept(direction, message -> {
+            PacketInfo info = getPacketInfoManager()
+                    .getPacketInfoFromHeaderId(message.getDestination(), message.getPacket().headerId());
+            if (info == null) {
+                return;
+            }
+            PacketTypes.find(message.getDestination(), info.getName()).ifPresent(type -> {
+                System.out.println(info.getName() + " " + type.read(message.getPacket()));
+            });
+        });
+    }
+}
+```
+
+The loop registers the listener for both directions, so you see what the server sends and what your client sends.
+
+`getPacketInfoManager()` comes from G-Earth and only knows the header names while you are connected, so look packets up inside the listener, not in `initExtension` itself.
+
 ## Listing the parameters
 
 `TYPE.schema().parameters()` returns the parameters in wire order. Each one is one of five kinds:
@@ -124,6 +124,14 @@ Every parameter has a `name()`, except branches and optionals, whose parameters 
 This method prints any schema as an indented tree:
 
 ```java
+import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
+import me.roboroads.gearth.gpackets.support.schema.ListParameter;
+import me.roboroads.gearth.gpackets.support.schema.OptionalParameter;
+import me.roboroads.gearth.gpackets.support.schema.Parameter;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
+import me.roboroads.gearth.gpackets.support.schema.StructParameter;
+import me.roboroads.gearth.gpackets.support.schema.ValueParameter;
+
 void describe(Schema<?> schema, String indent, Set<Schema<?>> seen) {
     if (!seen.add(schema)) {
         System.out.println(indent + "(" + schema.type().getSimpleName() + ", see above)");

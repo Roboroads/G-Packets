@@ -9,6 +9,9 @@ Every packet and sub-packet converts to and from JSON. That's handy when you wan
 Call `toJson` on any packet:
 
 ```java
+import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import me.roboroads.gearth.gpackets.outgoing.Chat;
+
 Chat chat = Chat.builder().text("hi").style(ChatBarStyle.ROBOT).trackingId(3).build();
 
 String json = chat.toJson();
@@ -32,6 +35,10 @@ sendToServer(again.toPacket());
 Some packets hold objects of different subclasses. A `Users` packet, for example, holds `Player`, `Pet`, `OldBot` and `Bot` objects. Their JSON keeps the `type` field (`1` to `4`), and `Users.fromJson` uses it to build the right subclass again:
 
 ```java
+import me.roboroads.gearth.gpackets.incoming.Users;
+import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
+import me.roboroads.gearth.gpackets.incoming.sub.user.User;
+
 Users users = Users.fromJson(json);
 
 for (User user : users.users()) {

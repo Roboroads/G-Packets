@@ -3,7 +3,6 @@ site_description: Parse, build and intercept Habbo packets in G-Earth extensions
 site_url: https://roboroads.github.io/G-Packets/
 repo_url: https://github.com/Roboroads/G-Packets
 repo_name: Roboroads/G-Packets
-edit_uri: edit/main/docs/
 
 theme:
   name: material

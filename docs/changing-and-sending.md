@@ -47,6 +47,8 @@ sendToServer(chat.toPacket());
 Incoming packets go to the client with `sendToClient`. The client then acts as if the server had sent them. This one tells the client the catalog changed:
 
 ```java
+import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
+
 CatalogPublished published = CatalogPublished.builder()
         .instantlyRefreshCatalogue(true)
         .build();

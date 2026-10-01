@@ -66,7 +66,7 @@ The [packet reference](https://roboroads.github.io/G-Packets/packets/) lists eve
 
 The full documentation covers:
 
-- intercepting packets with annotations, the `TYPE` descriptor or raw
+- intercepting packets with annotations, the `TYPE` descriptor or raw G-Earth listeners
 - changing, blocking, building and sending packets
 - reading and writing any packet as named values, for packet inspectors and editors
 - JSON
