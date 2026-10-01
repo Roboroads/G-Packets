@@ -83,8 +83,9 @@ public final class PacketReference {
         matching.sort(Comparator.comparing((PacketType<?> type) -> type.header()));
         out.append("\n## ").append(title).append("\n\n| Header | Class |\n|---|---|\n");
         for (PacketType<?> type : matching) {
-            out.append("| [").append(type.header()).append("](").append(path(type)).append(") | `")
-                    .append(type.schema().type().getName()).append("` |\n");
+            out.append("| [").append(type.header()).append("](").append(path(type)).append(")")
+                    .append(type.unused() == null ? "" : " (unused)")
+                    .append(" | `").append(type.schema().type().getName()).append("` |\n");
         }
     }
 
@@ -92,6 +93,7 @@ public final class PacketReference {
         String name = type.schema().type().getSimpleName();
         String direction = type.direction() == HMessage.Direction.TOCLIENT ? "incoming (to client)" : "outgoing (to server)";
         return "# " + type.header() + "\n\n"
+                + (type.unused() == null ? "" : "!!! warning \"Unused by the client\"\n    " + type.unused() + "\n\n")
                 + "- Direction: " + direction + "\n"
                 + "- Class: `" + type.schema().type().getName() + "`\n\n"
                 + "```java\n@Intercept\nvoid on" + name + "(" + name + " packet) {\n    // ...\n}\n```\n\n"
@@ -156,7 +158,7 @@ public final class PacketReference {
             for (Parameter parameter : parameters) {
                 if (parameter instanceof ValueParameter) {
                     ValueParameter value = (ValueParameter) parameter;
-                    rows.add(row(value.name(), type(value), note));
+                    rows.add(row(value.name(), type(value), unusedNote(note, value)));
                     values.put(value.name(), value);
                     if (value.enumType() != null) {
                         enums.add(value);
@@ -164,9 +166,9 @@ public final class PacketReference {
                 } else if (parameter instanceof ListParameter) {
                     ListParameter list = (ListParameter) parameter;
                     String element = list.elementType() != null ? wireName(list.elementType()) : link(list.elementSchema());
-                    rows.add(row(list.name(), "list of " + element, note));
+                    rows.add(row(list.name(), "list of " + element, unusedNote(note, list)));
                 } else if (parameter instanceof StructParameter) {
-                    rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), note));
+                    rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), unusedNote(note, parameter)));
                 } else if (parameter instanceof OptionalParameter) {
                     collect(((OptionalParameter) parameter).schema().parameters(),
                             join(note, "optional: only present if the packet has bytes left"), rows, enums, branches, values);
@@ -223,9 +225,11 @@ public final class PacketReference {
         }
 
         private static String options(ValueParameter value) {
+            Map<String, String> unused = value.unusedOptions();
             List<String> options = new ArrayList<>();
             for (Map.Entry<String, Object> option : value.enumOptions().entrySet()) {
-                options.add("`" + option.getKey() + "` = `" + literal(option.getValue()) + "`");
+                options.add("`" + option.getKey() + "` = `" + literal(option.getValue()) + "`"
+                        + (unused.containsKey(option.getKey()) ? " (unused)" : ""));
             }
             return String.join(", ", options);
         }
@@ -245,6 +249,11 @@ public final class PacketReference {
 
         private static String literal(Object value) {
             return value instanceof String ? "\"" + value + "\"" : String.valueOf(value);
+        }
+
+        /** The note, plus why the client ignores the parameter when it does. */
+        private static String unusedNote(String note, Parameter parameter) {
+            return parameter.unused() == null ? note : join(note, "Unused by the client: " + parameter.unused());
         }
 
         private static String join(String note, String extra) {

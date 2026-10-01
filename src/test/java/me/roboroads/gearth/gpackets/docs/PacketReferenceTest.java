@@ -12,12 +12,14 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import testfixtures.NoTypePacket;
+import testfixtures.unused.UnusedFixtures;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,6 +90,50 @@ class PacketReferenceTest {
     @Test
     void saysSoWhenThereAreNoParameters() {
         assertEquals("## Parameters\n\nNo parameters.\n", PacketReference.body(Schema.of(Plain.class)));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void notesWhyTheClientIgnoresAParameter() {
+        Schema<UnusedFixtures.Base> schema = Schema.of(UnusedFixtures.Base.class).integer("legacy").integer("kind");
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `legacy` | int | Unused by the client: The client stores it but never reads it |\n"
+                        + "| `kind` | int |  |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void theUnusedNoteFollowsTheOptionalNote() {
+        Schema<UnusedFixtures.Child> schema = Schema.of(UnusedFixtures.Child.class).integer("kind").optional(o -> o.string("extra"));
+
+        String body = PacketReference.body(schema);
+
+        assertTrue(body.contains("| `extra` | string | optional: only present if the packet has bytes left; "
+                + "Unused by the client: Only sent by old servers |\n"), body);
+    }
+
+    @Test
+    void marksUnusedEnumOptions() {
+        Schema<Plain> schema = Schema.of(Plain.class).enumInt("mode", UnusedFixtures.Mode.class);
+
+        String body = PacketReference.body(schema);
+
+        assertTrue(body.endsWith("\n`mode` (`Mode`): `ON` = `1`, `OFF` = `0` (unused)\n"), body);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void anUnusedPacketGetsAWarningAndAnIndexMark() {
+        PacketType<UnusedFixtures.IgnoredPacket> ignored =
+                PacketType.of("Ignored", HMessage.Direction.TOCLIENT, Schema.of(UnusedFixtures.IgnoredPacket.class));
+
+        assertTrue(PacketReference.page(ignored).startsWith("# Ignored\n\n"
+                + "!!! warning \"Unused by the client\"\n    The client's handler ignores it\n\n"
+                + "- Direction: incoming (to client)\n"), PacketReference.page(ignored));
+        String index = PacketReference.index(Collections.<PacketType<?>>singletonList(ignored));
+        assertTrue(index.contains("| [Ignored](incoming/Ignored.md) (unused) | `testfixtures.unused.UnusedFixtures$IgnoredPacket` |\n"), index);
     }
 
     static class Animal {
