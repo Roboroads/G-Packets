@@ -23,6 +23,7 @@ import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -187,6 +188,12 @@ class CatalogWireFormatTest {
 
         assertSameBytes(catalogPublishedPacket(true), sample.toPacket());
         assertEquals(sample, CatalogPublished.fromPacket(catalogPublishedPacket(true)));
+    }
+
+    @Test
+    void catalogPublishedValuesLeaveOutTheMissingTail() {
+        assertEquals(Collections.singletonList("instantlyRefreshCatalogue"),
+                new ArrayList<>(CatalogPublished.TYPE.read(catalogPublishedPacket(false)).keySet()));
     }
 
     @Test

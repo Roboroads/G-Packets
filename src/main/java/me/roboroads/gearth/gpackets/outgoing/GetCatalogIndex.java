@@ -12,6 +12,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @Builder
@@ -19,14 +20,13 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetCatalogIndex implements Packet, JsonSerializable {
-    public static final PacketType<GetCatalogIndex> TYPE = new PacketType<>("GetCatalogIndex", HMessage.Direction.TOSERVER, GetCatalogIndex::fromPacket);
+    public static final PacketType<GetCatalogIndex> TYPE = PacketType.of("GetCatalogIndex", HMessage.Direction.TOSERVER, Schema.of(GetCatalogIndex.class)
+            .enumString("catalogType", CatalogType.class));
 
     private CatalogType catalogType;
 
     public static GetCatalogIndex fromPacket(HPacket packet) {
-        return GetCatalogIndex.builder()
-                .catalogType(CatalogType.fromCode(packet.readString()))
-                .build();
+        return TYPE.schema().parse(packet);
     }
 
     public static GetCatalogIndex fromJson(String json) {
@@ -35,8 +35,6 @@ public class GetCatalogIndex implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendString(catalogType != null ? catalogType.code() : "");
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

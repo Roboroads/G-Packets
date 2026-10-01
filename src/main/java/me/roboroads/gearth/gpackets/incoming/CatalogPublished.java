@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @Builder
@@ -18,7 +19,9 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CatalogPublished implements Packet, JsonSerializable {
-    public static final PacketType<CatalogPublished> TYPE = new PacketType<>("CatalogPublished", HMessage.Direction.TOCLIENT, CatalogPublished::fromPacket);
+    public static final PacketType<CatalogPublished> TYPE = PacketType.of("CatalogPublished", HMessage.Direction.TOCLIENT, Schema.of(CatalogPublished.class)
+            .bool("instantlyRefreshCatalogue")
+            .optional(s -> s.string("newFurniDataHash")));
 
     private Boolean instantlyRefreshCatalogue;
     // Optional tail — only present when the server also wants the client to invalidate
@@ -26,13 +29,7 @@ public class CatalogPublished implements Packet, JsonSerializable {
     private String newFurniDataHash;
 
     public static CatalogPublished fromPacket(HPacket packet) {
-        CatalogPublishedBuilder builder = CatalogPublished.builder()
-                .instantlyRefreshCatalogue(packet.readBoolean());
-
-        if (packet.isEOF() == 0) {
-            builder.newFurniDataHash(packet.readString());
-        }
-        return builder.build();
+        return TYPE.schema().parse(packet);
     }
 
     public static CatalogPublished fromJson(String json) {
@@ -41,11 +38,6 @@ public class CatalogPublished implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendBoolean(instantlyRefreshCatalogue != null && instantlyRefreshCatalogue);
-        if (newFurniDataHash != null) {
-            packet.appendString(newFurniDataHash);
-        }
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

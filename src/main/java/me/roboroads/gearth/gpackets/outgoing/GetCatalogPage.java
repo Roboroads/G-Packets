@@ -12,6 +12,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @Builder
@@ -19,7 +20,10 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetCatalogPage implements Packet, JsonSerializable {
-    public static final PacketType<GetCatalogPage> TYPE = new PacketType<>("GetCatalogPage", HMessage.Direction.TOSERVER, GetCatalogPage::fromPacket);
+    public static final PacketType<GetCatalogPage> TYPE = PacketType.of("GetCatalogPage", HMessage.Direction.TOSERVER, Schema.of(GetCatalogPage.class)
+            .integer("pageId")
+            .integer("offerId")
+            .enumString("catalogType", CatalogType.class));
 
     private Integer pageId;
     @Builder.Default
@@ -27,11 +31,7 @@ public class GetCatalogPage implements Packet, JsonSerializable {
     private CatalogType catalogType;
 
     public static GetCatalogPage fromPacket(HPacket packet) {
-        return GetCatalogPage.builder()
-                .pageId(packet.readInteger())
-                .offerId(packet.readInteger())
-                .catalogType(CatalogType.fromCode(packet.readString()))
-                .build();
+        return TYPE.schema().parse(packet);
     }
 
     public static GetCatalogPage fromJson(String json) {
@@ -40,10 +40,6 @@ public class GetCatalogPage implements Packet, JsonSerializable {
 
     @Override
     public HPacket toPacket() {
-        HPacket packet = new HPacket(TYPE.header(), TYPE.direction());
-        packet.appendInt(pageId != null ? pageId : 0);
-        packet.appendInt(offerId != null ? offerId : -1);
-        packet.appendString(catalogType != null ? catalogType.code() : "");
-        return packet;
+        return TYPE.toPacket(this);
     }
 }

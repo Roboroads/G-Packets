@@ -5,8 +5,14 @@ import gearth.protocol.HMessage;
 import gearth.protocol.HPacket;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.support.schema.Parameter;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +20,59 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 class PacketTypeTest {
+
+    @Test
+    void schemaListsTheParametersInWireOrder() {
+        List<String> names = new ArrayList<>();
+        for (Parameter parameter : Chat.TYPE.schema().parameters()) {
+            names.add(parameter.name());
+        }
+
+        assertEquals(Arrays.asList("text", "style", "trackingId"), names);
+    }
+
+    @Test
+    void readReturnsNamedValuesAndRestoresTheReadIndex() {
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+        packet.setReadIndex(11);
+
+        Map<String, Object> values = Chat.TYPE.read(packet);
+
+        assertEquals("hi", values.get("text"));
+        assertEquals(2, values.get("style"));
+        assertEquals(7, values.get("trackingId"));
+        assertEquals(11, packet.getReadIndex());
+    }
+
+    @Test
+    void readThenParseOnTheSamePacketBothSeeTheWholeBody() {
+        HPacket packet = new Chat("hi", ChatBarStyle.ROBOT, 7).toPacket();
+
+        Chat.TYPE.read(packet);
+
+        assertEquals(new Chat("hi", ChatBarStyle.ROBOT, 7), Chat.TYPE.parse(packet));
+    }
+
+    @Test
+    void writeBuildsAPacketFromValues() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("text", "built");
+        values.put("style", ChatBarStyle.ROBOT);
+
+        HPacket packet = Chat.TYPE.write(values);
+
+        assertEquals(new Chat("built", ChatBarStyle.ROBOT, 0), Chat.TYPE.parse(packet));
+    }
+
+    @Test
+    void readThenWriteReproducesTheBytesIncludingUnknownEnumValues() {
+        HPacket original = new HPacket("Chat", HMessage.Direction.TOSERVER);
+        original.appendString("hi").appendInt(999).appendInt(7);
+
+        HPacket copy = Chat.TYPE.write(Chat.TYPE.read(original));
+
+        assertEquals(Arrays.toString(original.toBytes()), Arrays.toString(copy.toBytes()));
+    }
 
     @Test
     void parseRoundTripsThroughToPacket() {

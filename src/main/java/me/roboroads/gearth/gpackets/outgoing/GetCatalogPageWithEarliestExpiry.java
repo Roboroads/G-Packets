@@ -8,14 +8,16 @@ import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
+import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 @Data
 @NoArgsConstructor
 public class GetCatalogPageWithEarliestExpiry implements Packet, JsonSerializable {
-    public static final PacketType<GetCatalogPageWithEarliestExpiry> TYPE = new PacketType<>("GetCatalogPageWithEarliestExpiry", HMessage.Direction.TOSERVER, GetCatalogPageWithEarliestExpiry::fromPacket);
+    public static final PacketType<GetCatalogPageWithEarliestExpiry> TYPE = PacketType.of("GetCatalogPageWithEarliestExpiry", HMessage.Direction.TOSERVER,
+            Schema.of(GetCatalogPageWithEarliestExpiry.class));
 
     public static GetCatalogPageWithEarliestExpiry fromPacket(HPacket packet) {
-        return new GetCatalogPageWithEarliestExpiry();
+        return TYPE.schema().parse(packet);
     }
 
     public static GetCatalogPageWithEarliestExpiry fromJson(String json) {
@@ -24,6 +26,6 @@ public class GetCatalogPageWithEarliestExpiry implements Packet, JsonSerializabl
 
     @Override
     public HPacket toPacket() {
-        return new HPacket(TYPE.header(), TYPE.direction());
+        return TYPE.toPacket(this);
     }
 }
