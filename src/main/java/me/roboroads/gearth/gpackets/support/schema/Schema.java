@@ -79,6 +79,10 @@ public final class Schema<T> {
         return value(name, WireType.BYTE, null, limits);
     }
 
+    public Schema<T> floatValue(String name, Limit... limits) {
+        return value(name, WireType.FLOAT, null, limits);
+    }
+
     /**
      * An int on the wire that maps to {@code enumType} through {@link IntEnum#value()}: an enum, or
      * an {@link OpenIntEnum} that also keeps ids it doesn't name.
@@ -98,7 +102,7 @@ public final class Schema<T> {
 
     /** A list of primitives: an int count, then that many values. */
     public Schema<T> list(String name, WireType elementType, Limit... limits) {
-        return with(new ListParameter(Objects.requireNonNull(name, "name"), Objects.requireNonNull(elementType, "elementType"), null), limits);
+        return with(new ListParameter(Objects.requireNonNull(name, "name"), WireType.INT, Objects.requireNonNull(elementType, "elementType"), null), limits);
     }
 
     /** A list of structures: an int count, then that many {@code elementSchema}s. */
@@ -113,7 +117,16 @@ public final class Schema<T> {
      * rejects a simple-name self-reference in a field's own initializer.
      */
     public Schema<T> list(String name, Supplier<? extends Schema<?>> elementSchema, Limit... limits) {
-        return with(new ListParameter(Objects.requireNonNull(name, "name"), null, Objects.requireNonNull(elementSchema, "elementSchema")), limits);
+        return with(new ListParameter(Objects.requireNonNull(name, "name"), WireType.INT, null, Objects.requireNonNull(elementSchema, "elementSchema")), limits);
+    }
+
+    /**
+     * A list of structures counted by a {@code countType} ({@code BYTE}, {@code SHORT} or {@code INT})
+     * instead of an int: {@code .listWithCount("updates", WireType.BYTE, TileUpdate.SCHEMA)}.
+     */
+    public Schema<T> listWithCount(String name, WireType countType, Schema<?> elementSchema, Limit... limits) {
+        Objects.requireNonNull(elementSchema, "elementSchema");
+        return with(new ListParameter(Objects.requireNonNull(name, "name"), countType, null, () -> elementSchema), limits);
     }
 
     /** A nested structure, read inline. */

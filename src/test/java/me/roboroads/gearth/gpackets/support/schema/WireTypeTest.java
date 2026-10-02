@@ -17,6 +17,7 @@ class WireTypeTest {
         assertEquals((short) 0, WireType.SHORT.defaultValue());
         assertEquals(0L, WireType.LONG.defaultValue());
         assertEquals((byte) 0, WireType.BYTE.defaultValue());
+        assertEquals(0f, WireType.FLOAT.defaultValue());
     }
 
     @Test
@@ -30,6 +31,7 @@ class WireTypeTest {
         assertEquals(7, WireType.INT.coerce(7L));
         assertEquals(7L, WireType.LONG.coerce(7));
         assertEquals((byte) 7, WireType.BYTE.coerce(7));
+        assertEquals(7.5f, WireType.FLOAT.coerce(7.5d));
     }
 
     @Test
@@ -49,6 +51,7 @@ class WireTypeTest {
         WireType.SHORT.write(packet, (short) 3);
         WireType.LONG.write(packet, 9L);
         WireType.BYTE.write(packet, (byte) 1);
+        WireType.FLOAT.write(packet, 2.5f);
         packet.resetReadIndex();
 
         assertEquals(7, WireType.INT.read(packet));
@@ -57,5 +60,6 @@ class WireTypeTest {
         assertEquals((short) 3, WireType.SHORT.read(packet));
         assertEquals(9L, WireType.LONG.read(packet));
         assertEquals((byte) 1, WireType.BYTE.read(packet));
+        assertEquals(2.5f, WireType.FLOAT.read(packet));
     }
 }

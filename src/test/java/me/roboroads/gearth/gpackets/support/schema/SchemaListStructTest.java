@@ -194,8 +194,55 @@ class SchemaListStructTest {
 
         assertEquals(WireType.SHORT, numbers.elementType());
         assertNull(numbers.elementSchema());
+        assertEquals(WireType.INT, numbers.countType());
         assertNull(items.elementType());
         assertSame(ITEM, items.elementSchema());
+        assertEquals(WireType.INT, items.countType());
         assertSame(ITEM, inner.schema());
+    }
+
+    private static final Schema<Sample> BYTE_COUNTED = Schema.of(Sample.class)
+            .listWithCount("items", WireType.BYTE, ITEM);
+
+    @Test
+    void aByteCountedListReadsAndWritesAByteCount() {
+        HPacket p = packet();
+        p.appendByte((byte) 2).appendInt(1).appendString("x").appendInt(2).appendString("y");
+
+        Map<String, Object> values = BYTE_COUNTED.read(p);
+        HPacket out = packet();
+        BYTE_COUNTED.write(values, out);
+
+        assertEquals(Arrays.asList(map("a", 1, "b", "x"), map("a", 2, "b", "y")), values.get("items"));
+        assertEquals(bytes(p), bytes(out));
+        assertEquals(WireType.BYTE, ((ListParameter) BYTE_COUNTED.parameters().get(0)).countType());
+    }
+
+    @Test
+    void aNullByteCountedListWritesAZeroByte() {
+        HPacket out = packet();
+        BYTE_COUNTED.write(new HashMap<>(), out);
+
+        HPacket expected = packet();
+        expected.appendByte((byte) 0);
+        assertEquals(bytes(expected), bytes(out));
+    }
+
+    @Test
+    void aListTooLongForItsCountFailsInsteadOfWrapping() {
+        List<Map<String, Object>> items = Collections.nCopies(128, map("a", 1, "b", "x"));
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> BYTE_COUNTED.write(map("items", items), packet()));
+
+        assertEquals("Sample.items: 128 elements don't fit a BYTE count", e.getMessage());
+    }
+
+    @Test
+    void aListCountMustBeAWholeNumberType() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).listWithCount("items", WireType.STRING, ITEM));
+
+        assertEquals("items: a list count is a BYTE, SHORT or INT, not STRING", e.getMessage());
     }
 }

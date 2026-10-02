@@ -176,7 +176,8 @@ public final class PacketReference {
                 } else if (parameter instanceof ListParameter) {
                     ListParameter list = (ListParameter) parameter;
                     String element = list.elementType() != null ? wireName(list.elementType()) : link(list.elementSchema());
-                    rows.add(row(list.name(), "list of " + element, limitNote(unusedNote(note, list), list)));
+                    String count = list.countType() == WireType.INT ? "" : ", counted by a " + wireName(list.countType());
+                    rows.add(row(list.name(), "list of " + element + count, limitNote(unusedNote(note, list), list)));
                 } else if (parameter instanceof StructParameter) {
                     rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), limitNote(unusedNote(note, parameter), parameter)));
                 } else if (parameter instanceof OptionalParameter) {

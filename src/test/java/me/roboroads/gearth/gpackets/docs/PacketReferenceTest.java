@@ -85,6 +85,17 @@ class PacketReferenceTest {
     }
 
     @Test
+    void namesACountThatIsntAnInt() {
+        Schema<Tree> schema = Schema.of(Tree.class).listWithCount("leaves", WireType.BYTE, LEAF);
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `leaves` | list of [Leaf](#leaf), counted by a byte |  |\n"
+                        + "\n## Leaf\n\n" + TABLE_HEAD
+                        + "| `label` | string |  |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
     void marksOptionalParameters() {
         Schema<Plain> schema = Schema.of(Plain.class).bool("flag").optional(o -> o.string("hash"));
 

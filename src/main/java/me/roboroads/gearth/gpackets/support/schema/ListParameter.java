@@ -12,15 +12,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/** An int count followed by that many elements, each a primitive or a structure. */
+/** A count (an int, unless {@link #countType()} says otherwise) followed by that many elements, each a primitive or a structure. */
 public final class ListParameter extends Parameter {
+    private final WireType countType;
     private final WireType elementType;
     private final Supplier<? extends Schema<?>> elementSchema;
 
-    ListParameter(String name, WireType elementType, Supplier<? extends Schema<?>> elementSchema) {
+    ListParameter(String name, WireType countType, WireType elementType, Supplier<? extends Schema<?>> elementSchema) {
         super(name);
+        if (countType != WireType.INT && countType != WireType.SHORT && countType != WireType.BYTE) {
+            throw new IllegalArgumentException(name + ": a list count is a BYTE, SHORT or INT, not " + countType);
+        }
+        this.countType = countType;
         this.elementType = elementType;
         this.elementSchema = elementSchema;
+    }
+
+    /** The wire type of the count before the elements: {@code INT} for most lists, {@code SHORT} or {@code BYTE} for a few. */
+    public WireType countType() {
+        return countType;
     }
 
     /** The element type of a list of primitives, or null for a list of structures. */
@@ -36,7 +46,7 @@ public final class ListParameter extends Parameter {
     @Override
     void read(HPacket packet, Map<String, Object> values, String path) {
         String here = path + "." + name();
-        int count = (Integer) readWire(WireType.INT, packet, here);
+        int count = ((Number) readWire(countType, packet, here)).intValue();
         // No capacity hint: a garbage count must fail on the first missing element, not allocate.
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -57,14 +67,17 @@ public final class ListParameter extends Parameter {
         String here = path + "." + name();
         Object value = values.get(name());
         if (value == null) {
-            packet.appendInt(0);
+            countType.write(packet, countType.defaultValue());
             return;
         }
         if (!(value instanceof List)) {
             throw new IllegalArgumentException(here + ": expected a List, got " + value.getClass().getName());
         }
         List<?> list = (List<?>) value;
-        packet.appendInt(list.size());
+        if (list.size() > maxCount()) {
+            throw new IllegalArgumentException(here + ": " + list.size() + " elements don't fit a " + countType + " count");
+        }
+        countType.write(packet, countType.coerce(list.size()));
         // Iterate rather than get(i), which costs O(n) per call on a LinkedList.
         int i = 0;
         for (Object item : list) {
@@ -112,6 +125,17 @@ public final class ListParameter extends Parameter {
                 String atItem = here + "[" + i++ + "]";
                 elementSchema().checkInto(asValues(item, atItem), atItem, out);
             }
+        }
+    }
+
+    private int maxCount() {
+        switch (countType) {
+            case BYTE:
+                return Byte.MAX_VALUE;
+            case SHORT:
+                return Short.MAX_VALUE;
+            default:
+                return Integer.MAX_VALUE;
         }
     }
 

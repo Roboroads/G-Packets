@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets;
 
+import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
@@ -100,5 +101,12 @@ public class JsonRoundTripTest {
         RoomSettingsData data = RoomSettingsWireFormatTest.roomSettingsData();
 
         assertEquals(data, RoomSettingsData.fromJson(data.toJson()));
+    }
+
+    @Test
+    public void floorHeightMapRoundTripKeepsTheFloatAndTheAreas() {
+        FloorHeightMap map = RoomModelWireFormatTest.floorHeightMap();
+
+        assertEquals(map, FloorHeightMap.fromJson(map.toJson()));
     }
 }

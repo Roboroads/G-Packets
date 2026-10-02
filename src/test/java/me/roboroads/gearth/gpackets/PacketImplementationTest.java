@@ -230,6 +230,8 @@ public class PacketImplementationTest {
                 return Long.class;
             case BYTE:
                 return Byte.class;
+            case FLOAT:
+                return Float.class;
             default:
                 throw new AssertionError(wireType);
         }
