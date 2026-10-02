@@ -14,6 +14,31 @@ There are three ways to intercept. They are alternatives: pick the one you like 
 
 All three use the same packet classes and give you the same G-Earth `HMessage`, so [changing a packet](changing-and-sending.md) and working with the `HMessage` work the same way in each.
 
+## Incoming and outgoing packets
+
+Every packet class is in one of two packages, named after the way the packet travels:
+
+| Package | Direction | Example |
+|---|---|---|
+| `me.roboroads.gearth.gpackets.incoming` | server to client | `Users`: the users in your room |
+| `me.roboroads.gearth.gpackets.outgoing` | client to server | `Chat`: a message you say |
+
+Some packets have the same name in both packages. `incoming.Dance` is the server telling your client that a user in the room started or stopped dancing. `outgoing.Dance` is your client asking the server to make you dance. The import decides which one a handler gets, and a handler only receives packets going that way. To handle both in one class, import one and write the full name of the other:
+
+```java
+import me.roboroads.gearth.gpackets.incoming.Dance;
+
+@Intercept
+void onUserDances(Dance dance) { } // the server says someone dances
+
+@Intercept
+void onYouDance(me.roboroads.gearth.gpackets.outgoing.Dance dance) { } // you start dancing
+```
+
+The same goes for the other two options: `Dance.TYPE` intercepts the direction of the `Dance` you imported. In code, `TYPE.direction()` is `HMessage.Direction.TOCLIENT` for an incoming packet and `TOSERVER` for an outgoing one. The [packet reference](packets/index.md) lists the two directions separately.
+
+The `Chat` in the examples below is `outgoing.Chat`, the messages you say.
+
 ## Option 1: annotations (recommended)
 
 ### Intercepting a packet
@@ -58,7 +83,7 @@ void onUsers(HMessage message) { } // no packet parameter, so the type is listed
 
 ### Working with the HMessage
 
-Add an `HMessage` parameter after the packet to get G-Earth's message around it, and use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages that mention a spoiler:
+Add an `HMessage` parameter after the packet to get G-Earth's message around it, and use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages you send that mention a spoiler:
 
 ```java
 @Intercept(Chat.class)
@@ -148,7 +173,7 @@ protected void initExtension() {
 
 ### Working with the HMessage
 
-The handler gets G-Earth's `HMessage` as its second argument. Use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages that mention a spoiler:
+The handler gets G-Earth's `HMessage` as its second argument. Use it as you would in any G-Earth extension, for example to block the packet. This handler blocks chat messages you send that mention a spoiler:
 
 ```java
 Chat.TYPE.intercept(this, (chat, message) -> {
@@ -183,7 +208,7 @@ intercept(Users.TYPE.direction(), Users.TYPE.header(), message -> {
 
 ### Working with the HMessage
 
-G-Earth's listener already hands you the `HMessage`; the typed packet is something you parse from it. Use the message as you would in any G-Earth extension, for example to block the packet. This listener blocks chat messages that mention a spoiler:
+G-Earth's listener already hands you the `HMessage`; the typed packet is something you parse from it. Use the message as you would in any G-Earth extension, for example to block the packet. This listener blocks chat messages you send that mention a spoiler:
 
 ```java
 intercept(Chat.TYPE.direction(), Chat.TYPE.header(), message -> {
