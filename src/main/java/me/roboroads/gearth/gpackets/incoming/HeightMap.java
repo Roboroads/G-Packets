@@ -31,7 +31,7 @@ public class HeightMap implements Packet, JsonSerializable {
     // Row by row, width tiles per row; the client works out the height as tiles.size() / width. Each
     // tile is encoded: -1 is no tile, the stacking-blocked bit (bit 14 by default, the hotel setting
     // room.stacking_blocked_mask_bit) blocks stacking, and the bits below it are the stacking height
-    // times 256 (__Q2t/__72h.decodeTileHeight).
+    // times 256 (the parser's decodeTileHeight).
     private List<Short> tiles;
 
     public static HeightMap fromPacket(HPacket packet) {

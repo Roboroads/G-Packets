@@ -9,7 +9,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 import java.util.List;
 
 /**
- * Format 6: a high score table. The client's __D27. It never reads a serial, so
+ * Format 6: a high score table. The client never reads a serial for it, so
  * {@code uniqueSerialNumber} and {@code uniqueSeriesSize} stay empty even with the flag.
  */
 @Data

@@ -19,7 +19,7 @@ import java.util.function.UnaryOperator;
  * map of values or a high score table. The low byte of {@link #typeAndFlags} picks the format and
  * so the subclass; {@link #UNIQUE_SERIAL_FLAG} adds the serial number of a limited edition.
  */
-// The client: __Q2t/__G18.parseStuffData and room/object/data/__h1x.getStuffDataWrapperForType.
+// The client: parseStuffData, and getStuffDataWrapperForType in room/object/data.
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeAndFlags", visible = true)
 @JsonTypeIdResolver(StuffDataTypeIdResolver.class)
 @Data
@@ -32,8 +32,7 @@ public abstract class StuffData implements SubPacket, JsonSerializable {
 
     /**
      * The flag in {@link #typeAndFlags} for a limited edition furni: {@link #uniqueSerialNumber} and
-     * {@link #uniqueSeriesSize} follow the format's values. The client calls it UNIQUE_SERIAL_NUMBER
-     * (room/object/data/__G1k).
+     * {@link #uniqueSeriesSize} follow the format's values. The client calls it UNIQUE_SERIAL_NUMBER.
      */
     public static final int UNIQUE_SERIAL_FLAG = 256;
 

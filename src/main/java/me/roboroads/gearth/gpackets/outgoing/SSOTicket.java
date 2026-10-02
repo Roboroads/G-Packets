@@ -30,7 +30,7 @@ public class SSOTicket implements Packet, JsonSerializable {
             .integer("clientUptimeMilliSeconds"));
 
     // The login component's ssoTicket, usually its sso.token property. It only sends the packet
-    // when the ticket isn't empty (communication/demo/__LS.as sendConnectionParameters).
+    // when the ticket isn't empty (the login component's sendConnectionParameters).
     private String ssoTicket;
     // The composer adds getTimer(): the milliseconds since the client started. G-Rust calls it time.
     private Integer clientUptimeMilliSeconds;

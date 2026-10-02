@@ -7,8 +7,8 @@ import java.util.List;
 
 /**
  * The code of a {@code GenericError}. The server sends many codes; the client only handles the
- * ones named here, in the connection handler ({@code communication/demo/__cW.as}), the
- * navigator ({@code navigator/__cW.as} onError) and the room session's {@code GenericErrorHandler}.
+ * ones named here, in the connection handler, the navigator's {@code onError} and the room
+ * session's {@code GenericErrorHandler}.
  * {@link #of} keeps every other id.
  */
 public final class GenericErrorCode extends OpenIntEnum {

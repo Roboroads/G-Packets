@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.Json;
 
-/** Format 7: a furni you crack open by hitting it. The client's __W1j (CRACKABLE_TYPE_KEY). */
+/** Format 7: a furni you crack open by hitting it. The client's CRACKABLE_TYPE_KEY. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

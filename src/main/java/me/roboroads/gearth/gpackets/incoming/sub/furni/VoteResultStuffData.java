@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.Json;
 
-/** Format 3: a state string and a result. The client's __T2b; G-Rust and G-Earth call it vote result. */
+/** Format 3: a state string and a result. G-Rust and G-Earth call it vote result. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

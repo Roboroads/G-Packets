@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 /**
- * A room-wide visual effect. The client's {@code RoomMessageHandler.onSpecialRoomEvent}
- * ({@code room/__ms.as}) handles these ids and ignores any other.
+ * A room-wide visual effect. The client's {@code RoomMessageHandler.onSpecialRoomEvent} handles
+ * these ids and ignores any other.
  */
 @RequiredArgsConstructor
 public enum SpecialRoomEffectType implements IntEnum {
