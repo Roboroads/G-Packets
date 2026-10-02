@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.1](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.4.0...G-Packets-v0.4.1) (2026-10-02)
+
+
+### Features
+
+* add the room entry, doorbell and room queue packets ([#104](https://github.com/Roboroads/G-Packets/issues/104)) ([900fd43](https://github.com/Roboroads/G-Packets/commit/900fd434c168eab32554a15d6f6164b688c726a4))
+* add the room model, heightmap and floor plan editor packets ([#105](https://github.com/Roboroads/G-Packets/issues/105)) ([46c2db1](https://github.com/Roboroads/G-Packets/commit/46c2db13bc37bc2ac5061fae12038bb699fc12d3))
+* let a changed packet skip the limit check, and drop two limits the client can break ([#103](https://github.com/Roboroads/G-Packets/issues/103)) ([470724d](https://github.com/Roboroads/G-Packets/commit/470724d8eb99910d6967d3c7c6fe1d242cd4baab))
+
 ## [0.4.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.3.0...G-Packets-v0.4.0) (2026-10-01)
 
 
