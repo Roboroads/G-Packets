@@ -21,7 +21,7 @@ Map<String, Object> values = Users.TYPE.read(message.getPacket());
 
 The values follow a few rules:
 
-- A value is a `String` or a boxed primitive: `Integer`, `Boolean`, `Short`, `Long` or `Byte`.
+- A value is a `String` or a boxed primitive: `Integer`, `Boolean`, `Short`, `Long`, `Byte` or `Float`.
 - A list is a `List`, and a nested structure is a `Map` of its own.
 - An enum holds its wire value, so `dir` is `2`, not `EAST`. A value the library doesn't know yet survives a read and a write unchanged.
 - The values of a branch, such as a player's `sex` and `groupId`, sit in the same map as the values around them.
@@ -137,7 +137,7 @@ The loop registers the listener for both directions, so you see what the server 
 | Kind | What it is | What you can ask it |
 |---|---|---|
 | `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()`, `openEnum()` |
-| `ListParameter` | an int count, then that many elements | `elementType()` for values, `elementSchema()` for structures |
+| `ListParameter` | a count, then that many elements | `elementType()` for values, `elementSchema()` for structures, `countType()` for the count (an int for most lists) |
 | `StructParameter` | a nested structure | `schema()` |
 | `BranchParameter` | parameters that depend on an earlier value | `on()`, `exhaustive()`, `cases()` |
 | `OptionalParameter` | parameters the server may leave off the end | `schema()` |

@@ -8,11 +8,21 @@ import me.roboroads.gearth.gpackets.incoming.CatalogPage;
 import me.roboroads.gearth.gpackets.incoming.CatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.incoming.Expression;
+import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
+import me.roboroads.gearth.gpackets.incoming.FurnitureAliases;
 import me.roboroads.gearth.gpackets.incoming.HandItemReceived;
+import me.roboroads.gearth.gpackets.incoming.HeightMap;
+import me.roboroads.gearth.gpackets.incoming.HeightMapUpdate;
+import me.roboroads.gearth.gpackets.incoming.RoomEntryInfo;
+import me.roboroads.gearth.gpackets.incoming.RoomEntryTile;
+import me.roboroads.gearth.gpackets.incoming.RoomOccupiedTiles;
+import me.roboroads.gearth.gpackets.incoming.RoomProperty;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
+import me.roboroads.gearth.gpackets.incoming.RoomVisualizationSettings;
 import me.roboroads.gearth.gpackets.incoming.Sleep;
+import me.roboroads.gearth.gpackets.incoming.SpecialRoomEffect;
 import me.roboroads.gearth.gpackets.incoming.UseObject;
 import me.roboroads.gearth.gpackets.incoming.UserChange;
 import me.roboroads.gearth.gpackets.incoming.UserRemove;
@@ -30,13 +40,18 @@ import me.roboroads.gearth.gpackets.outgoing.DropCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
+import me.roboroads.gearth.gpackets.outgoing.GetFurnitureAliases;
+import me.roboroads.gearth.gpackets.outgoing.GetOccupiedTiles;
+import me.roboroads.gearth.gpackets.outgoing.GetRoomEntryTile;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.LookTo;
 import me.roboroads.gearth.gpackets.outgoing.MoveAvatar;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItemToPet;
+import me.roboroads.gearth.gpackets.outgoing.RequestRoomPropertySet;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.Sign;
+import me.roboroads.gearth.gpackets.outgoing.UpdateFloorProperties;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
 
@@ -64,12 +79,22 @@ public final class PacketTypes {
             CatalogPublished.TYPE,
             me.roboroads.gearth.gpackets.incoming.Dance.TYPE,
             Expression.TYPE,
+            FloorHeightMap.TYPE,
+            FurnitureAliases.TYPE,
             HandItemReceived.TYPE,
+            HeightMap.TYPE,
+            HeightMapUpdate.TYPE,
+            RoomEntryInfo.TYPE,
+            RoomEntryTile.TYPE,
+            RoomOccupiedTiles.TYPE,
+            RoomProperty.TYPE,
             RoomSettingsData.TYPE,
             me.roboroads.gearth.gpackets.incoming.RoomSettingsError.TYPE,
             RoomSettingsSaved.TYPE,
             RoomSettingsSaveError.TYPE,
+            RoomVisualizationSettings.TYPE,
             Sleep.TYPE,
+            SpecialRoomEffect.TYPE,
             UseObject.TYPE,
             UserChange.TYPE,
             UserRemove.TYPE,
@@ -88,13 +113,18 @@ public final class PacketTypes {
             GetCatalogIndex.TYPE,
             GetCatalogPage.TYPE,
             GetCatalogPageWithEarliestExpiry.TYPE,
+            GetFurnitureAliases.TYPE,
+            GetOccupiedTiles.TYPE,
+            GetRoomEntryTile.TYPE,
             GetRoomSettings.TYPE,
             LookTo.TYPE,
             MoveAvatar.TYPE,
             PassCarryItem.TYPE,
             PassCarryItemToPet.TYPE,
+            RequestRoomPropertySet.TYPE,
             SaveRoomSettings.TYPE,
             Sign.TYPE,
+            UpdateFloorProperties.TYPE,
             WiredGetRoomSettings.TYPE,
             WiredSetRoomSettings.TYPE
     ));

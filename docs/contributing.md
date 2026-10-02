@@ -79,6 +79,7 @@ Each method adds one parameter to the schema:
 | `shortValue(name)` | short | `Short` or `short` |
 | `longValue(name)` | long | `Long` or `long` |
 | `byteValue(name)` | byte | `Byte` or `byte` |
+| `floatValue(name)` | float | `Float` or `float` |
 | `enumInt(name, E.class)` | int | an enum that implements `IntEnum` |
 | `enumString(name, E.class)` | string | an enum that implements `StringEnum` |
 
@@ -101,6 +102,14 @@ public static final Schema<CatalogNode> SCHEMA = Schema.of(CatalogNode.class)
 
 !!! note
     Write `CatalogNode.SCHEMA`, not `SCHEMA`, inside the lambda. Java doesn't let a field refer to itself by its simple name in its own initializer.
+
+A few packets count a list with a byte or a short instead of an int. The client reads a height map update's count with `readByte()`, so its schema names the count type:
+
+```java
+.listWithCount("tileUpdates", WireType.BYTE, HeightMapTileUpdate.SCHEMA)
+```
+
+Writing a list longer than its count can hold (127 for a byte) throws an `IllegalArgumentException`.
 
 ## Nested structures
 
