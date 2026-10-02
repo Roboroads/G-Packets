@@ -2,7 +2,7 @@
 
 ## Introduction
 
-G-Packets doesn't implement every Habbo packet yet, and adding one is usually a small pull request. A packet is a Java class plus a schema: the list of its parameters in the order they appear on the wire. The schema does the reading and writing, so you never call `readInteger()` or `appendString()` yourself.
+G-Packets doesn't implement every packet yet, and adding one is usually a small pull request. A packet is a Java class plus a schema: the list of its parameters in the order they appear on the wire. The schema does the reading and writing, so you never call `readInteger()` or `appendString()` yourself.
 
 To find a packet's layout, look it up on [Sulek](https://sulek.dev) or in the decompiled client. If you'd rather not write it yourself, [open a packet request issue](https://github.com/Roboroads/G-Packets/issues/new/choose).
 

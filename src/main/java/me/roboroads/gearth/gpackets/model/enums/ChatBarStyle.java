@@ -77,15 +77,15 @@ public final class ChatBarStyle extends OpenIntEnum {
 
     // NFT styles: ids 1000 to 9999 (RoomChatInputView.isNftChatStyle). The client only offers the
     // ones the user owns.
-    public static final ChatBarStyle NFT_HABBO_AVATAR_BRONZE = new ChatBarStyle(1000);
-    public static final ChatBarStyle NFT_HABBO_AVATAR_GOLD = new ChatBarStyle(1001);
-    public static final ChatBarStyle NFT_HABBO_AVATAR_DIAMOND = new ChatBarStyle(1002);
-    public static final ChatBarStyle NFT_HABBO_AVATAR_RAINBOW = new ChatBarStyle(1003);
-    public static final ChatBarStyle NFT_HABBO_AVATAR_TRIPPY = new ChatBarStyle(1004);
-    public static final ChatBarStyle NFT_HABBO_AVATAR_ULTRA_TRIPPY = new ChatBarStyle(1005);
+    public static final ChatBarStyle NFT_AVATAR_BRONZE = new ChatBarStyle(1000);
+    public static final ChatBarStyle NFT_AVATAR_GOLD = new ChatBarStyle(1001);
+    public static final ChatBarStyle NFT_AVATAR_DIAMOND = new ChatBarStyle(1002);
+    public static final ChatBarStyle NFT_AVATAR_RAINBOW = new ChatBarStyle(1003);
+    public static final ChatBarStyle NFT_AVATAR_TRIPPY = new ChatBarStyle(1004);
+    public static final ChatBarStyle NFT_AVATAR_ULTRA_TRIPPY = new ChatBarStyle(1005);
     public static final ChatBarStyle NFT_MVHQ = new ChatBarStyle(1006);
     public static final ChatBarStyle NFT_METAKEY = new ChatBarStyle(1007);
-    public static final ChatBarStyle NFT_CRAFTED_HABBO_AVATAR = new ChatBarStyle(1010);
+    public static final ChatBarStyle NFT_CRAFTED_AVATAR =new ChatBarStyle(1010);
     public static final ChatBarStyle NFT_BALLOON_ORANGE = new ChatBarStyle(1011);
     public static final ChatBarStyle NFT_BALLOON_BLUE = new ChatBarStyle(1012);
     public static final ChatBarStyle NFT_ORIGAMI_ORANGE = new ChatBarStyle(1013);

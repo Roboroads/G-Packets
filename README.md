@@ -1,6 +1,16 @@
-# G-Packets
+<p align="center">
+  <img src=".github/branding/banner.svg" alt="G-Packets: Packet Definitions, Interceptors &amp; Tools for G-Earth Extensions" width="100%">
+</p>
 
-G-Packets turns Habbo packets into Java classes for your G-Earth extensions. Intercept a packet and get a `Users` or `Chat` object with named fields instead of raw bytes, change it, or build your own and send it.
+<p align="center">
+  <a href="https://github.com/Roboroads/G-Packets/actions/workflows/maven.yml"><img src="https://img.shields.io/github/actions/workflow/status/Roboroads/G-Packets/maven.yml?branch=main&style=flat-square&label=build&labelColor=0d1527" alt="Build"></a>
+  <a href="https://github.com/Roboroads/G-Packets/releases/latest"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FRoboroads%2FG-Packets%2Fmain%2F.release-please-manifest.json&query=%24%5B%27.%27%5D&label=version&prefix=v&style=flat-square&labelColor=0d1527&color=00d9f5" alt="Version"></a>
+  <a href="https://jitpack.io/#Roboroads/G-Packets"><img src="https://img.shields.io/badge/java-8%2B-38bdf8?style=flat-square&labelColor=0d1527&logo=openjdk&logoColor=white" alt="Java 8+"></a>
+  <a href="https://roboroads.github.io/G-Packets/"><img src="https://img.shields.io/badge/docs-roboroads.github.io-38bdf8?style=flat-square&labelColor=0d1527&logo=materialformkdocs&logoColor=white" alt="Docs"></a>
+  <a href="https://roboroads.github.io/G-Packets/packets/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Froboroads.github.io%2FG-Packets%2Fbadges%2Fpackets.json&style=flat-square" alt="Packets available"></a>
+</p>
+
+G-Packets turns packets into Java classes for your G-Earth extensions. Intercept a packet and get a `Users` or `Chat` object with named fields instead of raw bytes, change it, or build your own and send it.
 
 Documentation: https://roboroads.github.io/G-Packets/
 

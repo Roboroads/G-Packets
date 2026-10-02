@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter, enum value or packet that is on the wire but that the current Habbo client
+ * Marks a parameter, enum value or packet that is on the wire but that the current client
  * ignores: it stores the value without reading it, declares the enum value without acting on it,
  * or registers the packet without handling it. G-Packets keeps these so packets still parse and
  * write in full.

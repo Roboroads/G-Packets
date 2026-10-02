@@ -1,7 +1,7 @@
 package me.roboroads.gearth.gpackets.support.schema.limit;
 
 /**
- * A limit the Habbo client keeps a parameter within. Declare limits in a schema with the
+ * A limit the client keeps a parameter within. Declare limits in a schema with the
  * factories in {@link Limits}; writing an outgoing packet checks them.
  */
 public abstract class Limit {

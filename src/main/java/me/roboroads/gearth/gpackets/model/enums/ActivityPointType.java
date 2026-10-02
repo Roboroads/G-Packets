@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * A purse currency. Values and names come from the client's purse constants
- * (com.sulake.habbo.catalog.purse), which list every type the client knows. {@link #of} keeps an id
+ * (the catalog.purse package), which list every type the client knows. {@link #of} keeps an id
  * this list doesn't have, so a newer currency survives a read and a write.
  */
 public final class ActivityPointType extends OpenIntEnum {

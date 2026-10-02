@@ -21,7 +21,7 @@ public class RoomQueue implements SubPacket, JsonSerializable {
             .string("queueType")
             .integer("size");
 
-    // The client knows "c" (the Habbo Club queue) and "d" (QUEUE_TYPE_NORMAL) in
+    // The client knows "c" (the club (HC) queue) and "d" (QUEUE_TYPE_NORMAL) in
     // RoomSessionQueueEvent. A plain string: the client keys the queues by it and reads any code.
     private String queueType;
     // The client calls it getQueueSize and shows it plus one as your place in the queue.

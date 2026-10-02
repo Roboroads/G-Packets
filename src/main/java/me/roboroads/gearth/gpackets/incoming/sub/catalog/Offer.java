@@ -42,7 +42,7 @@ public class Offer implements SubPacket, JsonSerializable {
     private Integer priceInCredits;
     private Integer priceInActivityPoints;
     private ActivityPointType activityPointType;
-    // The price in silver (ActivityPointType.SILVER); HabboCatalogUtils shows it as "silver".
+    // The price in silver (ActivityPointType.SILVER); the client's catalog utils show it as "silver".
     private Integer priceInSilver;
     private Boolean giftable;
     private List<Product> products;

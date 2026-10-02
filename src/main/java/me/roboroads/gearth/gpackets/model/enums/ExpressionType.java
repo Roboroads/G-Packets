@@ -7,7 +7,7 @@ import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 /**
  * An avatar expression. Ids and names from the client's {@code AvatarExpressionEnum} and the
- * expression list in {@code com/sulake/habbo/avatar/enum/__01n.as}.
+ * expression list in {@code avatar/enum/__01n.as}.
  */
 @RequiredArgsConstructor
 public enum ExpressionType implements IntEnum {

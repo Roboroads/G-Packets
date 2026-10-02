@@ -229,7 +229,7 @@ A schema can also have `rules()`: limits across several parameters. Each `Rule` 
 
 ## Unused parameters
 
-Some parameters are on the wire, but the current Habbo client ignores them: it reads the value and never uses it. G-Packets keeps them, so packets still parse and write in full, and marks them `@Deprecated`. When your code reads or sets one, your IDE strikes it through and the compiler reports it as deprecated. The same goes for an enum value or a whole packet the client ignores, and the [packet reference](packets/index.md) marks them with the reason.
+Some parameters are on the wire, but the current client ignores them: it reads the value and never uses it. G-Packets keeps them, so packets still parse and write in full, and marks them `@Deprecated`. When your code reads or sets one, your IDE strikes it through and the compiler reports it as deprecated. The same goes for an enum value or a whole packet the client ignores, and the [packet reference](packets/index.md) marks them with the reason.
 
 If you use one on purpose, put `@SuppressWarnings("deprecation")` on your method. On Java 8 the compiler also warns about the import of an unused packet class, and `@SuppressWarnings` can't reach an import. Write the full class name where you use it instead, for example `me.roboroads.gearth.gpackets.incoming.RoomSettingsError`.
 

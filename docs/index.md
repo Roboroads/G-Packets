@@ -1,6 +1,6 @@
 # G-Packets
 
-G-Packets turns Habbo packets into Java classes for your G-Earth extensions. The server sends raw bytes with no names attached; G-Packets knows each packet's layout, so you get a `Users` or a `Chat` object with named fields. You may read it, change it, or build your own and send it.
+G-Packets turns packets into Java classes for your G-Earth extensions. The server sends raw bytes with no names attached; G-Packets knows each packet's layout, so you get a `Users` or a `Chat` object with named fields. You may read it, change it, or build your own and send it.
 
 Not every packet is implemented yet. The [packet reference](packets/index.md) lists the ones that are.
 

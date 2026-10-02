@@ -60,7 +60,7 @@ class ChatWireFormatTest {
         HPacket nft = new HPacket("Chat", HMessage.Direction.TOSERVER);
         nft.appendString("hello").appendInt(1001).appendInt(5);
 
-        assertSame(ChatBarStyle.NFT_HABBO_AVATAR_GOLD, Chat.fromPacket(nft).style());
+        assertSame(ChatBarStyle.NFT_AVATAR_GOLD, Chat.fromPacket(nft).style());
     }
 
     @Test

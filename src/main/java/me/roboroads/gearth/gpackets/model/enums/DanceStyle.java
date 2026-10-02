@@ -7,7 +7,7 @@ import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 /**
  * A dance. The client's menus send 0 to 4 (OwnAvatarMenuView, MeMenuDanceView); 2 to 4 are only in
- * the Habbo Club dance menu ("Join HC to get more dance moves!").
+ * the club (HC) dance menu ("Join HC to get more dance moves!").
  */
 @RequiredArgsConstructor
 public enum DanceStyle implements IntEnum {
