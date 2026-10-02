@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.support.Json;
 
-/** Format 0: one string, usually the furni's state ("0", "1", ...). The client's __NT. */
+/** Format 0: one string, usually the furni's state ("0", "1", ...). */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

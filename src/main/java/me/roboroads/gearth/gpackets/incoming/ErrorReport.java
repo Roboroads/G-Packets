@@ -27,7 +27,7 @@ public class ErrorReport implements Packet, JsonSerializable {
             .string("timestamp"));
 
     // Likely the header id of the packet that failed. The client passes it to the login component's
-    // handleErrorMessage (communication/demo/__LS.as), which never uses its second parameter.
+    // handleErrorMessage, which never uses its second parameter.
     @Unused("The client passes it on but never uses it")
     @Deprecated
     private Integer messageId;

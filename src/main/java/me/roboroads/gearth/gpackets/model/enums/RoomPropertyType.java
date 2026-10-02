@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import me.roboroads.gearth.gpackets.support.schema.StringEnum;
 
 /**
- * Which part of a room a {@code RoomProperty} sets. The client's parser ({@code __Q2t/__En.as})
- * switches on exactly these codes and ignores any other.
+ * Which part of a room a {@code RoomProperty} sets. The client's parser switches on exactly these
+ * codes and ignores any other.
  */
 @RequiredArgsConstructor
 public enum RoomPropertyType implements StringEnum {

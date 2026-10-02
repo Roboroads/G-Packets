@@ -11,7 +11,7 @@ import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-/** One furni in a trade offer. The client's __W1o/__K2h; an inventory furni has another layout. */
+/** One furni in a trade offer, as the TradingItemList parser reads it. An inventory furni has another layout. */
 @Data
 @Builder
 @Jacksonized

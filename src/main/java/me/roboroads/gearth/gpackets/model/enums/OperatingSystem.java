@@ -7,7 +7,7 @@ import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 /**
  * The operating system the client says it runs on in {@code ClientHello}. The client's composer
- * ({@code __Ig/__N2w.as}) picks the value from {@code Capabilities.os}.
+ * picks the value from {@code Capabilities.os}.
  */
 @RequiredArgsConstructor
 public enum OperatingSystem implements IntEnum {

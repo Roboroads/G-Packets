@@ -8,7 +8,7 @@ import me.roboroads.gearth.gpackets.support.Json;
 
 import java.util.List;
 
-/** Format 5: a list of ints. The client's __212 (INT_ARRAY_TYPE_KEY). */
+/** Format 5: a list of ints. The client's INT_ARRAY_TYPE_KEY. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

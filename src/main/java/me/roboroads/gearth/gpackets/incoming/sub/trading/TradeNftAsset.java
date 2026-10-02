@@ -15,8 +15,8 @@ import java.util.List;
 
 /**
  * One NFT asset you can trade or that is in a trade: its asset id, then the collectible's product
- * info. The client's __qc/__s15, which extends the collectible product of
- * communication/messages/parser/collectibles/__5r.
+ * info, which the client reads with the same class as its other collectibles
+ * (communication/messages/parser/collectibles).
  */
 @Data
 @Builder

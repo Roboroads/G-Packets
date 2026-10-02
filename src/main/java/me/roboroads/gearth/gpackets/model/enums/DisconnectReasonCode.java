@@ -6,7 +6,7 @@ import me.roboroads.gearth.gpackets.support.schema.OpenIntEnum;
 import java.util.List;
 
 /**
- * Why the server disconnected you. The client's event ({@code __Ow/__W2E.as}) declares about
+ * Why the server disconnected you. The client's {@code DisconnectReason} event declares about
  * fifty codes with obfuscated names, and {@code resolveDisconnectedReasonLocalizationKey} only
  * gives some of them their own text; the rest show "You have been disconnected. Please try
  * again." ({@code disconnected.generic}). The names here come from those texts, and from the three

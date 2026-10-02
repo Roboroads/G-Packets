@@ -11,8 +11,8 @@ import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /**
- * One entry of the list in {@code UserChange} that the client reads and throws away
- * ({@code __Q2t/__iy.as}). None of its three ints has a name in the client.
+ * One entry of the list in {@code UserChange} that the client reads and throws away. None of its
+ * three ints has a name in the client.
  */
 @Data
 @Builder
