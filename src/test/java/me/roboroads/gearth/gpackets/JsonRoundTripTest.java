@@ -7,6 +7,7 @@ import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
 import me.roboroads.gearth.gpackets.incoming.sub.furni.LegacyStuffData;
 import me.roboroads.gearth.gpackets.incoming.sub.furni.MapStuffData;
+import me.roboroads.gearth.gpackets.incoming.sub.furni.StuffData;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Bot;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.UserMove;
@@ -16,6 +17,7 @@ import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.model.enums.WiredMovementType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import org.junit.jupiter.api.Test;
 
@@ -115,6 +117,16 @@ public class JsonRoundTripTest {
         assertEquals(list, parsed);
         assertInstanceOf(LegacyStuffData.class, parsed.firstUserItems().get(0).stuffData());
         assertInstanceOf(MapStuffData.class, parsed.firstUserItems().get(1).stuffData());
+    }
+
+    @Test
+    public void stuffDataWithAnUnknownFlagFindsItsSubtypeByFormat() {
+        LegacyStuffData stuffData = LegacyStuffData.builder().typeAndFlags(768).legacyString("1")
+                .uniqueSerialNumber(12).uniqueSeriesSize(500).build();
+
+        StuffData parsed = Json.parse(StuffData.class, stuffData.toJson());
+
+        assertEquals(stuffData, parsed);
     }
 
     @Test

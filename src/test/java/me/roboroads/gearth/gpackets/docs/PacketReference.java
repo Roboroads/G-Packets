@@ -187,12 +187,12 @@ public final class PacketReference {
                             note.contains(optional) ? note : join(note, optional), rows, enums, branches, values);
                 } else if (parameter instanceof BranchParameter && ((BranchParameter) parameter).exhaustive()) {
                     BranchParameter branch = (BranchParameter) parameter;
-                    rows.add(row(null, "", join(note, "depends on `" + branch.on() + "`, see below")));
+                    rows.add(row(null, "", join(note, "depends on `" + subject(branch) + "`, see below")));
                     branches.add(branch);
                 } else if (parameter instanceof BranchParameter) {
                     BranchParameter when = (BranchParameter) parameter;
                     for (BranchParameter.Case c : when.cases().values()) {
-                        collect(c.schema().parameters(), join(note, "only when `" + when.on() + "` is `" + literal(c.value()) + "`"),
+                        collect(c.schema().parameters(), join(note, "only when `" + subject(when) + "` is `" + literal(c.value()) + "`"),
                                 rows, enums, branches, values);
                     }
                 }
@@ -209,10 +209,15 @@ public final class PacketReference {
                         .labels.add(label(c.value(), discriminator));
             }
             for (CaseGroup group : groups.values()) {
-                out.append('\n').append(hashes(level)).append(" When `").append(branch.on()).append("` is ")
+                out.append('\n').append(hashes(level)).append(" When `").append(subject(branch)).append("` is ")
                         .append(group.labels.size() == 1 ? group.labels.get(0) : "one of " + String.join(", ", group.labels))
                         .append(": `").append(group.subclass).append("`\n\n").append(group.section);
             }
+        }
+
+        /** What a branch looks at: the value's name, with the mask when only some bits pick the case. */
+        private static String subject(BranchParameter branch) {
+            return branch.mask() == null ? branch.on() : branch.on() + " & " + branch.mask();
         }
 
         /** A link to the schema's section, queueing the section if it has not been rendered yet. */

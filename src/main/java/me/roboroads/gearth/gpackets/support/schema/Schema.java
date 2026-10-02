@@ -31,18 +31,33 @@ public final class Schema<T> {
     private final Class<T> type;
     private final List<Parameter> parameters;
     private final List<Rule> rules;
+    // For the body of a branch case, a when or an optional: the values declared before it in the
+    // enclosing schemas, which its own branches and whens may depend on.
+    private final List<ValueParameter> outer;
     // Computed on first use: a list's element schema may be a supplier for a schema built later.
     private volatile Boolean hasChecks;
 
-    private Schema(Class<T> type, List<Parameter> parameters, List<Rule> rules) {
+    private Schema(Class<T> type, List<Parameter> parameters, List<Rule> rules, List<ValueParameter> outer) {
         this.type = type;
         this.parameters = Collections.unmodifiableList(parameters);
         this.rules = Collections.unmodifiableList(rules);
+        this.outer = Collections.unmodifiableList(outer);
     }
 
     /** An empty schema for {@code type}. */
     public static <T> Schema<T> of(Class<T> type) {
-        return new Schema<>(Objects.requireNonNull(type, "type"), new ArrayList<>(), new ArrayList<>());
+        return new Schema<>(Objects.requireNonNull(type, "type"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    /** An empty schema for a body nested in this one, which can depend on the values declared so far. */
+    <S> Schema<S> nested(Class<S> nestedType) {
+        List<ValueParameter> visible = new ArrayList<>(outer);
+        for (Parameter parameter : parameters) {
+            if (parameter instanceof ValueParameter) {
+                visible.add((ValueParameter) parameter);
+            }
+        }
+        return new Schema<>(nestedType, new ArrayList<>(), new ArrayList<>(), visible);
     }
 
     /** The class this schema describes. */
@@ -140,23 +155,48 @@ public final class Schema<T> {
      * parameters that follow. A value without a case is an error.
      */
     public Schema<T> branch(String on, UnaryOperator<Cases> cases) {
-        ValueParameter discriminator = discriminator(on);
-        Cases built = Objects.requireNonNull(cases, "cases").apply(new Cases(discriminator, type));
-        return with(new BranchParameter(discriminator, true, built.cases()));
+        return branch(on, null, cases);
+    }
+
+    /**
+     * Like {@link #branch(String, UnaryOperator)}, but only the bits of {@code on} in {@code mask}
+     * pick the case, for an int that packs several things: {@code .branch("typeAndFlags", 0xFF, ...)}
+     * picks by the low byte. The other bits are kept as they are and written back unchanged.
+     */
+    public Schema<T> branch(String on, int mask, UnaryOperator<Cases> cases) {
+        return branch(on, Integer.valueOf(mask), cases);
     }
 
     /** Parameters that only follow when {@code on}, a value parameter added earlier, equals {@code value}. */
     public Schema<T> when(String on, Object value, UnaryOperator<Schema<T>> body) {
-        ValueParameter discriminator = discriminator(on);
-        Object key = discriminator.coerce(Objects.requireNonNull(value, "value"), type.getSimpleName() + "." + on);
-        Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
-        cases.put(key, new BranchParameter.Case(key, null, Objects.requireNonNull(body, "body").apply(Schema.of(type))));
-        return with(new BranchParameter(discriminator, false, cases));
+        return when(on, null, value, body);
+    }
+
+    /**
+     * Parameters that only follow when the bits of {@code on} in {@code mask} equal {@code value}:
+     * {@code .when("typeAndFlags", 256, 256, ...)} for a flag.
+     */
+    public Schema<T> when(String on, int mask, Object value, UnaryOperator<Schema<T>> body) {
+        return when(on, Integer.valueOf(mask), value, body);
     }
 
     /** Parameters read only if the packet has bytes left, and written only if any of their values is set. */
     public Schema<T> optional(UnaryOperator<Schema<T>> body) {
-        return with(new OptionalParameter(Objects.requireNonNull(body, "body").apply(Schema.of(type))));
+        return with(new OptionalParameter(Objects.requireNonNull(body, "body").apply(nested(type))));
+    }
+
+    private Schema<T> branch(String on, Integer mask, UnaryOperator<Cases> cases) {
+        ValueParameter discriminator = discriminator(on);
+        Cases built = Objects.requireNonNull(cases, "cases").apply(new Cases(discriminator, this));
+        return with(new BranchParameter(discriminator, mask, true, built.cases()));
+    }
+
+    private Schema<T> when(String on, Integer mask, Object value, UnaryOperator<Schema<T>> body) {
+        ValueParameter discriminator = discriminator(on);
+        Object key = discriminator.coerce(Objects.requireNonNull(value, "value"), type.getSimpleName() + "." + on);
+        Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
+        cases.put(key, new BranchParameter.Case(key, null, Objects.requireNonNull(body, "body").apply(nested(type))));
+        return with(new BranchParameter(discriminator, mask, false, cases));
     }
 
     /**
@@ -167,7 +207,7 @@ public final class Schema<T> {
     public Schema<T> rule(String description, Predicate<Map<String, Object>> check) {
         List<Rule> next = new ArrayList<>(rules);
         next.add(new Rule(description, check));
-        return new Schema<>(type, parameters, next);
+        return new Schema<>(type, parameters, next, outer);
     }
 
     /** The rules declared with {@link #rule}. */
@@ -323,6 +363,12 @@ public final class Schema<T> {
                 return (ValueParameter) parameter;
             }
         }
+        // A case or when body may depend on a value declared before it in an enclosing schema.
+        for (ValueParameter value : outer) {
+            if (value.name().equals(on)) {
+                return value;
+            }
+        }
         throw new IllegalArgumentException(type.getSimpleName() + " has no earlier value named " + on + " to branch on");
     }
 
@@ -341,7 +387,7 @@ public final class Schema<T> {
         parameter.limits(Arrays.asList(limits));
         List<Parameter> next = new ArrayList<>(parameters);
         next.add(parameter);
-        return new Schema<>(type, next, rules);
+        return new Schema<>(type, next, rules, outer);
     }
 
     private void requireFits(Parameter parameter, Limit limit) {

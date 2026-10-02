@@ -1,7 +1,7 @@
 package me.roboroads.gearth.gpackets.incoming.sub.furni;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import gearth.protocol.HPacket;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,22 +20,16 @@ import java.util.function.UnaryOperator;
  * so the subclass; {@link #UNIQUE_SERIAL_FLAG} adds the serial number of a limited edition.
  */
 // The client: __Q2t/__G18.parseStuffData and room/object/data/__h1x.getStuffDataWrapperForType.
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeAndFlags", visible = true)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = LegacyStuffData.class, names = {"0", "256"}),
-        @JsonSubTypes.Type(value = MapStuffData.class, names = {"1", "257"}),
-        @JsonSubTypes.Type(value = StringArrayStuffData.class, names = {"2", "258"}),
-        @JsonSubTypes.Type(value = VoteResultStuffData.class, names = {"3", "259"}),
-        @JsonSubTypes.Type(value = EmptyStuffData.class, names = {"4", "260"}),
-        @JsonSubTypes.Type(value = IntArrayStuffData.class, names = {"5", "261"}),
-        @JsonSubTypes.Type(value = HighScoreStuffData.class, names = {"6", "262"}),
-        @JsonSubTypes.Type(value = CrackableStuffData.class, names = {"7", "263"})
-})
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeAndFlags", visible = true)
+@JsonTypeIdResolver(StuffDataTypeIdResolver.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 public abstract class StuffData implements SubPacket, JsonSerializable {
+    /** The bits of {@link #typeAndFlags} that hold the format: {@code typeAndFlags & FORMAT_MASK}. */
+    public static final int FORMAT_MASK = 0xFF;
+
     /**
      * The flag in {@link #typeAndFlags} for a limited edition furni: {@link #uniqueSerialNumber} and
      * {@link #uniqueSeriesSize} follow the format's values. The client calls it UNIQUE_SERIAL_NUMBER
@@ -43,53 +37,33 @@ public abstract class StuffData implements SubPacket, JsonSerializable {
      */
     public static final int UNIQUE_SERIAL_FLAG = 256;
 
-    public static final Schema<StuffData> SCHEMA;
-
-    static {
-        UnaryOperator<Schema<LegacyStuffData>> legacy = s -> s
-                .string("legacyString");
-        UnaryOperator<Schema<MapStuffData>> map = s -> s
-                .list("entries", MapStuffDataEntry.SCHEMA);
-        UnaryOperator<Schema<StringArrayStuffData>> stringArray = s -> s
-                .list("values", WireType.STRING);
-        UnaryOperator<Schema<VoteResultStuffData>> voteResult = s -> s
-                .string("legacyString")
-                .integer("result");
-        UnaryOperator<Schema<EmptyStuffData>> empty = s -> s;
-        UnaryOperator<Schema<IntArrayStuffData>> intArray = s -> s
-                .list("values", WireType.INT);
-        UnaryOperator<Schema<HighScoreStuffData>> highScore = s -> s
-                .string("legacyString")
-                .integer("scoreType")
-                .integer("clearType")
-                .list("entries", HighScoreData.SCHEMA);
-        UnaryOperator<Schema<CrackableStuffData>> crackable = s -> s
-                .string("legacyString")
-                .integer("hits")
-                .integer("target");
-        // The client only looks at the low byte (the format) and at UNIQUE_SERIAL_FLAG, so these are
-        // the values it reads. A value with another flag bit has no case and fails to parse.
-        SCHEMA = Schema.of(StuffData.class)
-                .integer("typeAndFlags")
-                .branch("typeAndFlags", cases -> cases
-                        .on(0, LegacyStuffData.class, legacy)
-                        .on(1, MapStuffData.class, map)
-                        .on(2, StringArrayStuffData.class, stringArray)
-                        .on(3, VoteResultStuffData.class, voteResult)
-                        .on(4, EmptyStuffData.class, empty)
-                        .on(5, IntArrayStuffData.class, intArray)
-                        .on(6, HighScoreStuffData.class, highScore)
-                        .on(7, CrackableStuffData.class, crackable)
-                        .on(UNIQUE_SERIAL_FLAG, LegacyStuffData.class, withSerial(legacy))
-                        .on(UNIQUE_SERIAL_FLAG | 1, MapStuffData.class, withSerial(map))
-                        .on(UNIQUE_SERIAL_FLAG | 2, StringArrayStuffData.class, withSerial(stringArray))
-                        .on(UNIQUE_SERIAL_FLAG | 3, VoteResultStuffData.class, withSerial(voteResult))
-                        .on(UNIQUE_SERIAL_FLAG | 4, EmptyStuffData.class, withSerial(empty))
-                        .on(UNIQUE_SERIAL_FLAG | 5, IntArrayStuffData.class, withSerial(intArray))
-                        // The client's high score data never reads the serial, even with the flag.
-                        .on(UNIQUE_SERIAL_FLAG | 6, HighScoreStuffData.class, highScore)
-                        .on(UNIQUE_SERIAL_FLAG | 7, CrackableStuffData.class, withSerial(crackable)));
-    }
+    // The client picks the format from the low byte and only checks UNIQUE_SERIAL_FLAG of the other
+    // bits, so any other flag passes through as part of typeAndFlags.
+    public static final Schema<StuffData> SCHEMA = Schema.of(StuffData.class)
+            .integer("typeAndFlags")
+            .branch("typeAndFlags", FORMAT_MASK, cases -> cases
+                    .on(0, LegacyStuffData.class, withSerial(s -> s
+                            .string("legacyString")))
+                    .on(1, MapStuffData.class, withSerial(s -> s
+                            .list("entries", MapStuffDataEntry.SCHEMA)))
+                    .on(2, StringArrayStuffData.class, withSerial(s -> s
+                            .list("values", WireType.STRING)))
+                    .on(3, VoteResultStuffData.class, withSerial(s -> s
+                            .string("legacyString")
+                            .integer("result")))
+                    .on(4, EmptyStuffData.class, withSerial(s -> s))
+                    .on(5, IntArrayStuffData.class, withSerial(s -> s
+                            .list("values", WireType.INT)))
+                    // The client's high score data never reads the serial, even with the flag.
+                    .on(6, HighScoreStuffData.class, s -> s
+                            .string("legacyString")
+                            .integer("scoreType")
+                            .integer("clearType")
+                            .list("entries", HighScoreData.SCHEMA))
+                    .on(7, CrackableStuffData.class, withSerial(s -> s
+                            .string("legacyString")
+                            .integer("hits")
+                            .integer("target"))));
 
     // The format in the low byte (0 legacy, 1 map, 2 string array, 3 vote result, 4 empty, 5 int
     // array, 6 high score, 7 crackable), plus UNIQUE_SERIAL_FLAG for a limited edition. Set it to
@@ -111,7 +85,8 @@ public abstract class StuffData implements SubPacket, JsonSerializable {
 
     private static <S extends StuffData> UnaryOperator<Schema<S>> withSerial(UnaryOperator<Schema<S>> body) {
         return s -> body.apply(s)
-                .integer("uniqueSerialNumber")
-                .integer("uniqueSeriesSize");
+                .when("typeAndFlags", UNIQUE_SERIAL_FLAG, UNIQUE_SERIAL_FLAG, serial -> serial
+                        .integer("uniqueSerialNumber")
+                        .integer("uniqueSeriesSize"));
     }
 }

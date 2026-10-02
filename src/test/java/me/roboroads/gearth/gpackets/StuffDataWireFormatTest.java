@@ -169,10 +169,27 @@ class StuffDataWireFormatTest {
     }
 
     @Test
-    void anUnknownFlagFailsToParse() {
+    void anUnknownFlagIsKeptLikeTheClientIgnoresIt() {
         HPacket p = packet();
         p.appendInt(512).appendString("1");
+        assertWireFormat(LegacyStuffData.builder().typeAndFlags(512).legacyString("1").build(), p);
+    }
 
-        assertThrows(IllegalArgumentException.class, () -> StuffData.fromPacket(p));
+    @Test
+    void anUnknownFlagNextToTheSerialFlagStillReadsTheSerial() {
+        HPacket p = packet();
+        p.appendInt(768).appendString("1").appendInt(12).appendInt(500);
+        assertWireFormat(LegacyStuffData.builder().typeAndFlags(768).legacyString("1")
+                .uniqueSerialNumber(12).uniqueSeriesSize(500).build(), p);
+    }
+
+    @Test
+    void anUnknownFormatFailsToParse() {
+        HPacket p = packet();
+        p.appendInt(8);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> StuffData.fromPacket(p));
+
+        assertEquals("StuffData.typeAndFlags: no case for value 8 (8 after the mask)", e.getMessage());
     }
 }
