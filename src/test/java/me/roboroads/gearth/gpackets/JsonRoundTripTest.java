@@ -2,8 +2,11 @@ package me.roboroads.gearth.gpackets;
 
 import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
+import me.roboroads.gearth.gpackets.incoming.TradingItemList;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
+import me.roboroads.gearth.gpackets.incoming.sub.furni.LegacyStuffData;
+import me.roboroads.gearth.gpackets.incoming.sub.furni.MapStuffData;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Bot;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.UserMove;
@@ -101,6 +104,17 @@ public class JsonRoundTripTest {
         RoomSettingsData data = RoomSettingsWireFormatTest.roomSettingsData();
 
         assertEquals(data, RoomSettingsData.fromJson(data.toJson()));
+    }
+
+    @Test
+    public void tradingItemListRoundTripKeepsTheStuffDataSubtypes() {
+        TradingItemList list = TradingWireFormatTest.tradingItemList();
+
+        TradingItemList parsed = TradingItemList.fromJson(list.toJson());
+
+        assertEquals(list, parsed);
+        assertInstanceOf(LegacyStuffData.class, parsed.firstUserItems().get(0).stuffData());
+        assertInstanceOf(MapStuffData.class, parsed.firstUserItems().get(1).stuffData());
     }
 
     @Test
