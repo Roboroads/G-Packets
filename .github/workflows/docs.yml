@@ -54,6 +54,22 @@ jobs:
           mkdir -p site/md
           cp -r docs/packets site/md/packets
 
+      # Feeds the README's "packets available" shield: the packets G-Packets implements, out of all
+      # packets in the current Air client according to Sulek. Without Sulek it shows the first number.
+      - name: Write the packet count badge
+        run: |
+          available=$(find docs/packets/incoming docs/packets/outgoing -name '*.md' | wc -l)
+          message="$available"
+          version=$(curl -sf https://api.sulek.dev/releases/current | jq -er '.[] | select(.variantPath == "flash-windows") | .version') \
+            && total=$(curl -sf "https://api.sulek.dev/releases/$version/messages" | jq -e '[.messages.incoming[], .messages.outgoing[]] | length') \
+            && [ "$total" -gt 0 ] \
+            && message="$available / $total"
+          mkdir -p site/badges
+          jq -n --arg message "$message" \
+            '{schemaVersion: 1, label: "packets available", message: $message, color: "ff9900", labelColor: "0d1527"}' \
+            > site/badges/packets.json
+          cat site/badges/packets.json
+
       - name: Upload the site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
