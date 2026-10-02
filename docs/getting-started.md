@@ -71,7 +71,7 @@ public class YourExtension extends ExtensionForm {
 
 ## Finding the packet you need
 
-The [packet reference](packets/index.md) lists every packet G-Packets implements, with its parameters in wire order. [Sulek](https://sulek.dev) explains what Habbo's packets do. If the packet you need is missing, [Contributing a packet](contributing.md) shows how to add it.
+The [packet reference](packets/index.md) lists every packet G-Packets implements, with its parameters in wire order. [Sulek](https://sulek.dev) explains what the packets do. If the packet you need is missing, [Contributing a packet](contributing.md) shows how to add it.
 
 ## Next steps
 

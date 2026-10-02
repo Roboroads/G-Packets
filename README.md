@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/branding/banner.svg" alt="G-Packets: Habbo Protocol Packet Definitions, Interceptors &amp; Tools" width="100%">
+  <img src=".github/branding/banner.svg" alt="G-Packets: Packet Definitions, Interceptors &amp; Tools for G-Earth Extensions" width="100%">
 </p>
 
 <p align="center">
@@ -10,7 +10,7 @@
   <a href="https://roboroads.github.io/G-Packets/packets/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Froboroads.github.io%2FG-Packets%2Fbadges%2Fpackets.json&style=flat-square" alt="Packets available"></a>
 </p>
 
-G-Packets turns Habbo packets into Java classes for your G-Earth extensions. Intercept a packet and get a `Users` or `Chat` object with named fields instead of raw bytes, change it, or build your own and send it.
+G-Packets turns packets into Java classes for your G-Earth extensions. Intercept a packet and get a `Users` or `Chat` object with named fields instead of raw bytes, change it, or build your own and send it.
 
 Documentation: https://roboroads.github.io/G-Packets/
 

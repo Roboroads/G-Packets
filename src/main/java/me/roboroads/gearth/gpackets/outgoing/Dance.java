@@ -24,7 +24,7 @@ public class Dance implements Packet, JsonSerializable {
     public static final PacketType<Dance> TYPE = PacketType.of("Dance", HMessage.Direction.TOSERVER, Schema.of(Dance.class)
             .enumInt("style", DanceStyle.class));
 
-    // POGO_MOGO, DUCK_FUNK and THE_ROLLIE are only offered to Habbo Club members.
+    // POGO_MOGO, DUCK_FUNK and THE_ROLLIE are only offered to club (HC) members.
     private DanceStyle style;
 
     public static Dance fromPacket(HPacket packet) {

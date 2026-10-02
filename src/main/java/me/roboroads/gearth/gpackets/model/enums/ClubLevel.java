@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
-// Mapping from the client's HabboClubLevelEnum. Wire-format is a plain int.
+// Mapping from the client's club level enum. Wire-format is a plain int.
 @RequiredArgsConstructor
 public enum ClubLevel implements IntEnum {
     NONE(0),

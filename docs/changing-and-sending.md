@@ -69,7 +69,7 @@ sendToClient(published.toPacket());
 
 ## Limits
 
-The Habbo client keeps some values within limits before it sends them: a room name is at most 60 characters, a room has at most two tags, an idle timeout is 30 to 3600 seconds. G-Packets knows these limits and checks them when you build an outgoing packet. If a value breaks one, `toPacket()` throws a `LimitException` that lists every broken limit:
+The client keeps some values within limits before it sends them: a room name is at most 60 characters, a room has at most two tags, an idle timeout is 30 to 3600 seconds. G-Packets knows these limits and checks them when you build an outgoing packet. If a value breaks one, `toPacket()` throws a `LimitException` that lists every broken limit:
 
 ```java
 try {

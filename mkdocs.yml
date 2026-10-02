@@ -1,5 +1,5 @@
 site_name: G-Packets
-site_description: Parse, build and intercept Habbo packets in G-Earth extensions.
+site_description: Parse, build and intercept packets in G-Earth extensions.
 site_url: https://roboroads.github.io/G-Packets/
 repo_url: https://github.com/Roboroads/G-Packets
 repo_name: Roboroads/G-Packets

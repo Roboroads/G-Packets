@@ -26,7 +26,7 @@ public class RoomNetworkOpenConnection implements Packet, JsonSerializable {
 
     // The room hopper sends the landing.view.roomhopper.network.id setting.
     private Integer networkId;
-    // Your home room id when HabboNavigator.goToRoomNetwork is asked to go home and you have one,
+    // Your home room id when the navigator's goToRoomNetwork is asked to go home and you have one,
     // otherwise 0.
     private Integer homeRoomId;
 

@@ -7,7 +7,7 @@ import me.roboroads.gearth.gpackets.support.schema.IntEnum;
 
 /**
  * A room-wide visual effect. The client's {@code RoomMessageHandler.onSpecialRoomEvent}
- * ({@code com/sulake/habbo/room/__ms.as}) handles these ids and ignores any other.
+ * ({@code room/__ms.as}) handles these ids and ignores any other.
  */
 @RequiredArgsConstructor
 public enum SpecialRoomEffectType implements IntEnum {
