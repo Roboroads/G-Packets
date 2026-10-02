@@ -67,6 +67,8 @@ public class YourExtension extends ExtensionForm {
 
 `GPackets.init(this)` finds the `@Intercept` method and registers it with G-Earth. Every time the server sends that packet, `onUsers` receives it as a `Users` object, with each user already parsed into a `Player`, `Pet`, `OldBot` or `Bot`.
 
+`Users` is in the `incoming` package because the server sends it. Packets your client sends are in `outgoing`. A few names, such as `Dance`, exist in both, and the import decides which one you intercept: see [Incoming and outgoing packets](intercepting.md#incoming-and-outgoing-packets).
+
 ## Finding the packet you need
 
 The [packet reference](packets/index.md) lists every packet G-Packets implements, with its parameters in wire order. [Sulek](https://sulek.dev) explains what Habbo's packets do. If the packet you need is missing, [Contributing a packet](contributing.md) shows how to add it.

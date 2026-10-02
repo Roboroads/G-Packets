@@ -8,10 +8,12 @@ import me.roboroads.gearth.gpackets.GPackets;
 import me.roboroads.gearth.gpackets.Intercept;
 import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
+import me.roboroads.gearth.gpackets.incoming.Dance;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import me.roboroads.gearth.gpackets.model.enums.DanceStyle;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
@@ -316,6 +318,18 @@ class DocsExamplesTest {
     static class InterceptingExamples extends FakeExtension {
         int users;
         boolean blocked;
+        final List<String> dances = new ArrayList<>();
+
+        // intercepting.md: "Incoming and outgoing packets"
+        @Intercept
+        void onUserDances(Dance dance) {
+            dances.add("user " + dance.userIndex());
+        }
+
+        @Intercept
+        void onYouDance(me.roboroads.gearth.gpackets.outgoing.Dance dance) {
+            dances.add("you");
+        }
 
         // intercepting.md: "Intercepting with annotations"
         @Intercept
@@ -407,6 +421,17 @@ class DocsExamplesTest {
         assertTrue(extension.blocked);
         assertTrue(chat.isBlocked());
         assertEquals(Collections.singletonList("no spoiler please"), ChatLogger.SAID);
+    }
+
+    @Test
+    void theImportPicksTheDirection() {
+        InterceptingExamples extension = new InterceptingExamples();
+        GPackets.init(extension);
+
+        extension.fire(me.roboroads.gearth.gpackets.outgoing.Dance.builder().style(DanceStyle.DANCE).build().toPacket(), HMessage.Direction.TOSERVER);
+        extension.fire(Dance.builder().userIndex(3).danceStyle(DanceStyle.DANCE).build().toPacket(), HMessage.Direction.TOCLIENT);
+
+        assertEquals(Arrays.asList("you", "user 3"), extension.dances);
     }
 
     @Test
