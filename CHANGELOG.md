@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.4.1...G-Packets-v0.5.0) (2026-10-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop the Habbo name and add a README banner ([#108](https://github.com/Roboroads/G-Packets/issues/108))
+
+### Features
+
+* add the handshake, login and hotel status packets ([#111](https://github.com/Roboroads/G-Packets/issues/111)) ([65b8f70](https://github.com/Roboroads/G-Packets/commit/65b8f70cacbac8c5ef93404d3e64808b11212ee0))
+* add the trading packets ([#110](https://github.com/Roboroads/G-Packets/issues/110)) ([317d7d0](https://github.com/Roboroads/G-Packets/commit/317d7d0787ae7a9769383d562bd047c1804afd26))
+
+
+### Code Refactoring
+
+* drop the Habbo name and add a README banner ([#108](https://github.com/Roboroads/G-Packets/issues/108)) ([7889b47](https://github.com/Roboroads/G-Packets/commit/7889b47f22cd3ac363e551213356c9a778c519ca))
+
 ## [0.4.1](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.4.0...G-Packets-v0.4.1) (2026-10-02)
 
 
