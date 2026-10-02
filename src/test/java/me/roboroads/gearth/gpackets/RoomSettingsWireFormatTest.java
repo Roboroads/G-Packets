@@ -227,29 +227,21 @@ class RoomSettingsWireFormatTest {
     }
 
     @Test
-    void autokickMustComeAtLeast30SecondsAfterSleep() {
-        // The sample has idle sleep on at 600 seconds.
-        SaveRoomSettings tooSoon = saveRoomSettings().idleAutokickEnabled(true).idleAutokickTimeoutSeconds(620);
+    void anAutokickLessThan30SecondsAfterSleepIsStillSent() {
+        // A non-VIP owner resends the stored idle settings, and nothing shows the server keeps autokick
+        // at least sleep + 30. The sample has idle sleep on at 600 seconds.
+        SaveRoomSettings stored = saveRoomSettings().idleAutokickEnabled(true).idleAutokickTimeoutSeconds(620);
 
-        assertEquals("SaveRoomSettings: idleAutokickTimeoutSeconds is at least idleSleepTimeoutSeconds + 30 when both are enabled",
-                assertThrows(LimitException.class, tooSoon::toPacket).violations().get(0).toString());
+        assertTrue(SaveRoomSettings.TYPE.violations(stored).isEmpty());
+        assertEquals(620, SaveRoomSettings.fromPacket(stored.toPacket()).idleAutokickTimeoutSeconds());
     }
 
     @Test
-    void theAutokickRuleOnlyAppliesWhenBothAreEnabled() {
-        assertTrue(SaveRoomSettings.TYPE.violations(saveRoomSettings()
-                .idleAutokickEnabled(false).idleAutokickTimeoutSeconds(0)).isEmpty());
-        assertTrue(SaveRoomSettings.TYPE.violations(saveRoomSettings()
-                .idleAutokickEnabled(true).idleAutokickTimeoutSeconds(630)).isEmpty());
-    }
+    void wiredSetRoomSettingsKeepsMaskBitsTheServerSet() {
+        // The client toggles bits 0 to 3 and sends back any other bit it got from the server.
+        WiredSetRoomSettings settings = new WiredSetRoomSettings(17, 16, "");
 
-    @Test
-    void wiredSetRoomSettingsMasksUseFourBits() {
-        LimitException e = assertThrows(LimitException.class, () -> new WiredSetRoomSettings(16, -1, "").toPacket());
-
-        assertEquals("WiredSetRoomSettings breaks 2 limits (use toPacketUnchecked() to send it anyway):\n"
-                + "  modifyPermissionMask: must be 0 to 15, got 16\n"
-                + "  readPermissionMask: must be 0 to 15, got -1", e.getMessage());
+        assertEquals(settings, WiredSetRoomSettings.fromPacket(settings.toPacket()));
     }
 
     @Test

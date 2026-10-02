@@ -225,7 +225,7 @@ for (Parameter parameter : SaveRoomSettings.TYPE.schema().parameters()) {
 | `Not` | none of `values()` |
 | `RequiresVip` | nothing to check: only VIP users can change it in the client |
 
-A schema can also have `rules()`, limits across several parameters, such as "the autokick timeout is at least the sleep timeout + 30". Each `Rule` has a `description()`. See [Limits](changing-and-sending.md#limits) for what happens when a packet breaks one.
+A schema can also have `rules()`: limits across several parameters. Each `Rule` has a `description()`. See [Limits](changing-and-sending.md#limits) for what happens when a packet breaks one.
 
 ## Unused parameters
 

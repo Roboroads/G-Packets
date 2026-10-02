@@ -107,7 +107,7 @@ public final class PacketType<T extends Packet> {
      * @throws LimitException for an outgoing type whose values break its limits or rules.
      */
     public HPacket write(Map<String, Object> values) {
-        checkLimits(() -> schema.violations(values));
+        checkLimits(() -> schema.violations(values), "writeUnchecked()");
         return writeUnchecked(values);
     }
 
@@ -128,7 +128,10 @@ public final class PacketType<T extends Packet> {
      * @throws LimitException           for an outgoing type whose values break its limits or rules.
      */
     public void replaceIn(HMessage message, Map<String, Object> values) {
-        replaceBody(message, () -> write(values));
+        replaceBody(message, () -> {
+            checkLimits(() -> schema.violations(values), "replaceInUnchecked()");
+            return writeUnchecked(values);
+        });
     }
 
     /** Like {@link #replaceIn}, without checking limits. */
@@ -173,8 +176,16 @@ public final class PacketType<T extends Packet> {
      * @throws LimitException for an outgoing type whose values break its limits or rules.
      */
     public HPacket toPacket(T value) {
-        checkLimits(() -> schema.violations(value));
+        checkLimits(() -> schema.violations(value), "toPacketUnchecked()");
         return toPacketUnchecked(value);
+    }
+
+    /** For {@link Packet#replaceIn}: replaces the message's body with the packet, checked like {@link #toPacket}. */
+    void replaceIn(HMessage message, T value) {
+        replaceBody(message, () -> {
+            checkLimits(() -> schema.violations(value), "replaceInUnchecked()");
+            return toPacketUnchecked(value);
+        });
     }
 
     /** Like {@link #toPacket}, without checking limits. */
@@ -194,12 +205,17 @@ public final class PacketType<T extends Packet> {
         return schema.violations(values);
     }
 
-    /** Throws for an outgoing type with checks when the values break any; incoming types are never checked. */
-    private void checkLimits(Supplier<List<Violation>> violations) {
+    /**
+     * Throws for an outgoing type with checks when the values break any; incoming types are never
+     * checked.
+     *
+     * @param unchecked the call that skips the check, named in the exception's message
+     */
+    private void checkLimits(Supplier<List<Violation>> violations, String unchecked) {
         if (direction == HMessage.Direction.TOSERVER && schema.hasChecks()) {
             List<Violation> found = violations.get();
             if (!found.isEmpty()) {
-                throw new LimitException(header, found);
+                throw new LimitException(header, found, unchecked);
             }
         }
     }

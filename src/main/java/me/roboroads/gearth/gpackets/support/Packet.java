@@ -22,9 +22,22 @@ public interface Packet {
      *
      * @throws IllegalArgumentException if the message's destination does not match this packet's direction.
      * @throws IllegalStateException    if this packet class has no {@code public static final PacketType TYPE}.
+     * @throws me.roboroads.gearth.gpackets.support.schema.limit.LimitException for an outgoing packet
+     *         that breaks the client's limits; see {@link #replaceInUnchecked(HMessage)}.
      */
+    @SuppressWarnings("unchecked")
     default void replaceIn(HMessage message) {
-        PacketType.typeOf(this, "replaceIn").replaceBody(message, this::toPacket);
+        ((PacketType<Packet>) PacketType.typeOf(this, "replaceIn")).replaceIn(message, this);
+    }
+
+    /**
+     * Like {@link #replaceIn}, without checking the limits the client keeps this packet within.
+     *
+     * @throws IllegalArgumentException if the message's destination does not match this packet's direction.
+     * @throws IllegalStateException    if this packet class has no {@code public static final PacketType TYPE}.
+     */
+    default void replaceInUnchecked(HMessage message) {
+        PacketType.typeOf(this, "replaceInUnchecked").replaceBody(message, this::toPacketUnchecked);
     }
 
     /**

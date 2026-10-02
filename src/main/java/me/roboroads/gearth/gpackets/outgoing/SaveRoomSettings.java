@@ -67,15 +67,14 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
             .integer("idleSleepTimeoutSeconds", range(30, 3600).orZero(), requiresVip())
             .bool("idleAutokickEnabled", requiresVip())
             .integer("idleAutokickTimeoutSeconds", range(60, 36000).orZero(), requiresVip())
-            .bool("muteAllPets")
-            .rule("idleAutokickTimeoutSeconds is at least idleSleepTimeoutSeconds + 30 when both are enabled",
-                    values -> !(Boolean) values.get("idleSleepEnabled") || !(Boolean) values.get("idleAutokickEnabled")
-                            || (Integer) values.get("idleAutokickTimeoutSeconds") >= (Integer) values.get("idleSleepTimeoutSeconds") + 30));
+            .bool("muteAllPets"));
 
     private Integer roomId;
-    // At most 60 characters: the room name field (RoomSettingsCtrl:513) caps and truncates it.
+    // At most 60 characters: the room name field caps typing at 60 (RoomSettingsCtrl:513). The client
+    // resends a stored name as it loaded it (RoomSettingsCtrl:718), and the server keeps names within 60.
     private String name;
-    // At most 255 characters (RoomSettingsCtrl:514).
+    // At most 255 characters, like the name: the field caps typing (RoomSettingsCtrl:514), the client
+    // resends a stored description as loaded (RoomSettingsCtrl:719), and the server keeps it within 255.
     private String description;
     private DoorMode doorMode;
     // The client sends "" unless the door mode is password. At most 30 characters (RoomSettingsCtrl:517-518).
@@ -103,8 +102,9 @@ public class SaveRoomSettings implements Packet, JsonSerializable {
     // 0 when switched off, else 30 to 3600 seconds (RoomSettingsCtrl:1143, 1247).
     private Integer idleSleepTimeoutSeconds;
     private Boolean idleAutokickEnabled;
-    // 0 when switched off, else 60 to 36000 seconds, and at least the sleep timeout + 30 when both are on
-    // (RoomSettingsCtrl:1145, 1252, 1257).
+    // 0 when switched off, else 60 to 36000 seconds (RoomSettingsCtrl:1145, 1252). When a VIP user turns
+    // both on, the client also keeps it at least the sleep timeout + 30 (RoomSettingsCtrl:1257). That isn't
+    // checked: other users resend the stored values, and nothing shows the server keeps that rule.
     private Integer idleAutokickTimeoutSeconds;
     private Boolean muteAllPets;
 

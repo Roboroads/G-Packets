@@ -11,7 +11,12 @@ public class LimitException extends IllegalArgumentException {
     private final List<Violation> violations;
 
     public LimitException(String packet, List<Violation> violations) {
-        super(message(packet, violations));
+        this(packet, violations, "toPacketUnchecked()");
+    }
+
+    /** @param unchecked the call that skips the check, for the message, such as {@code "writeUnchecked()"} */
+    public LimitException(String packet, List<Violation> violations, String unchecked) {
+        super(message(packet, violations, unchecked));
         this.violations = Collections.unmodifiableList(new ArrayList<>(violations));
     }
 
@@ -20,10 +25,10 @@ public class LimitException extends IllegalArgumentException {
         return violations;
     }
 
-    private static String message(String packet, List<Violation> violations) {
+    private static String message(String packet, List<Violation> violations, String unchecked) {
         StringBuilder out = new StringBuilder(packet).append(" breaks ").append(violations.size())
                 .append(violations.size() == 1 ? " limit" : " limits")
-                .append(" (use toPacketUnchecked() to send it anyway):");
+                .append(" (use ").append(unchecked).append(" to send it anyway):");
         for (Violation violation : violations) {
             out.append("\n  ").append(violation);
         }

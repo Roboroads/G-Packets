@@ -60,7 +60,8 @@ class PacketTypeLimitsTest {
     void writingValuesIsCheckedToo() {
         Map<String, Object> values = Outgoing.TYPE.read(breaking().toPacketUnchecked());
 
-        assertEquals(BREAKING_MESSAGE, assertThrows(LimitException.class, () -> Outgoing.TYPE.write(values)).getMessage());
+        assertEquals(BREAKING_MESSAGE.replace("toPacketUnchecked()", "writeUnchecked()"),
+                assertThrows(LimitException.class, () -> Outgoing.TYPE.write(values)).getMessage());
         assertEquals("toolong", Outgoing.TYPE.parse(Outgoing.TYPE.writeUnchecked(values)).name());
     }
 
@@ -69,11 +70,33 @@ class PacketTypeLimitsTest {
         HMessage message = new HMessage(valid().toPacket(), HMessage.Direction.TOSERVER, 0);
         Map<String, Object> values = Outgoing.TYPE.read(breaking().toPacketUnchecked());
 
-        assertThrows(LimitException.class, () -> Outgoing.TYPE.replaceIn(message, values));
+        assertEquals(BREAKING_MESSAGE.replace("toPacketUnchecked()", "replaceInUnchecked()"),
+                assertThrows(LimitException.class, () -> Outgoing.TYPE.replaceIn(message, values)).getMessage());
         assertEquals("ok", Outgoing.TYPE.parse(message.getPacket()).name());
 
         Outgoing.TYPE.replaceInUnchecked(message, values);
         assertEquals("toolong", Outgoing.TYPE.parse(message.getPacket()).name());
+    }
+
+    @Test
+    void replacingWithAPacketIsCheckedAndCanSkipTheCheck() {
+        HMessage message = new HMessage(valid().toPacket(), HMessage.Direction.TOSERVER, 0);
+
+        assertEquals(BREAKING_MESSAGE.replace("toPacketUnchecked()", "replaceInUnchecked()"),
+                assertThrows(LimitException.class, () -> breaking().replaceIn(message)).getMessage());
+        assertEquals("ok", Outgoing.TYPE.parse(message.getPacket()).name());
+
+        breaking().replaceInUnchecked(message);
+        assertEquals("toolong", Outgoing.TYPE.parse(message.getPacket()).name());
+    }
+
+    @Test
+    void aWrongDirectionFailsBeforeTheLimitCheck() {
+        HMessage toClient = new HMessage(valid().toPacket(), HMessage.Direction.TOCLIENT, 0);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> breaking().replaceIn(toClient));
+
+        assertFalse(e instanceof LimitException, e.getMessage());
     }
 
     @Test
