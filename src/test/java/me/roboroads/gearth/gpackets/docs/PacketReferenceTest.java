@@ -264,6 +264,10 @@ class PacketReferenceTest {
                 catalogPage);
         String chat = read(directory.resolve("outgoing/Chat.md"));
         assertTrue(chat.contains("`NFT_MONEY` = `1027`, `RECYCLED` = `10000`. Other ids pass through.\n"), chat);
+        String tradingItems = read(directory.resolve("incoming/TradingItemList.md"));
+        assertTrue(tradingItems.contains("When `typeAndFlags & 255` is `0`: `LegacyStuffData`"), tradingItems);
+        assertTrue(tradingItems.contains("| `uniqueSerialNumber` | int | only when `typeAndFlags & 256` is `256` |"), tradingItems);
+        assertEquals(8, occurrences(tradingItems, "When `typeAndFlags & 255` is"));
         String index = read(directory.resolve("index.md"));
         assertTrue(index.contains("| [RoomSettingsError](incoming/RoomSettingsError.md) (unused) |"), index);
     }

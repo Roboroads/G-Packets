@@ -35,6 +35,19 @@ import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
 import me.roboroads.gearth.gpackets.incoming.RoomVisualizationSettings;
 import me.roboroads.gearth.gpackets.incoming.Sleep;
 import me.roboroads.gearth.gpackets.incoming.SpecialRoomEffect;
+import me.roboroads.gearth.gpackets.incoming.TradeNftAssetInventory;
+import me.roboroads.gearth.gpackets.incoming.TradeNftAssets;
+import me.roboroads.gearth.gpackets.incoming.TradeOpenFailed;
+import me.roboroads.gearth.gpackets.incoming.TradeSilverFee;
+import me.roboroads.gearth.gpackets.incoming.TradeSilverSet;
+import me.roboroads.gearth.gpackets.incoming.TradingAccept;
+import me.roboroads.gearth.gpackets.incoming.TradingClose;
+import me.roboroads.gearth.gpackets.incoming.TradingCompleted;
+import me.roboroads.gearth.gpackets.incoming.TradingConfirmation;
+import me.roboroads.gearth.gpackets.incoming.TradingItemList;
+import me.roboroads.gearth.gpackets.incoming.TradingOpen;
+import me.roboroads.gearth.gpackets.incoming.TradingOtherNotAllowed;
+import me.roboroads.gearth.gpackets.incoming.TradingYouAreNotAllowed;
 import me.roboroads.gearth.gpackets.incoming.UseObject;
 import me.roboroads.gearth.gpackets.incoming.UserChange;
 import me.roboroads.gearth.gpackets.incoming.UserRemove;
@@ -45,18 +58,26 @@ import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
 import me.roboroads.gearth.gpackets.incoming.YouAreNotSpectator;
 import me.roboroads.gearth.gpackets.incoming.YouArePlayingGame;
 import me.roboroads.gearth.gpackets.incoming.YouAreSpectator;
+import me.roboroads.gearth.gpackets.outgoing.AcceptTrading;
+import me.roboroads.gearth.gpackets.outgoing.AddItemToTrade;
+import me.roboroads.gearth.gpackets.outgoing.AddItemsToTrade;
+import me.roboroads.gearth.gpackets.outgoing.AddNftToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AvatarExpression;
 import me.roboroads.gearth.gpackets.outgoing.ChangeMotto;
 import me.roboroads.gearth.gpackets.outgoing.ChangePosture;
 import me.roboroads.gearth.gpackets.outgoing.ChangeQueue;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.outgoing.ClickCharacter;
+import me.roboroads.gearth.gpackets.outgoing.CloseTrading;
+import me.roboroads.gearth.gpackets.outgoing.ConfirmAcceptTrading;
+import me.roboroads.gearth.gpackets.outgoing.ConfirmDeclineTrading;
 import me.roboroads.gearth.gpackets.outgoing.CustomizeAvatarWithFurni;
 import me.roboroads.gearth.gpackets.outgoing.DropCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.outgoing.GetFurnitureAliases;
+import me.roboroads.gearth.gpackets.outgoing.GetNftTradeInventory;
 import me.roboroads.gearth.gpackets.outgoing.GetOccupiedTiles;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomEntryTile;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
@@ -64,13 +85,18 @@ import me.roboroads.gearth.gpackets.outgoing.LetUserIn;
 import me.roboroads.gearth.gpackets.outgoing.LookTo;
 import me.roboroads.gearth.gpackets.outgoing.MoveAvatar;
 import me.roboroads.gearth.gpackets.outgoing.OpenFlatConnection;
+import me.roboroads.gearth.gpackets.outgoing.OpenTrading;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItemToPet;
+import me.roboroads.gearth.gpackets.outgoing.RemoveItemFromTrade;
+import me.roboroads.gearth.gpackets.outgoing.RemoveNftFromTrade;
 import me.roboroads.gearth.gpackets.outgoing.RequestRoomPropertySet;
 import me.roboroads.gearth.gpackets.outgoing.Quit;
 import me.roboroads.gearth.gpackets.outgoing.RoomNetworkOpenConnection;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.Sign;
+import me.roboroads.gearth.gpackets.outgoing.SilverFee;
+import me.roboroads.gearth.gpackets.outgoing.UnacceptTrading;
 import me.roboroads.gearth.gpackets.outgoing.UpdateFloorProperties;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
@@ -127,6 +153,20 @@ public final class PacketTypes {
             RoomVisualizationSettings.TYPE,
             Sleep.TYPE,
             SpecialRoomEffect.TYPE,
+            TradeNftAssetInventory.TYPE,
+            TradeNftAssets.TYPE,
+            TradeOpenFailed.TYPE,
+            TradeSilverFee.TYPE,
+            TradeSilverSet.TYPE,
+            TradingAccept.TYPE,
+            TradingClose.TYPE,
+            TradingCompleted.TYPE,
+            TradingConfirmation.TYPE,
+            TradingItemList.TYPE,
+            me.roboroads.gearth.gpackets.incoming.TradingNotOpen.TYPE,
+            TradingOpen.TYPE,
+            TradingOtherNotAllowed.TYPE,
+            TradingYouAreNotAllowed.TYPE,
             UseObject.TYPE,
             UserChange.TYPE,
             UserRemove.TYPE,
@@ -137,12 +177,19 @@ public final class PacketTypes {
             YouAreNotSpectator.TYPE,
             YouArePlayingGame.TYPE,
             YouAreSpectator.TYPE,
+            AcceptTrading.TYPE,
+            AddItemToTrade.TYPE,
+            AddItemsToTrade.TYPE,
+            AddNftToTrade.TYPE,
             AvatarExpression.TYPE,
             ChangeMotto.TYPE,
             ChangePosture.TYPE,
             ChangeQueue.TYPE,
             Chat.TYPE,
             ClickCharacter.TYPE,
+            CloseTrading.TYPE,
+            ConfirmAcceptTrading.TYPE,
+            ConfirmDeclineTrading.TYPE,
             CustomizeAvatarWithFurni.TYPE,
             me.roboroads.gearth.gpackets.outgoing.Dance.TYPE,
             DropCarryItem.TYPE,
@@ -150,6 +197,7 @@ public final class PacketTypes {
             GetCatalogPage.TYPE,
             GetCatalogPageWithEarliestExpiry.TYPE,
             GetFurnitureAliases.TYPE,
+            GetNftTradeInventory.TYPE,
             GetOccupiedTiles.TYPE,
             GetRoomEntryTile.TYPE,
             GetRoomSettings.TYPE,
@@ -157,13 +205,18 @@ public final class PacketTypes {
             LookTo.TYPE,
             MoveAvatar.TYPE,
             OpenFlatConnection.TYPE,
+            OpenTrading.TYPE,
             PassCarryItem.TYPE,
             PassCarryItemToPet.TYPE,
+            RemoveItemFromTrade.TYPE,
+            RemoveNftFromTrade.TYPE,
             RequestRoomPropertySet.TYPE,
             Quit.TYPE,
             RoomNetworkOpenConnection.TYPE,
             SaveRoomSettings.TYPE,
             Sign.TYPE,
+            SilverFee.TYPE,
+            UnacceptTrading.TYPE,
             UpdateFloorProperties.TYPE,
             WiredGetRoomSettings.TYPE,
             WiredSetRoomSettings.TYPE

@@ -213,4 +213,76 @@ class SchemaBranchTest {
 
         assertEquals("Person.kind: " + Animal.class.getName() + " does not extend " + Person.class.getName(), e.getMessage());
     }
+
+    // The low byte picks the shape; flag 256 adds a serial inside the case, other bits are ignored.
+    private static final Schema<Sample> MASKED = Schema.of(Sample.class)
+            .integer("typeAndFlags")
+            .branch("typeAndFlags", 0xFF, cases -> cases
+                    .on(1, Person.class, s -> s
+                            .string("name")
+                            .when("typeAndFlags", 256, 256, w -> w.integer("serial")))
+                    .on(2, Animal.class, s -> s.integer("level")));
+
+    @Test
+    void aMaskedBranchPicksTheCaseByTheMaskedBits() {
+        HPacket p = packet();
+        p.appendInt(0x201).appendString("Ann");
+
+        Map<String, Object> values = MASKED.read(p);
+
+        assertEquals(Arrays.asList("typeAndFlags", "name"), new ArrayList<>(values.keySet()));
+        assertEquals(0x201, values.get("typeAndFlags"));
+    }
+
+    @Test
+    void aMaskedWhenInACaseDependsOnAValueBeforeTheBranch() {
+        HPacket p = packet();
+        p.appendInt(0x301).appendString("Ann").appendInt(12);
+
+        Map<String, Object> values = MASKED.read(p);
+
+        assertEquals(12, values.get("serial"));
+        HPacket out = packet();
+        MASKED.write(values, out);
+        assertEquals(bytes(p), bytes(out));
+    }
+
+    @Test
+    void aMaskedBranchStillFailsForAShapeWithoutACase() {
+        HPacket p = packet();
+        p.appendInt(0x103);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> MASKED.read(p));
+
+        assertEquals("Sample.typeAndFlags: no case for value 259 (3 after the mask)", e.getMessage());
+    }
+
+    @Test
+    void aMaskedBranchExposesItsMask() {
+        BranchParameter branch = (BranchParameter) MASKED.parameters().get(1);
+        BranchParameter when = (BranchParameter) branch.cases().get(1).schema().parameters().get(1);
+
+        assertEquals(Integer.valueOf(0xFF), branch.mask());
+        assertEquals(Integer.valueOf(256), when.mask());
+        assertEquals("typeAndFlags", when.on());
+        assertNull(((BranchParameter) SCHEMA.parameters().get(1)).mask());
+    }
+
+    @Test
+    void aCaseOutsideTheMaskIsRejected() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).integer("typeAndFlags").branch("typeAndFlags", 0xFF, cases -> cases
+                        .on(256, Person.class, s -> s)));
+
+        assertEquals("typeAndFlags: case 256 has bits outside the mask 255", e.getMessage());
+    }
+
+    @Test
+    void onlyAPlainWholeNumberCanBeMasked() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).enumInt("kind", UserType.class).branch("kind", 0xFF, cases -> cases
+                        .on(UserType.PLAYER, Person.class, s -> s)));
+
+        assertEquals("kind: only a plain byte, short, int or long can be masked", e.getMessage());
+    }
 }

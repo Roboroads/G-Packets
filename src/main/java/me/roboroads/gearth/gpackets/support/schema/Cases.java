@@ -8,12 +8,14 @@ import java.util.function.UnaryOperator;
 /** The cases of a {@link Schema#branch} call, added with {@link #on}. */
 public final class Cases {
     private final ValueParameter discriminator;
+    private final Schema<?> parent;
     private final Class<?> base;
     private final Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
 
-    Cases(ValueParameter discriminator, Class<?> base) {
+    Cases(ValueParameter discriminator, Schema<?> parent) {
         this.discriminator = discriminator;
-        this.base = base;
+        this.parent = parent;
+        this.base = parent.type();
     }
 
     /**
@@ -32,7 +34,7 @@ public final class Cases {
         if (cases.containsKey(key)) {
             throw new IllegalArgumentException(where + ": duplicate case for value " + key);
         }
-        cases.put(key, new BranchParameter.Case(key, subclass, body.apply(Schema.of(subclass))));
+        cases.put(key, new BranchParameter.Case(key, subclass, body.apply(parent.nested(subclass))));
         return this;
     }
 

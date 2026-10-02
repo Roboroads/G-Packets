@@ -14,19 +14,40 @@ import java.util.Map;
  */
 public final class BranchParameter extends Parameter {
     private final ValueParameter discriminator;
+    private final Integer mask;
     private final boolean exhaustive;
     private final Map<Object, Case> cases;
 
-    BranchParameter(ValueParameter discriminator, boolean exhaustive, Map<Object, Case> cases) {
+    BranchParameter(ValueParameter discriminator, Integer mask, boolean exhaustive, Map<Object, Case> cases) {
         super(null);
         this.discriminator = discriminator;
+        this.mask = mask;
         this.exhaustive = exhaustive;
         this.cases = Collections.unmodifiableMap(new LinkedHashMap<>(cases));
+        if (mask != null) {
+            String where = discriminator.name();
+            if (discriminator.enumType() != null || !isWhole(discriminator.wireType())) {
+                throw new IllegalArgumentException(where + ": only a plain byte, short, int or long can be masked");
+            }
+            for (Object value : this.cases.keySet()) {
+                if ((((Number) value).longValue() & ~mask.longValue()) != 0) {
+                    throw new IllegalArgumentException(where + ": case " + value + " has bits outside the mask " + mask);
+                }
+            }
+        }
     }
 
     /** The name of the earlier value whose wire value picks the case. */
     public String on() {
         return discriminator.name();
+    }
+
+    /**
+     * The bits of the discriminator that pick the case, or null when the whole value does. With a
+     * mask, a case matches when {@code value & mask} equals its value, and the other bits are ignored.
+     */
+    public Integer mask() {
+        return mask;
     }
 
     /**
@@ -48,11 +69,19 @@ public final class BranchParameter extends Parameter {
         if (value == null && exhaustive) {
             throw new IllegalArgumentException(where + ": is null");
         }
-        Case match = cases.get(discriminator.coerce(value, where));
+        Object key = discriminator.coerce(value, where);
+        if (mask != null) {
+            key = discriminator.coerce(((Number) key).longValue() & mask, where);
+        }
+        Case match = cases.get(key);
         if (match == null && exhaustive) {
-            throw new IllegalArgumentException(where + ": no case for value " + value);
+            throw new IllegalArgumentException(where + ": no case for value " + value + (mask == null ? "" : " (" + key + " after the mask)"));
         }
         return match;
+    }
+
+    private static boolean isWhole(WireType wireType) {
+        return wireType == WireType.BYTE || wireType == WireType.SHORT || wireType == WireType.INT || wireType == WireType.LONG;
     }
 
     @Override

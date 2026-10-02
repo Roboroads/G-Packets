@@ -191,6 +191,24 @@ Use `when` for parameters that are only sent when an earlier value says so. A wi
 .when("hasJump", true, j -> j.integer("jumpPower"))
 ```
 
+## Branching on part of a value
+
+Some ints pack several things. A furni's stuff data starts with `typeAndFlags`: the low byte is the format, and bit 256 means a limited edition, so a serial number follows the format's values. Pass a mask to `branch` or `when` and only those bits decide. `branch(on, mask, cases)` picks the case by `on & mask`, and `when(on, mask, value, body)` adds parameters when `on & mask` equals `value`:
+
+```java
+.integer("typeAndFlags")
+.branch("typeAndFlags", 0xFF, cases -> cases
+        .on(0, LegacyStuffData.class, s -> s
+                .string("legacyString")
+                .when("typeAndFlags", 256, 256, serial -> serial
+                        .integer("uniqueSerialNumber")
+                        .integer("uniqueSeriesSize")))
+        // ...
+);
+```
+
+Bits outside the mask are kept in the value and written back unchanged, so a flag the library doesn't know yet doesn't break the packet. A case body can use a value declared before the branch, as the `when` above does with `typeAndFlags`.
+
 ## Optional trailing parameters
 
 Some servers leave parameters off the end of a packet. Wrap those in `optional`: they're read only when bytes are left, and written only when one of them is set.
