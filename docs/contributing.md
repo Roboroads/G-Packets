@@ -201,6 +201,8 @@ public static final PacketType<CatalogPublished> TYPE = PacketType.of("CatalogPu
         .optional(s -> s.string("newFurniDataHash")));
 ```
 
+When the client checks for bytes left before each value, nest them, so the packet can stop after any of them: `.optional(a -> a.bool("chooserDisabled").optional(b -> b.bool("freeFurniMovementsEnabled")))`.
+
 ## Enums
 
 An enum parameter needs an enum that implements `IntEnum` or `StringEnum`. Lombok's `@Getter` on the `value` or `code` field already provides the method:

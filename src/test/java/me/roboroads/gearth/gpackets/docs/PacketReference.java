@@ -181,8 +181,10 @@ public final class PacketReference {
                 } else if (parameter instanceof StructParameter) {
                     rows.add(row(parameter.name(), link(((StructParameter) parameter).schema()), limitNote(unusedNote(note, parameter), parameter)));
                 } else if (parameter instanceof OptionalParameter) {
+                    // An optional inside an optional (each value read only if bytes are left) gets the note once.
+                    String optional = "optional: only present if the packet has bytes left";
                     collect(((OptionalParameter) parameter).schema().parameters(),
-                            join(note, "optional: only present if the packet has bytes left"), rows, enums, branches, values);
+                            note.contains(optional) ? note : join(note, optional), rows, enums, branches, values);
                 } else if (parameter instanceof BranchParameter && ((BranchParameter) parameter).exhaustive()) {
                     BranchParameter branch = (BranchParameter) parameter;
                     rows.add(row(null, "", join(note, "depends on `" + branch.on() + "`, see below")));
