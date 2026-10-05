@@ -4,6 +4,7 @@ import gearth.protocol.HMessage;
 import me.roboroads.gearth.gpackets.incoming.AuthenticationOK;
 import me.roboroads.gearth.gpackets.incoming.AvailabilityStatus;
 import me.roboroads.gearth.gpackets.incoming.AvatarEffect;
+import me.roboroads.gearth.gpackets.incoming.BannedUsersFromRoom;
 import me.roboroads.gearth.gpackets.incoming.BuildersClubFurniCount;
 import me.roboroads.gearth.gpackets.incoming.BuildersClubPlacementWarning;
 import me.roboroads.gearth.gpackets.incoming.BuildersClubSubscriptionStatus;
@@ -19,6 +20,9 @@ import me.roboroads.gearth.gpackets.incoming.DisconnectReason;
 import me.roboroads.gearth.gpackets.incoming.Doorbell;
 import me.roboroads.gearth.gpackets.incoming.ErrorReport;
 import me.roboroads.gearth.gpackets.incoming.Expression;
+import me.roboroads.gearth.gpackets.incoming.FlatControllerAdded;
+import me.roboroads.gearth.gpackets.incoming.FlatControllerRemoved;
+import me.roboroads.gearth.gpackets.incoming.FlatControllers;
 import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
 import me.roboroads.gearth.gpackets.incoming.FurnitureAliases;
 import me.roboroads.gearth.gpackets.incoming.HandItemReceived;
@@ -69,18 +73,25 @@ import me.roboroads.gearth.gpackets.incoming.UserChange;
 import me.roboroads.gearth.gpackets.incoming.UserObject;
 import me.roboroads.gearth.gpackets.incoming.UserRemove;
 import me.roboroads.gearth.gpackets.incoming.UserRights;
+import me.roboroads.gearth.gpackets.incoming.UserUnbannedFromRoom;
 import me.roboroads.gearth.gpackets.incoming.UserUpdate;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
 import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
+import me.roboroads.gearth.gpackets.incoming.YouAreController;
+import me.roboroads.gearth.gpackets.incoming.YouAreNotController;
 import me.roboroads.gearth.gpackets.incoming.YouAreNotSpectator;
+import me.roboroads.gearth.gpackets.incoming.YouAreOwner;
 import me.roboroads.gearth.gpackets.incoming.YouArePlayingGame;
 import me.roboroads.gearth.gpackets.incoming.YouAreSpectator;
 import me.roboroads.gearth.gpackets.outgoing.AcceptTrading;
 import me.roboroads.gearth.gpackets.outgoing.AddItemToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AddItemsToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AddNftToTrade;
+import me.roboroads.gearth.gpackets.outgoing.AmbassadorAlert;
+import me.roboroads.gearth.gpackets.outgoing.AssignRights;
 import me.roboroads.gearth.gpackets.outgoing.AvatarExpression;
+import me.roboroads.gearth.gpackets.outgoing.BanUserWithDuration;
 import me.roboroads.gearth.gpackets.outgoing.BuildersClubPlaceRoomItem;
 import me.roboroads.gearth.gpackets.outgoing.BuildersClubPlaceWallItem;
 import me.roboroads.gearth.gpackets.outgoing.BuildersClubQueryFurniCount;
@@ -96,25 +107,32 @@ import me.roboroads.gearth.gpackets.outgoing.ConfirmDeclineTrading;
 import me.roboroads.gearth.gpackets.outgoing.CustomizeAvatarWithFurni;
 import me.roboroads.gearth.gpackets.outgoing.Disconnect;
 import me.roboroads.gearth.gpackets.outgoing.DropCarryItem;
+import me.roboroads.gearth.gpackets.outgoing.GetBannedUsersFromRoom;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogIndex;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPage;
 import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
+import me.roboroads.gearth.gpackets.outgoing.GetFlatControllers;
 import me.roboroads.gearth.gpackets.outgoing.GetFurnitureAliases;
 import me.roboroads.gearth.gpackets.outgoing.GetNftTradeInventory;
 import me.roboroads.gearth.gpackets.outgoing.GetOccupiedTiles;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomEntryTile;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.InfoRetrieve;
+import me.roboroads.gearth.gpackets.outgoing.KickUser;
 import me.roboroads.gearth.gpackets.outgoing.LetUserIn;
 import me.roboroads.gearth.gpackets.outgoing.LookTo;
 import me.roboroads.gearth.gpackets.outgoing.MoveAvatar;
+import me.roboroads.gearth.gpackets.outgoing.MuteUser;
 import me.roboroads.gearth.gpackets.outgoing.OpenFlatConnection;
 import me.roboroads.gearth.gpackets.outgoing.OpenTrading;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItemToPet;
 import me.roboroads.gearth.gpackets.outgoing.Pong;
+import me.roboroads.gearth.gpackets.outgoing.RemoveAllRights;
 import me.roboroads.gearth.gpackets.outgoing.RemoveItemFromTrade;
 import me.roboroads.gearth.gpackets.outgoing.RemoveNftFromTrade;
+import me.roboroads.gearth.gpackets.outgoing.RemoveOwnRoomRightsRoom;
+import me.roboroads.gearth.gpackets.outgoing.RemoveRights;
 import me.roboroads.gearth.gpackets.outgoing.RequestRoomPropertySet;
 import me.roboroads.gearth.gpackets.outgoing.Quit;
 import me.roboroads.gearth.gpackets.outgoing.RoomNetworkOpenConnection;
@@ -123,7 +141,9 @@ import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.Sign;
 import me.roboroads.gearth.gpackets.outgoing.SilverFee;
 import me.roboroads.gearth.gpackets.outgoing.UnacceptTrading;
+import me.roboroads.gearth.gpackets.outgoing.UnbanUserFromRoom;
 import me.roboroads.gearth.gpackets.outgoing.UniqueID;
+import me.roboroads.gearth.gpackets.outgoing.UnmuteUser;
 import me.roboroads.gearth.gpackets.outgoing.UpdateFloorProperties;
 import me.roboroads.gearth.gpackets.outgoing.VersionCheck;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
@@ -142,13 +162,14 @@ import java.util.Optional;
 public final class PacketTypes {
     // Also lists packets the client ignores. Those are written out in full instead of imported,
     // because Java 8 warns on the import of a deprecated class and @SuppressWarnings can't reach it.
-    // Dance, CompleteDiffieHandshake and InitDiffieHandshake exist in both directions, so both are
-    // written out in full too.
+    // Dance, CompleteDiffieHandshake, InitDiffieHandshake and MuteAllInRoom exist in both
+    // directions, so both are written out in full too.
     @SuppressWarnings("deprecation")
     private static final List<PacketType<?>> ALL = Collections.unmodifiableList(Arrays.<PacketType<?>>asList(
             AuthenticationOK.TYPE,
             AvailabilityStatus.TYPE,
             AvatarEffect.TYPE,
+            BannedUsersFromRoom.TYPE,
             BuildersClubFurniCount.TYPE,
             BuildersClubPlacementWarning.TYPE,
             BuildersClubSubscriptionStatus.TYPE,
@@ -166,6 +187,9 @@ public final class PacketTypes {
             Doorbell.TYPE,
             ErrorReport.TYPE,
             Expression.TYPE,
+            FlatControllerAdded.TYPE,
+            FlatControllerRemoved.TYPE,
+            FlatControllers.TYPE,
             FloorHeightMap.TYPE,
             FurnitureAliases.TYPE,
             HandItemReceived.TYPE,
@@ -186,6 +210,7 @@ public final class PacketTypes {
             IsFirstLoginOfDay.TYPE,
             LoginFailedHotelClosed.TYPE,
             MaintenanceStatus.TYPE,
+            me.roboroads.gearth.gpackets.incoming.MuteAllInRoom.TYPE,
             NoobnessLevel.TYPE,
             OpenConnection.TYPE,
             Ping.TYPE,
@@ -219,18 +244,25 @@ public final class PacketTypes {
             UserObject.TYPE,
             UserRemove.TYPE,
             UserRights.TYPE,
+            UserUnbannedFromRoom.TYPE,
             UserUpdate.TYPE,
             Users.TYPE,
             WiredMovements.TYPE,
             WiredRoomSettings.TYPE,
+            YouAreController.TYPE,
+            YouAreNotController.TYPE,
             YouAreNotSpectator.TYPE,
+            YouAreOwner.TYPE,
             YouArePlayingGame.TYPE,
             YouAreSpectator.TYPE,
             AcceptTrading.TYPE,
             AddItemToTrade.TYPE,
             AddItemsToTrade.TYPE,
             AddNftToTrade.TYPE,
+            AmbassadorAlert.TYPE,
+            AssignRights.TYPE,
             AvatarExpression.TYPE,
+            BanUserWithDuration.TYPE,
             BuildersClubPlaceRoomItem.TYPE,
             BuildersClubPlaceWallItem.TYPE,
             BuildersClubQueryFurniCount.TYPE,
@@ -248,9 +280,11 @@ public final class PacketTypes {
             me.roboroads.gearth.gpackets.outgoing.Dance.TYPE,
             Disconnect.TYPE,
             DropCarryItem.TYPE,
+            GetBannedUsersFromRoom.TYPE,
             GetCatalogIndex.TYPE,
             GetCatalogPage.TYPE,
             GetCatalogPageWithEarliestExpiry.TYPE,
+            GetFlatControllers.TYPE,
             GetFurnitureAliases.TYPE,
             GetNftTradeInventory.TYPE,
             GetOccupiedTiles.TYPE,
@@ -258,16 +292,22 @@ public final class PacketTypes {
             GetRoomSettings.TYPE,
             InfoRetrieve.TYPE,
             me.roboroads.gearth.gpackets.outgoing.InitDiffieHandshake.TYPE,
+            KickUser.TYPE,
             LetUserIn.TYPE,
             LookTo.TYPE,
             MoveAvatar.TYPE,
+            me.roboroads.gearth.gpackets.outgoing.MuteAllInRoom.TYPE,
+            MuteUser.TYPE,
             OpenFlatConnection.TYPE,
             OpenTrading.TYPE,
             PassCarryItem.TYPE,
             PassCarryItemToPet.TYPE,
             Pong.TYPE,
+            RemoveAllRights.TYPE,
             RemoveItemFromTrade.TYPE,
             RemoveNftFromTrade.TYPE,
+            RemoveOwnRoomRightsRoom.TYPE,
+            RemoveRights.TYPE,
             RequestRoomPropertySet.TYPE,
             Quit.TYPE,
             RoomNetworkOpenConnection.TYPE,
@@ -276,7 +316,9 @@ public final class PacketTypes {
             Sign.TYPE,
             SilverFee.TYPE,
             UnacceptTrading.TYPE,
+            UnbanUserFromRoom.TYPE,
             UniqueID.TYPE,
+            UnmuteUser.TYPE,
             UpdateFloorProperties.TYPE,
             VersionCheck.TYPE,
             WiredGetRoomSettings.TYPE,
