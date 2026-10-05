@@ -98,16 +98,34 @@ public final class Schema<T> {
         return value(name, WireType.FLOAT, null, limits);
     }
 
+    public Schema<T> doubleValue(String name, Limit... limits) {
+        return value(name, WireType.DOUBLE, null, limits);
+    }
+
     /**
      * An int on the wire that maps to {@code enumType} through {@link IntEnum#value()}: an enum, or
      * an {@link OpenIntEnum} that also keeps ids it doesn't name.
      */
     public <E extends IntEnum> Schema<T> enumInt(String name, Class<E> enumType, Limit... limits) {
+        return intEnum(name, WireType.INT, enumType, limits);
+    }
+
+    /** Like {@link #enumInt}, for a code the client reads with {@code readShort()}. */
+    public <E extends IntEnum> Schema<T> enumShort(String name, Class<E> enumType, Limit... limits) {
+        return intEnum(name, WireType.SHORT, enumType, limits);
+    }
+
+    /** Like {@link #enumInt}, for a code the client reads with {@code readByte()}. */
+    public <E extends IntEnum> Schema<T> enumByte(String name, Class<E> enumType, Limit... limits) {
+        return intEnum(name, WireType.BYTE, enumType, limits);
+    }
+
+    private <E extends IntEnum> Schema<T> intEnum(String name, WireType wireType, Class<E> enumType, Limit... limits) {
         Objects.requireNonNull(enumType, "enumType");
         if (!enumType.isEnum() && !OpenIntEnum.class.isAssignableFrom(enumType)) {
             throw new IllegalArgumentException(name + ": " + enumType.getName() + " is neither an enum nor an OpenIntEnum");
         }
-        return value(name, WireType.INT, enumType, limits);
+        return value(name, wireType, enumType, limits);
     }
 
     /** A string on the wire that maps to {@code enumType} through {@link StringEnum#code()}. */
@@ -200,7 +218,15 @@ public final class Schema<T> {
             }
             cases.put(key, new BranchParameter.Case(key, null, shared));
         }
-        return with(new BranchParameter(discriminator, null, false, cases));
+        return with(new BranchParameter(discriminator, null, false, false, cases));
+    }
+
+    /**
+     * Parameters that follow unless {@code on}, a value parameter added earlier, equals {@code value}:
+     * {@code .whenNot("entityType", UserType.PLAYER, ...)} for what every other type sends.
+     */
+    public Schema<T> whenNot(String on, Object value, UnaryOperator<Schema<T>> body) {
+        return when(on, null, value, true, body);
     }
 
     /** Parameters read only if the packet has bytes left, and written only if any of their values is set. */
@@ -211,15 +237,19 @@ public final class Schema<T> {
     private Schema<T> branch(String on, Integer mask, UnaryOperator<Cases> cases) {
         ValueParameter discriminator = discriminator(on);
         Cases built = Objects.requireNonNull(cases, "cases").apply(new Cases(discriminator, this));
-        return with(new BranchParameter(discriminator, mask, true, built.cases()));
+        return with(new BranchParameter(discriminator, mask, true, false, built.cases()));
     }
 
     private Schema<T> when(String on, Integer mask, Object value, UnaryOperator<Schema<T>> body) {
+        return when(on, mask, value, false, body);
+    }
+
+    private Schema<T> when(String on, Integer mask, Object value, boolean negated, UnaryOperator<Schema<T>> body) {
         ValueParameter discriminator = discriminator(on);
         Object key = discriminator.coerce(Objects.requireNonNull(value, "value"), type.getSimpleName() + "." + on);
         Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
         cases.put(key, new BranchParameter.Case(key, null, Objects.requireNonNull(body, "body").apply(nested(type))));
-        return with(new BranchParameter(discriminator, mask, false, cases));
+        return with(new BranchParameter(discriminator, mask, false, negated, cases));
     }
 
     /**

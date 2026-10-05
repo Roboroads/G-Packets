@@ -7,7 +7,10 @@ import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.SlideObjectBundle;
 import me.roboroads.gearth.gpackets.incoming.TradingItemList;
 import me.roboroads.gearth.gpackets.incoming.Users;
+import me.roboroads.gearth.gpackets.incoming.WiredAllVariablesDiffs;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
+import me.roboroads.gearth.gpackets.incoming.WiredRoomLogs;
+import me.roboroads.gearth.gpackets.incoming.WiredRoomStats;
 import me.roboroads.gearth.gpackets.incoming.sub.furni.LegacyStuffData;
 import me.roboroads.gearth.gpackets.incoming.sub.furni.MapStuffData;
 import me.roboroads.gearth.gpackets.incoming.sub.furni.StuffData;
@@ -182,5 +185,27 @@ public class JsonRoundTripTest {
         SlideObjectBundle bundle = RoomItemWireFormatTest.slideObjectBundleWithUser();
 
         assertEquals(bundle, SlideObjectBundle.fromJson(bundle.toJson()));
+    }
+
+    @Test
+    public void wiredVariablesDiffsRoundTripKeepsTheTextsAndAnUnnamedAvailability() {
+        WiredAllVariablesDiffs diffs = WiredMenuWireFormatTest.allVariablesDiffs();
+
+        assertEquals(diffs, WiredAllVariablesDiffs.fromJson(diffs.toJson()));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // the entry's unused timestamp
+    public void wiredRoomLogsRoundTripKeepsTheByteEnumsAndTheFilters() {
+        WiredRoomLogs logs = WiredMenuWireFormatTest.filteredRoomLogs();
+
+        assertEquals(logs, WiredRoomLogs.fromJson(logs.toJson()));
+    }
+
+    @Test
+    public void wiredRoomStatsRoundTripKeepsTheDoubles() {
+        WiredRoomStats stats = WiredMenuWireFormatTest.roomStats();
+
+        assertEquals(stats, WiredRoomStats.fromJson(stats.toJson()));
     }
 }

@@ -6,7 +6,7 @@ import gearth.protocol.HPacket;
  * The primitive types a packet is made of, with how each is read, written and defaulted.
  */
 public enum WireType {
-    INT, STRING, BOOLEAN, SHORT, LONG, BYTE, FLOAT;
+    INT, STRING, BOOLEAN, SHORT, LONG, BYTE, FLOAT, DOUBLE;
 
     /** The value written for null: {@code 0}, {@code ""} or {@code false}. */
     public Object defaultValue() {
@@ -25,6 +25,8 @@ public enum WireType {
                 return (byte) 0;
             case FLOAT:
                 return 0f;
+            case DOUBLE:
+                return 0d;
             default:
                 throw new AssertionError(this);
         }
@@ -46,6 +48,8 @@ public enum WireType {
                 return packet.readByte();
             case FLOAT:
                 return packet.readFloat();
+            case DOUBLE:
+                return packet.readDouble();
             default:
                 throw new AssertionError(this);
         }
@@ -74,6 +78,9 @@ public enum WireType {
                 break;
             case FLOAT:
                 packet.appendFloat((Float) value);
+                break;
+            case DOUBLE:
+                packet.appendDouble((Double) value);
                 break;
             default:
                 throw new AssertionError(this);
@@ -109,6 +116,8 @@ public enum WireType {
                     return number.byteValue();
                 case FLOAT:
                     return number.floatValue();
+                case DOUBLE:
+                    return number.doubleValue();
                 default:
                     break;
             }

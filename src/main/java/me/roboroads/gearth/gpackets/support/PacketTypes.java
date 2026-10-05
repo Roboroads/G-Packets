@@ -103,8 +103,20 @@ import me.roboroads.gearth.gpackets.incoming.UserTyping;
 import me.roboroads.gearth.gpackets.incoming.UserUnbannedFromRoom;
 import me.roboroads.gearth.gpackets.incoming.UserUpdate;
 import me.roboroads.gearth.gpackets.incoming.Users;
+import me.roboroads.gearth.gpackets.incoming.WiredAllVariableHolders;
+import me.roboroads.gearth.gpackets.incoming.WiredAllVariablesDiffs;
+import me.roboroads.gearth.gpackets.incoming.WiredAllVariablesHash;
+import me.roboroads.gearth.gpackets.incoming.WiredErrorLogs;
+import me.roboroads.gearth.gpackets.incoming.WiredMenuError;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
+import me.roboroads.gearth.gpackets.incoming.WiredPermissions;
+import me.roboroads.gearth.gpackets.incoming.WiredRoomLogs;
 import me.roboroads.gearth.gpackets.incoming.WiredRoomSettings;
+import me.roboroads.gearth.gpackets.incoming.WiredRoomStats;
+import me.roboroads.gearth.gpackets.incoming.WiredSetUserPermanentVariableResult;
+import me.roboroads.gearth.gpackets.incoming.WiredUserPermanentVariables;
+import me.roboroads.gearth.gpackets.incoming.WiredUserVariablesList;
+import me.roboroads.gearth.gpackets.incoming.WiredVariablesForObject;
 import me.roboroads.gearth.gpackets.incoming.YouAreController;
 import me.roboroads.gearth.gpackets.incoming.YouAreNotController;
 import me.roboroads.gearth.gpackets.incoming.YouAreNotSpectator;
@@ -192,8 +204,23 @@ import me.roboroads.gearth.gpackets.outgoing.UpdateFloorProperties;
 import me.roboroads.gearth.gpackets.outgoing.UseFurniture;
 import me.roboroads.gearth.gpackets.outgoing.UseWallItem;
 import me.roboroads.gearth.gpackets.outgoing.VersionCheck;
+import me.roboroads.gearth.gpackets.outgoing.WiredClearErrorLogs;
+import me.roboroads.gearth.gpackets.outgoing.WiredDeleteAllVariableHolders;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetAllVariableHolders;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetAllVariablesDiffs;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetAllVariablesHash;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetErrorLogs;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomLogs;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomStats;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetUserPermanentVariables;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetVariableOwnersPage;
+import me.roboroads.gearth.gpackets.outgoing.WiredGetVariablesForObject;
+import me.roboroads.gearth.gpackets.outgoing.WiredSetObjectVariableValue;
+import me.roboroads.gearth.gpackets.outgoing.WiredSetPreferences;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
+import me.roboroads.gearth.gpackets.outgoing.WiredSetUserPermanentVariable;
+import me.roboroads.gearth.gpackets.outgoing.WiredUpdateRoom;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -323,8 +350,20 @@ public final class PacketTypes {
             UserUpdate.TYPE,
             Users.TYPE,
             me.roboroads.gearth.gpackets.incoming.Whisper.TYPE,
+            WiredAllVariableHolders.TYPE,
+            WiredAllVariablesDiffs.TYPE,
+            WiredAllVariablesHash.TYPE,
+            WiredErrorLogs.TYPE,
+            WiredMenuError.TYPE,
             WiredMovements.TYPE,
+            WiredPermissions.TYPE,
+            WiredRoomLogs.TYPE,
             WiredRoomSettings.TYPE,
+            WiredRoomStats.TYPE,
+            WiredSetUserPermanentVariableResult.TYPE,
+            WiredUserPermanentVariables.TYPE,
+            WiredUserVariablesList.TYPE,
+            WiredVariablesForObject.TYPE,
             YouAreController.TYPE,
             YouAreNotController.TYPE,
             YouAreNotSpectator.TYPE,
@@ -419,8 +458,23 @@ public final class PacketTypes {
             UseWallItem.TYPE,
             VersionCheck.TYPE,
             me.roboroads.gearth.gpackets.outgoing.Whisper.TYPE,
+            WiredClearErrorLogs.TYPE,
+            WiredDeleteAllVariableHolders.TYPE,
+            WiredGetAllVariableHolders.TYPE,
+            WiredGetAllVariablesDiffs.TYPE,
+            WiredGetAllVariablesHash.TYPE,
+            WiredGetErrorLogs.TYPE,
+            WiredGetRoomLogs.TYPE,
             WiredGetRoomSettings.TYPE,
-            WiredSetRoomSettings.TYPE
+            WiredGetRoomStats.TYPE,
+            WiredGetUserPermanentVariables.TYPE,
+            WiredGetVariableOwnersPage.TYPE,
+            WiredGetVariablesForObject.TYPE,
+            WiredSetObjectVariableValue.TYPE,
+            WiredSetPreferences.TYPE,
+            WiredSetRoomSettings.TYPE,
+            WiredSetUserPermanentVariable.TYPE,
+            WiredUpdateRoom.TYPE
     ));
 
     private PacketTypes() {

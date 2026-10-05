@@ -10,6 +10,7 @@ import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
 import me.roboroads.gearth.gpackets.incoming.CatalogPublished;
 import me.roboroads.gearth.gpackets.incoming.Dance;
 import me.roboroads.gearth.gpackets.incoming.Users;
+import me.roboroads.gearth.gpackets.incoming.WiredUserPermanentVariables;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
@@ -128,7 +129,7 @@ class DocsExamplesTest {
                 } else if (parameter instanceof BranchParameter) {
                     BranchParameter branch = (BranchParameter) parameter;
                     branch.cases().forEach((value, c) -> {
-                        print(indent + "when " + branch.on() + " = " + value + ":");
+                        print(indent + "when " + branch.on() + (branch.negated() ? " != " : " = ") + value + ":");
                         describe(c.schema(), indent + "  ", seen);
                     });
                 } else if (parameter instanceof OptionalParameter) {
@@ -287,6 +288,41 @@ class DocsExamplesTest {
     void theOtherParameterExamplesRun() {
         Examples extension = new Examples();
         extension.sayHello();
+    }
+
+    @Test
+    void describeShowsANegatedWhen() {
+        Examples extension = new Examples();
+
+        extension.describe(WiredUserPermanentVariables.TYPE.schema(), "", Collections.newSetFromMap(new IdentityHashMap<>()));
+
+        assertTrue(extension.printed.contains("when entityType != 1:"), extension.printed.toString());
+    }
+
+    static class PermanentVariables {
+    }
+
+    // contributing.md: "Conditional parameters", whenNot
+    private static final Schema<PermanentVariables> OWNER_UNLESS_PLAYER = Schema.of(PermanentVariables.class)
+            .enumInt("entityType", UserType.class)
+            .integer("entityId")
+            .string("entityName")
+            .string("entityFigure")
+            .whenNot("entityType", UserType.PLAYER, s -> s
+                    .integer("ownerId")
+                    .string("ownerName")
+                    .string("ownerFigure"));
+
+    @Test
+    void whenNotReadsTheOwnerForEverythingButAPlayer() {
+        HPacket pet = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        pet.appendInt(2).appendInt(31).appendString("Rex").appendString("0 4 ffffff")
+                .appendInt(1001).appendString("Alice").appendString("hd-180-1");
+        HPacket player = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        player.appendInt(1).appendInt(1001).appendString("Alice").appendString("hd-180-1");
+
+        assertEquals("Alice", OWNER_UNLESS_PLAYER.read(pet).get("ownerName"));
+        assertFalse(OWNER_UNLESS_PLAYER.read(player).containsKey("ownerId"));
     }
 
     // intercepting.md: "Handlers in other classes"; GPackets.init finds and creates it

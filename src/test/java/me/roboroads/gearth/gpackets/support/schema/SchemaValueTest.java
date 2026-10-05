@@ -204,6 +204,46 @@ class SchemaValueTest {
     }
 
     @Test
+    void enumShortAndEnumByteUseTheirWireSize() {
+        Schema<Sample> schema = Schema.of(Sample.class)
+                .enumShort("dir", Direction.class)
+                .enumByte("shade", Shade.class);
+        Map<String, Object> values = new HashMap<>();
+        values.put("dir", Direction.EAST);
+        values.put("shade", Shade.of(9));
+        HPacket out = packet();
+
+        schema.write(values, out);
+
+        assertEquals(bytes(packet().appendShort((short) 2).appendByte((byte) 9)), bytes(out));
+        Map<String, Object> read = schema.read(packet().appendShort((short) 2).appendByte((byte) 9));
+        assertEquals((short) 2, read.get("dir"));
+        assertEquals((byte) 9, read.get("shade"));
+        assertEquals(WireType.SHORT, ((ValueParameter) schema.parameters().get(0)).wireType());
+        assertEquals(Direction.class, ((ValueParameter) schema.parameters().get(0)).enumType());
+        assertTrue(((ValueParameter) schema.parameters().get(1)).openEnum());
+    }
+
+    @Test
+    void enumShortAndEnumByteRejectWhatEnumIntRejects() {
+        assertThrows(IllegalArgumentException.class, () -> Schema.of(Sample.class).enumShort("odd", Odd.class));
+        assertThrows(IllegalArgumentException.class, () -> Schema.of(Sample.class).enumByte("odd", Odd.class));
+    }
+
+    @Test
+    void doubleValueReadsAndWritesEightBytes() {
+        Schema<Sample> schema = Schema.of(Sample.class).doubleValue("cost");
+        Map<String, Object> values = new HashMap<>();
+        values.put("cost", 2.5);
+        HPacket out = packet();
+
+        schema.write(values, out);
+
+        assertEquals(bytes(packet().appendDouble(2.5)), bytes(out));
+        assertEquals(2.5, schema.read(packet().appendDouble(2.5)).get("cost"));
+    }
+
+    @Test
     void readingAnOpenEnumKeepsTheRawId() {
         Schema<Sample> schema = Schema.of(Sample.class).enumInt("shade", Shade.class);
 

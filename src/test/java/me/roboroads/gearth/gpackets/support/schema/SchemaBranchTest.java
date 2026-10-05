@@ -279,6 +279,55 @@ class SchemaBranchTest {
         assertEquals("typeAndFlags: case 256 has bits outside the mask 255", e.getMessage());
     }
 
+    // A pet or bot sends its owner, a player doesn't.
+    private static final Schema<Sample> NEGATED = Schema.of(Sample.class)
+            .enumInt("kind", UserType.class)
+            .whenNot("kind", UserType.PLAYER, w -> w.integer("ownerId"))
+            .string("name");
+
+    @Test
+    void aNegatedWhenReadsForEveryOtherValue() {
+        HPacket pet = packet();
+        pet.appendInt(2).appendInt(7).appendString("Rex");
+        HPacket player = packet();
+        player.appendInt(1).appendString("Alice");
+
+        Map<String, Object> petValues = NEGATED.read(pet);
+
+        assertEquals(Arrays.asList("kind", "ownerId", "name"), new ArrayList<>(petValues.keySet()));
+        assertEquals(7, petValues.get("ownerId"));
+        assertEquals(Arrays.asList("kind", "name"), new ArrayList<>(NEGATED.read(player).keySet()));
+    }
+
+    @Test
+    void aNegatedWhenWritesForEveryOtherValue() {
+        Map<String, Object> bot = new HashMap<>();
+        bot.put("kind", UserType.BOT);
+        bot.put("ownerId", 7);
+        bot.put("name", "Frank");
+        Map<String, Object> player = new HashMap<>(bot);
+        player.put("kind", UserType.PLAYER);
+        HPacket botOut = packet();
+        HPacket playerOut = packet();
+
+        NEGATED.write(bot, botOut);
+        NEGATED.write(player, playerOut);
+
+        assertEquals(bytes(packet().appendInt(4).appendInt(7).appendString("Frank")), bytes(botOut));
+        assertEquals(bytes(packet().appendInt(1).appendString("Frank")), bytes(playerOut));
+    }
+
+    @Test
+    void aNegatedWhenExposesItsValue() {
+        BranchParameter when = (BranchParameter) NEGATED.parameters().get(1);
+
+        assertTrue(when.negated());
+        assertFalse(when.exhaustive());
+        assertEquals("kind", when.on());
+        assertEquals(Arrays.asList(1), new ArrayList<>(when.cases().keySet()));
+        assertFalse(((BranchParameter) SCHEMA.parameters().get(1)).negated());
+    }
+
     @Test
     void aSignBitMaskMatchesEveryNegativeValue() {
         Schema<Sample> schema = Schema.of(Sample.class)

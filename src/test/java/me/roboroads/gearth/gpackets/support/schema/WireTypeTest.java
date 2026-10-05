@@ -18,6 +18,7 @@ class WireTypeTest {
         assertEquals(0L, WireType.LONG.defaultValue());
         assertEquals((byte) 0, WireType.BYTE.defaultValue());
         assertEquals(0f, WireType.FLOAT.defaultValue());
+        assertEquals(0d, WireType.DOUBLE.defaultValue());
     }
 
     @Test
@@ -32,6 +33,8 @@ class WireTypeTest {
         assertEquals(7L, WireType.LONG.coerce(7));
         assertEquals((byte) 7, WireType.BYTE.coerce(7));
         assertEquals(7.5f, WireType.FLOAT.coerce(7.5d));
+        assertEquals(7.5d, WireType.DOUBLE.coerce(7.5f));
+        assertEquals(7d, WireType.DOUBLE.coerce(7));
     }
 
     @Test
@@ -52,6 +55,7 @@ class WireTypeTest {
         WireType.LONG.write(packet, 9L);
         WireType.BYTE.write(packet, (byte) 1);
         WireType.FLOAT.write(packet, 2.5f);
+        WireType.DOUBLE.write(packet, 1234.5d);
         packet.resetReadIndex();
 
         assertEquals(7, WireType.INT.read(packet));
@@ -61,5 +65,16 @@ class WireTypeTest {
         assertEquals(9L, WireType.LONG.read(packet));
         assertEquals((byte) 1, WireType.BYTE.read(packet));
         assertEquals(2.5f, WireType.FLOAT.read(packet));
+        assertEquals(1234.5d, WireType.DOUBLE.read(packet));
+    }
+
+    @Test
+    void aDoubleIsEightBytesBigEndian() {
+        HPacket packet = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        WireType.DOUBLE.write(packet, 1.0d);
+        HPacket expected = new HPacket("Test", HMessage.Direction.TOCLIENT);
+        expected.appendInt(0x3FF00000).appendInt(0);
+
+        assertEquals(java.util.Arrays.toString(expected.toBytes()), java.util.Arrays.toString(packet.toBytes()));
     }
 }

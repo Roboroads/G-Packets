@@ -21,7 +21,7 @@ Map<String, Object> values = Users.TYPE.read(message.getPacket());
 
 The values follow a few rules:
 
-- A value is a `String` or a boxed primitive: `Integer`, `Boolean`, `Short`, `Long`, `Byte` or `Float`.
+- A value is a `String` or a boxed primitive: `Integer`, `Boolean`, `Short`, `Long`, `Byte`, `Float` or `Double`.
 - A list is a `List`, and a nested structure is a `Map` of its own.
 - An enum holds its wire value, so `dir` is `2`, not `EAST`. A value the library doesn't know yet survives a read and a write unchanged.
 - The values of a branch, such as a player's `sex` and `groupId`, sit in the same map as the values around them.
@@ -139,12 +139,12 @@ The loop registers the listener for both directions, so you see what the server 
 | `ValueParameter` | one value | `wireType()`, `enumType()`, `enumOptions()`, `unusedOptions()`, `openEnum()` |
 | `ListParameter` | a count, then that many elements | `elementType()` for values, `elementSchema()` for structures, `countType()` for the count (an int for most lists) |
 | `StructParameter` | a nested structure | `schema()` |
-| `BranchParameter` | parameters that depend on an earlier value | `on()`, `mask()`, `exhaustive()`, `cases()` |
+| `BranchParameter` | parameters that depend on an earlier value | `on()`, `mask()`, `exhaustive()`, `negated()`, `cases()` |
 | `OptionalParameter` | parameters the server may leave off the end | `schema()` |
 
 `openEnum()` is true when the value's type keeps ids it doesn't name, like `ChatBarStyle`. `enumOptions()` then lists only the named ones.
 
-Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing. When several values share the parameters that follow, as in `SlideObjectBundle`, each value has a case and the cases share one `schema()`. `mask()` is null when the whole value picks the case; otherwise the case is picked by `value & mask()`.
+Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing. When several values share the parameters that follow, as in `SlideObjectBundle`, each value has a case and the cases share one `schema()`. `negated()` is true for a conditional parameter that turns this around: its one case applies to every value except the case's own. `mask()` is null when the whole value picks the case; otherwise the case is picked by `value & mask()`.
 
 This method prints any schema as an indented tree:
 
@@ -178,7 +178,7 @@ void describe(Schema<?> schema, String indent, Set<Schema<?>> seen) {
         } else if (parameter instanceof BranchParameter) {
             BranchParameter branch = (BranchParameter) parameter;
             branch.cases().forEach((value, c) -> {
-                System.out.println(indent + "when " + branch.on() + " = " + value + ":");
+                System.out.println(indent + "when " + branch.on() + (branch.negated() ? " != " : " = ") + value + ":");
                 describe(c.schema(), indent + "  ", seen);
             });
         } else if (parameter instanceof OptionalParameter) {

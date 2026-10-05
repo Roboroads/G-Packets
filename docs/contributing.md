@@ -80,7 +80,10 @@ Each method adds one parameter to the schema:
 | `longValue(name)` | long | `Long` or `long` |
 | `byteValue(name)` | byte | `Byte` or `byte` |
 | `floatValue(name)` | float | `Float` or `float` |
+| `doubleValue(name)` | double | `Double` or `double` |
 | `enumInt(name, E.class)` | int | an enum that implements `IntEnum` |
+| `enumShort(name, E.class)` | short | an enum that implements `IntEnum` |
+| `enumByte(name, E.class)` | byte | an enum that implements `IntEnum` |
 | `enumString(name, E.class)` | string | an enum that implements `StringEnum` |
 
 Add them in wire order, which isn't always the order of the fields. A furni product, for example, sends its `extraParam` after its `furniClassId`, even though `extraParam` is declared on the parent class. Every method returns a new schema, so a finished schema can't change.
@@ -199,6 +202,19 @@ When several values share the parameters that follow, list them with `whenOneOf`
         .integer("userIndex")
         .string("userOldZ")
         .string("userNewZ"))
+```
+
+When the parameters follow for every value but one, use `whenNot`. A user's permanent variables only send an owner for a pet or a bot, so for anything but a player:
+
+```java
+.enumInt("entityType", UserType.class)
+.integer("entityId")
+.string("entityName")
+.string("entityFigure")
+.whenNot("entityType", UserType.PLAYER, s -> s
+        .integer("ownerId")
+        .string("ownerName")
+        .string("ownerFigure"))
 ```
 
 ## Branching on part of a value
