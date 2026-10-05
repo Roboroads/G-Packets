@@ -50,9 +50,8 @@ public class Whisper implements Packet, JsonSerializable {
     // The client calls it styleId.
     private ChatBarStyle style;
     private List<ChatLink> links;
-    // RoomChatHandler only reads the tracking id of a Chat; the outgoing Whisper sends none.
-    @Unused("The client only reads the tracking id of a Chat")
-    @Deprecated
+    // RoomChatHandler only reads the tracking id of a Chat; the outgoing Whisper sends none. Not
+    // marked unused: Chat, Shout and Whisper share one parser, and Chat reads it.
     private Integer trackingId;
     // A room index, likely the recipient's. The client reads it when the server sends it, and
     // nothing uses it.

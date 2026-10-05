@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // Chat, Shout and Whisper exist in both directions: the incoming classes are written out in full
 // and the outgoing Chat has its own ChatWireFormatTest.
-@SuppressWarnings("deprecation") // tests the unused ChatLink, trackingId and receiverRoomIndex parameters
+@SuppressWarnings("deprecation") // tests the unused ChatLink and receiverRoomIndex parameters
 class RoomChatWireFormatTest {
 
     // ---- shared samples ----
