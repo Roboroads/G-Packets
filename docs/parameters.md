@@ -144,7 +144,7 @@ The loop registers the listener for both directions, so you see what the server 
 
 `openEnum()` is true when the value's type keeps ids it doesn't name, like `ChatBarStyle`. `enumOptions()` then lists only the named ones.
 
-Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing. `mask()` is null when the whole value picks the case; otherwise the case is picked by `value & mask()`.
+Every parameter has a `name()`, except branches and optionals, whose parameters sit in the surrounding values. Every parameter also has `unused()`, see [Unused parameters](#unused-parameters). A branch's `cases()` maps each wire value to a case with `value()`, `subclass()` and `schema()`. `exhaustive()` is false for a conditional parameter, where a value without a case simply adds nothing. When several values share the parameters that follow, as in `SlideObjectBundle`, each value has a case and the cases share one `schema()`. `mask()` is null when the whole value picks the case; otherwise the case is picked by `value & mask()`.
 
 This method prints any schema as an indented tree:
 

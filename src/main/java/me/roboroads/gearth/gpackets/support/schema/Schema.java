@@ -180,6 +180,29 @@ public final class Schema<T> {
         return when(on, Integer.valueOf(mask), value, body);
     }
 
+    /**
+     * Parameters that only follow when {@code on}, a value parameter added earlier, equals one of
+     * {@code values}, for parameters several values share: {@code .whenOneOf("moveType",
+     * Arrays.asList(1, 2), ...)}. Each value is a case of its own with the same parameters.
+     */
+    public Schema<T> whenOneOf(String on, List<?> values, UnaryOperator<Schema<T>> body) {
+        ValueParameter discriminator = discriminator(on);
+        String where = type.getSimpleName() + "." + on;
+        if (Objects.requireNonNull(values, "values").isEmpty()) {
+            throw new IllegalArgumentException(where + ": whenOneOf needs at least one value");
+        }
+        Schema<T> shared = Objects.requireNonNull(body, "body").apply(nested(type));
+        Map<Object, BranchParameter.Case> cases = new LinkedHashMap<>();
+        for (Object value : values) {
+            Object key = discriminator.coerce(Objects.requireNonNull(value, "value"), where);
+            if (cases.containsKey(key)) {
+                throw new IllegalArgumentException(where + ": duplicate value " + key);
+            }
+            cases.put(key, new BranchParameter.Case(key, null, shared));
+        }
+        return with(new BranchParameter(discriminator, null, false, cases));
+    }
+
     /** Parameters read only if the packet has bytes left, and written only if any of their values is set. */
     public Schema<T> optional(UnaryOperator<Schema<T>> body) {
         return with(new OptionalParameter(Objects.requireNonNull(body, "body").apply(nested(type))));

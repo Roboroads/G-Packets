@@ -52,7 +52,8 @@ public final class BranchParameter extends Parameter {
 
     /**
      * True for {@code branch(...)}: a value without a case is an error. False for
-     * {@code when(...)}: a value without a case adds no parameters.
+     * {@code when(...)} and {@code whenOneOf(...)}: a value without a case adds no parameters. The
+     * cases of a {@code whenOneOf(...)} share one schema.
      */
     public boolean exhaustive() {
         return exhaustive;

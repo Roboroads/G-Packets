@@ -225,6 +225,30 @@ class PacketReferenceTest {
     }
 
     @Test
+    void rendersTheParametersOfAWhenOneOfOnce() {
+        Schema<Animal> schema = Schema.of(Animal.class)
+                .integer("moveType")
+                .whenOneOf("moveType", Arrays.asList(1, 2), w -> w.integer("speed"));
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `moveType` | int |  |\n"
+                        + "| `speed` | int | only when `moveType` is one of `1`, `2` |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void saysNegativeForASignBitMask() {
+        Schema<Animal> schema = Schema.of(Animal.class)
+                .integer("typeId")
+                .when("typeId", Integer.MIN_VALUE, Integer.MIN_VALUE, w -> w.string("className"));
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `typeId` | int |  |\n"
+                        + "| `className` | string | only when `typeId` is negative |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
     void pageShowsDirectionClassAndAnInterceptSnippet() {
         assertTrue(PacketReference.page(Chat.TYPE).startsWith("# Chat\n\n"
                 + "- Direction: outgoing (to server)\n"

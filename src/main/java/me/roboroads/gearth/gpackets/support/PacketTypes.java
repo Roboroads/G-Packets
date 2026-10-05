@@ -42,10 +42,26 @@ import me.roboroads.gearth.gpackets.incoming.IdentityAccounts;
 import me.roboroads.gearth.gpackets.incoming.InfoHotelClosed;
 import me.roboroads.gearth.gpackets.incoming.InfoHotelClosing;
 import me.roboroads.gearth.gpackets.incoming.IsFirstLoginOfDay;
+import me.roboroads.gearth.gpackets.incoming.ItemAdd;
+import me.roboroads.gearth.gpackets.incoming.ItemDataUpdate;
+import me.roboroads.gearth.gpackets.incoming.ItemRemove;
+import me.roboroads.gearth.gpackets.incoming.ItemRemoveMultiple;
+import me.roboroads.gearth.gpackets.incoming.ItemStateUpdate;
+import me.roboroads.gearth.gpackets.incoming.ItemUpdate;
+import me.roboroads.gearth.gpackets.incoming.Items;
+import me.roboroads.gearth.gpackets.incoming.ItemsStateUpdate;
 import me.roboroads.gearth.gpackets.incoming.LoginFailedHotelClosed;
 import me.roboroads.gearth.gpackets.incoming.MaintenanceStatus;
 import me.roboroads.gearth.gpackets.incoming.ModifyCustomFilterResult;
 import me.roboroads.gearth.gpackets.incoming.NoobnessLevel;
+import me.roboroads.gearth.gpackets.incoming.ObjectAdd;
+import me.roboroads.gearth.gpackets.incoming.ObjectDataUpdate;
+import me.roboroads.gearth.gpackets.incoming.ObjectRemove;
+import me.roboroads.gearth.gpackets.incoming.ObjectRemoveConfirm;
+import me.roboroads.gearth.gpackets.incoming.ObjectRemoveMultiple;
+import me.roboroads.gearth.gpackets.incoming.ObjectUpdate;
+import me.roboroads.gearth.gpackets.incoming.Objects;
+import me.roboroads.gearth.gpackets.incoming.ObjectsDataUpdate;
 import me.roboroads.gearth.gpackets.incoming.OpenConnection;
 import me.roboroads.gearth.gpackets.incoming.Ping;
 import me.roboroads.gearth.gpackets.incoming.RemainingMutePeriod;
@@ -58,6 +74,7 @@ import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaveError;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsSaved;
 import me.roboroads.gearth.gpackets.incoming.RoomVisualizationSettings;
 import me.roboroads.gearth.gpackets.incoming.Sleep;
+import me.roboroads.gearth.gpackets.incoming.SlideObjectBundle;
 import me.roboroads.gearth.gpackets.incoming.SpecialRoomEffect;
 import me.roboroads.gearth.gpackets.incoming.SpecialSystemChat;
 import me.roboroads.gearth.gpackets.incoming.TradeNftAssetInventory;
@@ -111,6 +128,7 @@ import me.roboroads.gearth.gpackets.outgoing.ChangeMotto;
 import me.roboroads.gearth.gpackets.outgoing.ChangePosture;
 import me.roboroads.gearth.gpackets.outgoing.ChangeQueue;
 import me.roboroads.gearth.gpackets.outgoing.ClickCharacter;
+import me.roboroads.gearth.gpackets.outgoing.ClickFurni;
 import me.roboroads.gearth.gpackets.outgoing.ClientHello;
 import me.roboroads.gearth.gpackets.outgoing.CloseTrading;
 import me.roboroads.gearth.gpackets.outgoing.ConfirmAcceptTrading;
@@ -125,6 +143,7 @@ import me.roboroads.gearth.gpackets.outgoing.GetCatalogPageWithEarliestExpiry;
 import me.roboroads.gearth.gpackets.outgoing.GetCustomFilter;
 import me.roboroads.gearth.gpackets.outgoing.GetFlatControllers;
 import me.roboroads.gearth.gpackets.outgoing.GetFurnitureAliases;
+import me.roboroads.gearth.gpackets.outgoing.GetItemData;
 import me.roboroads.gearth.gpackets.outgoing.GetNftTradeInventory;
 import me.roboroads.gearth.gpackets.outgoing.GetOccupiedTiles;
 import me.roboroads.gearth.gpackets.outgoing.GetRoomEntryTile;
@@ -135,14 +154,20 @@ import me.roboroads.gearth.gpackets.outgoing.KickUser;
 import me.roboroads.gearth.gpackets.outgoing.LetUserIn;
 import me.roboroads.gearth.gpackets.outgoing.LookTo;
 import me.roboroads.gearth.gpackets.outgoing.MoveAvatar;
+import me.roboroads.gearth.gpackets.outgoing.MoveEntityInFlat;
+import me.roboroads.gearth.gpackets.outgoing.MoveObject;
+import me.roboroads.gearth.gpackets.outgoing.MoveWallItem;
 import me.roboroads.gearth.gpackets.outgoing.MuteUser;
 import me.roboroads.gearth.gpackets.outgoing.OpenFlatConnection;
 import me.roboroads.gearth.gpackets.outgoing.OpenTrading;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItem;
 import me.roboroads.gearth.gpackets.outgoing.PassCarryItemToPet;
+import me.roboroads.gearth.gpackets.outgoing.PickupObject;
+import me.roboroads.gearth.gpackets.outgoing.PlaceObject;
 import me.roboroads.gearth.gpackets.outgoing.Pong;
 import me.roboroads.gearth.gpackets.outgoing.RemoveAllRights;
 import me.roboroads.gearth.gpackets.outgoing.RemoveFromCustomFilter;
+import me.roboroads.gearth.gpackets.outgoing.RemoveItem;
 import me.roboroads.gearth.gpackets.outgoing.RemoveItemFromTrade;
 import me.roboroads.gearth.gpackets.outgoing.RemoveNftFromTrade;
 import me.roboroads.gearth.gpackets.outgoing.RemoveOwnRoomRightsRoom;
@@ -153,6 +178,9 @@ import me.roboroads.gearth.gpackets.outgoing.RoomNetworkOpenConnection;
 import me.roboroads.gearth.gpackets.outgoing.SSOTicket;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.SetChatStylePreference;
+import me.roboroads.gearth.gpackets.outgoing.SetClothingChangeData;
+import me.roboroads.gearth.gpackets.outgoing.SetItemData;
+import me.roboroads.gearth.gpackets.outgoing.SetObjectData;
 import me.roboroads.gearth.gpackets.outgoing.Sign;
 import me.roboroads.gearth.gpackets.outgoing.SilverFee;
 import me.roboroads.gearth.gpackets.outgoing.StartTyping;
@@ -161,6 +189,8 @@ import me.roboroads.gearth.gpackets.outgoing.UnbanUserFromRoom;
 import me.roboroads.gearth.gpackets.outgoing.UniqueID;
 import me.roboroads.gearth.gpackets.outgoing.UnmuteUser;
 import me.roboroads.gearth.gpackets.outgoing.UpdateFloorProperties;
+import me.roboroads.gearth.gpackets.outgoing.UseFurniture;
+import me.roboroads.gearth.gpackets.outgoing.UseWallItem;
 import me.roboroads.gearth.gpackets.outgoing.VersionCheck;
 import me.roboroads.gearth.gpackets.outgoing.WiredGetRoomSettings;
 import me.roboroads.gearth.gpackets.outgoing.WiredSetRoomSettings;
@@ -227,11 +257,27 @@ public final class PacketTypes {
             InfoHotelClosing.TYPE,
             me.roboroads.gearth.gpackets.incoming.InitDiffieHandshake.TYPE,
             IsFirstLoginOfDay.TYPE,
+            ItemAdd.TYPE,
+            ItemDataUpdate.TYPE,
+            ItemRemove.TYPE,
+            ItemRemoveMultiple.TYPE,
+            ItemStateUpdate.TYPE,
+            ItemUpdate.TYPE,
+            Items.TYPE,
+            ItemsStateUpdate.TYPE,
             LoginFailedHotelClosed.TYPE,
             MaintenanceStatus.TYPE,
             ModifyCustomFilterResult.TYPE,
             me.roboroads.gearth.gpackets.incoming.MuteAllInRoom.TYPE,
             NoobnessLevel.TYPE,
+            ObjectAdd.TYPE,
+            ObjectDataUpdate.TYPE,
+            ObjectRemove.TYPE,
+            ObjectRemoveConfirm.TYPE,
+            ObjectRemoveMultiple.TYPE,
+            ObjectUpdate.TYPE,
+            Objects.TYPE,
+            ObjectsDataUpdate.TYPE,
             OpenConnection.TYPE,
             Ping.TYPE,
             RemainingMutePeriod.TYPE,
@@ -246,6 +292,7 @@ public final class PacketTypes {
             RoomVisualizationSettings.TYPE,
             me.roboroads.gearth.gpackets.incoming.Shout.TYPE,
             Sleep.TYPE,
+            SlideObjectBundle.TYPE,
             SpecialRoomEffect.TYPE,
             SpecialSystemChat.TYPE,
             TradeNftAssetInventory.TYPE,
@@ -302,6 +349,7 @@ public final class PacketTypes {
             ChangeQueue.TYPE,
             me.roboroads.gearth.gpackets.outgoing.Chat.TYPE,
             ClickCharacter.TYPE,
+            ClickFurni.TYPE,
             ClientHello.TYPE,
             CloseTrading.TYPE,
             me.roboroads.gearth.gpackets.outgoing.CompleteDiffieHandshake.TYPE,
@@ -318,6 +366,7 @@ public final class PacketTypes {
             GetCustomFilter.TYPE,
             GetFlatControllers.TYPE,
             GetFurnitureAliases.TYPE,
+            GetItemData.TYPE,
             GetNftTradeInventory.TYPE,
             GetOccupiedTiles.TYPE,
             GetRoomEntryTile.TYPE,
@@ -329,15 +378,21 @@ public final class PacketTypes {
             LetUserIn.TYPE,
             LookTo.TYPE,
             MoveAvatar.TYPE,
+            MoveEntityInFlat.TYPE,
+            MoveObject.TYPE,
+            MoveWallItem.TYPE,
             me.roboroads.gearth.gpackets.outgoing.MuteAllInRoom.TYPE,
             MuteUser.TYPE,
             OpenFlatConnection.TYPE,
             OpenTrading.TYPE,
             PassCarryItem.TYPE,
             PassCarryItemToPet.TYPE,
+            PickupObject.TYPE,
+            PlaceObject.TYPE,
             Pong.TYPE,
             RemoveAllRights.TYPE,
             RemoveFromCustomFilter.TYPE,
+            RemoveItem.TYPE,
             RemoveItemFromTrade.TYPE,
             RemoveNftFromTrade.TYPE,
             RemoveOwnRoomRightsRoom.TYPE,
@@ -348,6 +403,9 @@ public final class PacketTypes {
             SSOTicket.TYPE,
             SaveRoomSettings.TYPE,
             SetChatStylePreference.TYPE,
+            SetClothingChangeData.TYPE,
+            SetItemData.TYPE,
+            SetObjectData.TYPE,
             me.roboroads.gearth.gpackets.outgoing.Shout.TYPE,
             Sign.TYPE,
             SilverFee.TYPE,
@@ -357,6 +415,8 @@ public final class PacketTypes {
             UniqueID.TYPE,
             UnmuteUser.TYPE,
             UpdateFloorProperties.TYPE,
+            UseFurniture.TYPE,
+            UseWallItem.TYPE,
             VersionCheck.TYPE,
             me.roboroads.gearth.gpackets.outgoing.Whisper.TYPE,
             WiredGetRoomSettings.TYPE,
