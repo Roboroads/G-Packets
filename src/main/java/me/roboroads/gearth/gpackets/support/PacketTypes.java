@@ -4,6 +4,9 @@ import gearth.protocol.HMessage;
 import me.roboroads.gearth.gpackets.incoming.AuthenticationOK;
 import me.roboroads.gearth.gpackets.incoming.AvailabilityStatus;
 import me.roboroads.gearth.gpackets.incoming.AvatarEffect;
+import me.roboroads.gearth.gpackets.incoming.BuildersClubFurniCount;
+import me.roboroads.gearth.gpackets.incoming.BuildersClubPlacementWarning;
+import me.roboroads.gearth.gpackets.incoming.BuildersClubSubscriptionStatus;
 import me.roboroads.gearth.gpackets.incoming.CantConnect;
 import me.roboroads.gearth.gpackets.incoming.CarryObject;
 import me.roboroads.gearth.gpackets.incoming.CatalogIndex;
@@ -78,6 +81,9 @@ import me.roboroads.gearth.gpackets.outgoing.AddItemToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AddItemsToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AddNftToTrade;
 import me.roboroads.gearth.gpackets.outgoing.AvatarExpression;
+import me.roboroads.gearth.gpackets.outgoing.BuildersClubPlaceRoomItem;
+import me.roboroads.gearth.gpackets.outgoing.BuildersClubPlaceWallItem;
+import me.roboroads.gearth.gpackets.outgoing.BuildersClubQueryFurniCount;
 import me.roboroads.gearth.gpackets.outgoing.ChangeMotto;
 import me.roboroads.gearth.gpackets.outgoing.ChangePosture;
 import me.roboroads.gearth.gpackets.outgoing.ChangeQueue;
@@ -143,6 +149,9 @@ public final class PacketTypes {
             AuthenticationOK.TYPE,
             AvailabilityStatus.TYPE,
             AvatarEffect.TYPE,
+            BuildersClubFurniCount.TYPE,
+            BuildersClubPlacementWarning.TYPE,
+            BuildersClubSubscriptionStatus.TYPE,
             CantConnect.TYPE,
             CarryObject.TYPE,
             CatalogIndex.TYPE,
@@ -222,6 +231,9 @@ public final class PacketTypes {
             AddItemsToTrade.TYPE,
             AddNftToTrade.TYPE,
             AvatarExpression.TYPE,
+            BuildersClubPlaceRoomItem.TYPE,
+            BuildersClubPlaceWallItem.TYPE,
+            BuildersClubQueryFurniCount.TYPE,
             ChangeMotto.TYPE,
             ChangePosture.TYPE,
             ChangeQueue.TYPE,
