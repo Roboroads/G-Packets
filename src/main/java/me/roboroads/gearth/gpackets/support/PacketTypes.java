@@ -179,7 +179,7 @@ public final class PacketTypes {
     // Also lists packets the client ignores. Those are written out in full instead of imported,
     // because Java 8 warns on the import of a deprecated class and @SuppressWarnings can't reach it.
     // Chat, Dance, CompleteDiffieHandshake, InitDiffieHandshake, MuteAllInRoom, Shout and Whisper
-    // exist in both    // directions, so both are written out in full too.
+    // exist in both directions, so both are written out in full too.
     @SuppressWarnings("deprecation")
     private static final List<PacketType<?>> ALL = Collections.unmodifiableList(Arrays.<PacketType<?>>asList(
             AuthenticationOK.TYPE,
