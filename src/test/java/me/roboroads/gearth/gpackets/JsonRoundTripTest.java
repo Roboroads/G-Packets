@@ -1,5 +1,6 @@
 package me.roboroads.gearth.gpackets;
 
+import me.roboroads.gearth.gpackets.incoming.FlatControllers;
 import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
 import me.roboroads.gearth.gpackets.incoming.TradingItemList;
@@ -14,8 +15,10 @@ import me.roboroads.gearth.gpackets.incoming.sub.wired.UserMove;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
+import me.roboroads.gearth.gpackets.model.enums.RoomBanDuration;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.model.enums.WiredMovementType;
+import me.roboroads.gearth.gpackets.outgoing.BanUserWithDuration;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
@@ -134,5 +137,20 @@ public class JsonRoundTripTest {
         FloorHeightMap map = RoomModelWireFormatTest.floorHeightMap();
 
         assertEquals(map, FloorHeightMap.fromJson(map.toJson()));
+    }
+
+    @Test
+    public void flatControllersRoundTripKeepsTheControllers() {
+        FlatControllers controllers = RoomRightsWireFormatTest.flatControllers();
+
+        assertEquals(controllers, FlatControllers.fromJson(controllers.toJson()));
+    }
+
+    @Test
+    public void banUserWithDurationWritesTheDurationCode() {
+        BanUserWithDuration ban = new BanUserWithDuration(12345, 4242, RoomBanDuration.PERMANENT);
+
+        assertEquals("{\"userId\":12345,\"roomId\":4242,\"duration\":\"RWUAM_BAN_USER_PERM\"}", ban.toJson());
+        assertEquals(ban, BanUserWithDuration.fromJson(ban.toJson()));
     }
 }
