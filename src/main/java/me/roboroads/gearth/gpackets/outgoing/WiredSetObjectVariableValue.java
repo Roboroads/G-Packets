@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableAction;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableTarget;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -19,6 +20,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * Sets, creates or deletes a variable on the furni, user or room the wired menu's inspection tab
  * shows. It needs the write permission.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

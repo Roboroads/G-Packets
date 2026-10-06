@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.VariableValue;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableTarget;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -22,6 +23,7 @@ import java.util.List;
  * The variables a furni, a user or the room holds, the answer to {@code WiredGetVariablesForObject}:
  * the client's WiredObjectInspectionData, which the wired menu's inspection tab shows.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

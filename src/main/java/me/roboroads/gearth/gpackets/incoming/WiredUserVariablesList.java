@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.VariableOwner;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableSort;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -22,6 +23,7 @@ import java.util.List;
  * {@code WiredGetVariableOwnersPage}: the client's WiredUserVariablesPage, shown in the variable
  * management window.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

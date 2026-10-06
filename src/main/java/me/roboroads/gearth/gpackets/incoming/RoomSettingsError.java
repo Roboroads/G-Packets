@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -15,6 +16,7 @@ import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /** The server can't send a room's settings. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 // The client's handler (onRoomSettingsError) only takes the parser and does nothing else.
 @Unused("The client's handler takes the packet and does nothing with it")
 @Deprecated

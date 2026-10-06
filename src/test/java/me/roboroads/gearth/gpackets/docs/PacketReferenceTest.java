@@ -5,6 +5,7 @@ import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
@@ -41,6 +42,18 @@ class PacketReferenceTest {
     }
 
     static class Leaf {
+    }
+
+    @CheckedAgainst("WIN63-202609091217-117204808")
+    static class Room {
+    }
+
+    @CheckedAgainst("WIN63-202609091217-117204808")
+    static class Door {
+    }
+
+    @CheckedAgainst("WIN63-202604010000-111111111")
+    static class Window {
     }
 
     static class Node {
@@ -81,6 +94,23 @@ class PacketReferenceTest {
                         + "\n## Node\n\n" + TABLE_HEAD
                         + "| `name` | string |  |\n"
                         + "| `children` | list of [Node](#node) |  |\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
+    void aStructureOnlySaysItsBuildWhenItDiffersFromThePackets() {
+        Schema<Room> schema = Schema.of(Room.class)
+                .struct("door", Schema.of(Door.class).integer("width"))
+                .struct("window", Schema.of(Window.class).integer("height"));
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `door` | [Door](#door) |  |\n"
+                        + "| `window` | [Window](#window) |  |\n"
+                        + "\n## Door\n\n" + TABLE_HEAD
+                        + "| `width` | int |  |\n"
+                        + "\n## Window\n\n"
+                        + "Checked against client build `WIN63-202604010000-111111111`.\n\n" + TABLE_HEAD
+                        + "| `height` | int |  |\n",
                 PacketReference.body(schema));
     }
 
@@ -267,7 +297,8 @@ class PacketReferenceTest {
     void pageShowsDirectionClassAndAnInterceptSnippet() {
         assertTrue(PacketReference.page(Chat.TYPE).startsWith("# Chat\n\n"
                 + "- Direction: outgoing (to server)\n"
-                + "- Class: `me.roboroads.gearth.gpackets.outgoing.Chat`\n\n"
+                + "- Class: `me.roboroads.gearth.gpackets.outgoing.Chat`\n"
+                + "- Checked against client build `" + Chat.TYPE.checkedAgainst() + "`\n\n"
                 + "```java\n@Intercept\nvoid onChat(Chat packet) {\n    // ...\n}\n```\n\n"
                 + "Limits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n"
                 + "## Parameters\n\n"));

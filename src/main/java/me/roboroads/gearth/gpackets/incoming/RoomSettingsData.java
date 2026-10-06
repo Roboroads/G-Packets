@@ -12,6 +12,7 @@ import me.roboroads.gearth.gpackets.model.enums.ChatFloodSensitivity;
 import me.roboroads.gearth.gpackets.model.enums.DoorMode;
 import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
 import me.roboroads.gearth.gpackets.model.enums.TradeMode;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -22,6 +23,7 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import java.util.List;
 
 /** The settings of a room you can edit, the answer to {@code GetRoomSettings}. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

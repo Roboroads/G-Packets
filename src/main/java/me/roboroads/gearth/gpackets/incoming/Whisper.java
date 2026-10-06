@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.chat.ChatLink;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.model.enums.ChatBubbleWidth;
 import me.roboroads.gearth.gpackets.model.enums.Gesture;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -24,6 +25,7 @@ import java.util.List;
  * A user in the room whispers to you, or the server echoes your own whisper. The client reads it
  * with the same parser as {@code Chat}; the outgoing {@code Whisper} is what you send.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

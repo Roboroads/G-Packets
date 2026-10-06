@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.ExpressionType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -22,6 +23,7 @@ import static me.roboroads.gearth.gpackets.model.enums.ExpressionType.SNOWBOARD_
 import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.not;
 
 /** Waves, laughs, blows a kiss or shows another expression; the server tells the room with {@code Expression}. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

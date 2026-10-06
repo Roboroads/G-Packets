@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -23,6 +24,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * {@code fixedWallsHeight} only when it is set. The client always sends the entry tile and
  * thicknesses, and sends {@code fixedWallsHeight} when the editor's fixed wall height box is ticked.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

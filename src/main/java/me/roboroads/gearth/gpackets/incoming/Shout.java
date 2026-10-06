@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.chat.ChatLink;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
 import me.roboroads.gearth.gpackets.model.enums.ChatBubbleWidth;
 import me.roboroads.gearth.gpackets.model.enums.Gesture;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -24,6 +25,7 @@ import java.util.List;
  * A user, pet or bot in the room shouts. The client reads it with the same parser as {@code Chat};
  * the outgoing {@code Shout} is what you send.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized
