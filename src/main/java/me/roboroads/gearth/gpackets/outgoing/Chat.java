@@ -15,8 +15,6 @@ import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
-import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.notEmpty;
-
 @CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
@@ -25,12 +23,14 @@ import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.notEmpty;
 @AllArgsConstructor
 public class Chat implements Packet, JsonSerializable {
     public static final PacketType<Chat> TYPE = PacketType.of("Chat", HMessage.Direction.TOSERVER, Schema.of(Chat.class)
-            .string("text", notEmpty())
+            .string("text")
             .enumInt("style", ChatBarStyle.class)
             .integer("trackingId"));
 
-    // The client never sends an empty text (ChatInputWidgetHandler:149). Its input caps typing at 100
-    // characters, but habbicons and :command name substitution go past that, so there's no max length.
+    // Not checked for empty: ChatInputWidgetHandler (:149) drops an empty text, but
+    // RoomSession.sendChatMessage strips &#NN; entities afterwards, so a text of only entities goes
+    // out as "". The input caps typing at 100 characters, but habbicons and :command name
+    // substitution go past that, so there's no max length either.
     private String text;
     private ChatBarStyle style;
     @Builder.Default

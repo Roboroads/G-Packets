@@ -300,7 +300,6 @@ class PacketReferenceTest {
                 + "- Class: `me.roboroads.gearth.gpackets.outgoing.Chat`\n"
                 + "- Checked against client build `" + Chat.TYPE.checkedAgainst() + "`\n\n"
                 + "```java\n@Intercept\nvoid onChat(Chat packet) {\n    // ...\n}\n```\n\n"
-                + "Limits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n"
                 + "## Parameters\n\n"));
     }
 
