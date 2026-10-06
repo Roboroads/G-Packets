@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.1](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.5.0...G-Packets-v0.5.1) (2026-10-06)
+
+
+### Features
+
+* add the Builders Club packets ([#114](https://github.com/Roboroads/G-Packets/issues/114)) ([f3cd224](https://github.com/Roboroads/G-Packets/commit/f3cd2244efc0b4db77d399c31e78571c94a3df1f))
+* add the room chat, chat style and custom word filter packets ([#116](https://github.com/Roboroads/G-Packets/issues/116)) ([6b7edeb](https://github.com/Roboroads/G-Packets/commit/6b7edeb1b4c7563ca1a176c4156e08dc30af062f))
+* add the room floor item and wall item packets ([#117](https://github.com/Roboroads/G-Packets/issues/117)) ([1119c34](https://github.com/Roboroads/G-Packets/commit/1119c34fd1c9afea214b5f4890cac2e5902f6b50))
+* add the room rights, ban, kick and mute packets ([#115](https://github.com/Roboroads/G-Packets/issues/115)) ([a0b0a08](https://github.com/Roboroads/G-Packets/commit/a0b0a0861d6993550515f89cddf1a8f8b67bcc56))
+* add the wired menu, log and variable packets ([#118](https://github.com/Roboroads/G-Packets/issues/118)) ([500298b](https://github.com/Roboroads/G-Packets/commit/500298bfd1334ce356e1c30bf44e9de9150eed47))
+* stamp every packet with the client build it was checked against ([#121](https://github.com/Roboroads/G-Packets/issues/121)) ([bf7c742](https://github.com/Roboroads/G-Packets/commit/bf7c74233c51592533491d6b3743604cfa40f2e8))
+
 ## [0.5.0](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.4.1...G-Packets-v0.5.0) (2026-10-02)
 
 
