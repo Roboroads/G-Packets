@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -17,6 +18,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * You're muted. The client shows it as a chat bubble from yourself: widget.chatbubble.mutetime,
  * "You are muted! The mute will expire in %hours% hours, %minutes% minutes and %seconds% seconds."
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

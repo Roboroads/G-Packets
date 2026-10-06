@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -18,6 +19,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * {@code CompleteDiffieHandshake}. The client derives the shared key from it, turns encryption
  * on and sends {@code VersionCheck}, {@code UniqueID} and {@code SSOTicket}.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

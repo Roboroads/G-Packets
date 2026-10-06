@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableAction;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -20,6 +21,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * window; the server answers with {@code WiredSetUserPermanentVariableResult}. It needs the write
  * permission.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

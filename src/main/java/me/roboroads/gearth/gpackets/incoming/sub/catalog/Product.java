@@ -8,12 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import me.roboroads.gearth.gpackets.model.enums.ProductType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.function.UnaryOperator;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "productType", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FurniProduct.class, names = {"i", "s", "e", "cl", "h", "r", "habbicon", "chat_style"}),

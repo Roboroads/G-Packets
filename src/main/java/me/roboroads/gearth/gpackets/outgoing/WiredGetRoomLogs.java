@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogLevel;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogSource;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -20,6 +21,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * window opens with page 1, both filters on ALL and no query, and asks again every 2.5 seconds
  * while its auto refresh is on.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

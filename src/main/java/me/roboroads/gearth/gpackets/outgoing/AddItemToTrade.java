@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -14,6 +15,7 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /** Puts one furni from your inventory in the trade. For more than one, the client sends AddItemsToTrade. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

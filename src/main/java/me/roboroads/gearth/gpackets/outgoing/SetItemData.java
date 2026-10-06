@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -17,6 +18,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * Saves a stickie's color and text. The stickie widget sends it when you close the stickie after
  * changing the text, and when you pick a color (RWSUM_STICKIE_SEND_UPDATE).
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

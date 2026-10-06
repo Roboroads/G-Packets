@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.DanceStyle;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -15,6 +16,7 @@ import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /** Starts or stops dancing; the server tells the room with the incoming {@code Dance}. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableSort;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -20,6 +21,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * window with page 1, {@code HIGHEST_VALUE} and all user types; the window sends it again when you
  * page or change a filter.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

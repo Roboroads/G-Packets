@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
@@ -14,6 +15,7 @@ import me.roboroads.gearth.gpackets.support.schema.WireType;
 import java.util.List;
 
 /** One row of a {@link HighScoreStuffData}: a score and the users who got it. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

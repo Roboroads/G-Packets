@@ -11,6 +11,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.catalog.FrontPageItem;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.Localization;
 import me.roboroads.gearth.gpackets.incoming.sub.catalog.Offer;
 import me.roboroads.gearth.gpackets.model.enums.CatalogType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -19,6 +20,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

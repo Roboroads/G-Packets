@@ -19,8 +19,10 @@ import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
 import me.roboroads.gearth.gpackets.outgoing.Chat;
+import me.roboroads.gearth.gpackets.outgoing.ClientHello;
 import me.roboroads.gearth.gpackets.outgoing.SaveRoomSettings;
 import me.roboroads.gearth.gpackets.support.Packet;
+import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
 import me.roboroads.gearth.gpackets.support.schema.ListParameter;
@@ -150,6 +152,17 @@ class DocsExamplesTest {
             return unused;
         }
 
+        // parameters.md: "The client build"
+        void onClientHello(ClientHello hello) {
+            List<String> older = new ArrayList<>();
+            for (PacketType<?> type : PacketTypes.all()) {
+                if (!hello.releaseVersion().equals(type.checkedAgainst())) {
+                    older.add(type.header());
+                }
+            }
+            print(older.size() + " packets were checked against another client build: " + older);
+        }
+
         // changing-and-sending.md: "Limits"
         void saveSettings(SaveRoomSettings settings) {
             try {
@@ -189,6 +202,20 @@ class DocsExamplesTest {
     void unusedParametersListsWhatTheClientIgnores() {
         assertEquals(Collections.singletonList("unknownBoolean12: The client stores it but never reads it"),
                 new Examples().unusedOfferParameters());
+    }
+
+    @Test
+    void theClientBuildListsPacketsCheckedAgainstAnotherBuild() {
+        String build = Chat.TYPE.checkedAgainst();
+        long differ = PacketTypes.all().stream().filter(type -> !build.equals(type.checkedAgainst())).count();
+        Examples same = new Examples();
+        same.onClientHello(ClientHello.builder().releaseVersion(build).build());
+        assertTrue(same.printed.get(0).startsWith(differ + " packets"), same.printed.get(0));
+        assertFalse(same.printed.get(0).contains("Chat"), same.printed.get(0));
+
+        Examples other = new Examples();
+        other.onClientHello(ClientHello.builder().releaseVersion("WIN63-209901010000-1").build());
+        assertTrue(other.printed.get(0).startsWith(PacketTypes.all().size() + " packets"), other.printed.get(0));
     }
 
     private static SaveRoomSettings settingsWithALongName() {

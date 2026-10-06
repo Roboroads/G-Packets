@@ -21,12 +21,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized
@@ -58,14 +60,21 @@ public class Chat implements Packet, JsonSerializable {
 }
 ```
 
-A packet class needs four things:
+A packet class needs five things:
 
 - `TYPE`, built with `PacketType.of(header, direction, schema)`. The header is the packet's name on Sulek. The direction is `TOCLIENT` for incoming packets and `TOSERVER` for outgoing ones.
 - A static `fromPacket` that returns `TYPE.schema().parse(packet)`.
 - A static `fromJson`.
 - `toPacket`, which returns `TYPE.toPacket(this)`.
+- `@CheckedAgainst`, with the client build you read the packet from.
 
 The parameter names must match the field names: G-Packets fills the fields through the Lombok builder and reads them back through the getters. Incoming packets go in the `incoming` package and outgoing ones in `outgoing`.
+
+## The client build
+
+`@CheckedAgainst` records which client build a packet was last checked against, in the format the client sends as `ClientHello.releaseVersion`: `WIN63-202609091217-117204808`. Every packet and every nested structure carries one, and a subclass carries its own. `CheckedAgainstTest` fails when one is missing.
+
+When the client updates, the classes with an older build are the ones left to check. Compare each with the new client and bump its build. If nothing changed, the bump is the whole change. The packet reference shows the build on each packet page, and tools read it with `TYPE.checkedAgainst()`.
 
 ## Describing the parameters
 
@@ -116,9 +125,10 @@ Writing a list longer than its count can hold (127 for a byte) throws an `Illega
 
 ## Nested structures
 
-A structure that only ever appears inside a packet, like a catalog page's localization, is a sub-packet. It implements `SubPacket`, exposes its own `SCHEMA`, and delegates to it:
+A structure that only ever appears inside a packet, like a catalog page's localization, is a sub-packet. It implements `SubPacket`, exposes its own `SCHEMA`, delegates to it, and has its own `@CheckedAgainst`:
 
 ```java
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

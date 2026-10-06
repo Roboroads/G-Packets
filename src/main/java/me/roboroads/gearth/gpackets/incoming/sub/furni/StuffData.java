@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
@@ -20,6 +21,7 @@ import java.util.function.UnaryOperator;
  * so the subclass; {@link #UNIQUE_SERIAL_FLAG} adds the serial number of a limited edition.
  */
 // The client: parseStuffData, and getStuffDataWrapperForType in room/object/data.
+@CheckedAgainst("WIN63-202609091217-117204808")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "typeAndFlags", visible = true)
 @JsonTypeIdResolver(StuffDataTypeIdResolver.class)
 @Data

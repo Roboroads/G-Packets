@@ -4,9 +4,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 
 /** Format 7: a furni you crack open by hitting it. The client's CRACKABLE_TYPE_KEY. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

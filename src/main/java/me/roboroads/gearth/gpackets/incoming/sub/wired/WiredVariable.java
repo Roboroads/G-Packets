@@ -9,6 +9,7 @@ import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableAvailability;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableTarget;
 import me.roboroads.gearth.gpackets.model.enums.WiredVariableType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
@@ -19,6 +20,7 @@ import java.util.List;
  * A wired variable's definition: the client's WiredVariable class. The wired menu packets and the
  * wired editor's context read it the same way.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

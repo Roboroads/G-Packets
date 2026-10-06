@@ -13,6 +13,7 @@ import me.roboroads.gearth.gpackets.model.enums.MaximumVisitors;
 import me.roboroads.gearth.gpackets.model.enums.RoomModerationPermission;
 import me.roboroads.gearth.gpackets.model.enums.RoomThickness;
 import me.roboroads.gearth.gpackets.model.enums.TradeMode;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -35,6 +36,7 @@ import static me.roboroads.gearth.gpackets.support.schema.limit.Limits.requiresV
  * visitors come before the category, the moderation settings sit before the flood sensitivity,
  * and the four room flags are booleans here.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

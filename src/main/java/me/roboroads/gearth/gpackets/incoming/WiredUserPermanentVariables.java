@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.StoredVariable;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -23,6 +24,7 @@ import java.util.List;
  * {@code WiredGetUserPermanentVariables}: the client's WiredUserPermanentVariablesList. A pet or bot
  * also comes with its owner.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

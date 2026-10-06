@@ -58,6 +58,15 @@ public final class PacketType<T extends Packet> {
     }
 
     /**
+     * The client build this packet was last checked against, from the {@link CheckedAgainst} on
+     * its class, for example "WIN63-202609091217-117204808".
+     */
+    public String checkedAgainst() {
+        CheckedAgainst checked = schema.type().getAnnotation(CheckedAgainst.class);
+        return checked == null ? null : checked.value();
+    }
+
+    /**
      * Parses the packet from the start of its body and restores the read index afterwards,
      * so parsing is safe when several listeners, or the caller's own code, read the same packet.
      */

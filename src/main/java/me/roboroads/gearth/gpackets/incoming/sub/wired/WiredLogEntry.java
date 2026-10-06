@@ -8,12 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogLevel;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogSource;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.Unused;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 /** One line of the wired room logs: the client's WiredLogEntry. */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

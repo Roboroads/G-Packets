@@ -10,6 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.WiredLogEntry;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogLevel;
 import me.roboroads.gearth.gpackets.model.enums.WiredLogSource;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.Packet;
@@ -23,6 +24,7 @@ import java.util.List;
  * WiredLogPage. It ends with the filters the page was made with, each after a flag that says whether
  * it is set.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

@@ -9,11 +9,13 @@ import lombok.experimental.SuperBuilder;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.schema.Schema;
 import me.roboroads.gearth.gpackets.support.schema.WireType;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 // Jackson polymorphic config: use existing integer "type" field to pick subtype
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonSubTypes(

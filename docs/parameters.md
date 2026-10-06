@@ -245,6 +245,25 @@ for (Parameter parameter : Offer.SCHEMA.parameters()) {
 // [unknownBoolean12: The client stores it but never reads it]
 ```
 
+## The client build
+
+Every packet says which client build it was last checked against. `TYPE.checkedAgainst()` returns it in the format the client sends as `releaseVersion` in `ClientHello`, so you can compare the two when the client connects:
+
+```java
+@Intercept
+void onClientHello(ClientHello hello) {
+    List<String> older = new ArrayList<>();
+    for (PacketType<?> type : PacketTypes.all()) {
+        if (!hello.releaseVersion().equals(type.checkedAgainst())) {
+            older.add(type.header());
+        }
+    }
+    System.out.println(older.size() + " packets were checked against another client build: " + older);
+}
+```
+
+Another build doesn't mean the packet changed: most packets stay the same across client updates. The [packet reference](packets/index.md) shows the build on each packet page.
+
 ## Typed objects from a schema
 
 `TYPE.parse(packet)` and `TYPE.toPacket(object)` are the typed counterparts of `read` and `write`, and they are what `@Intercept` and a packet's `toPacket()` use. For a sub-structure, `User.SCHEMA.parse(packet)` and `User.SCHEMA.append(user, packet)` work from the packet's current read index.

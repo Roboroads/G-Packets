@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.Unused;
@@ -15,6 +16,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
  * A link in a chat message. The message text holds a {@code {0}}, {@code {1}}, ... placeholder for
  * each link. The client's parser reads each link as a plain array of its three values.
  */
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

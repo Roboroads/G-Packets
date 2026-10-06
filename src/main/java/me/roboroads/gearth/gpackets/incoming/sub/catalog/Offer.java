@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.ActivityPointType;
 import me.roboroads.gearth.gpackets.model.enums.ClubLevel;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.JsonSerializable;
 import me.roboroads.gearth.gpackets.support.SubPacket;
 import me.roboroads.gearth.gpackets.support.Unused;
@@ -15,6 +16,7 @@ import me.roboroads.gearth.gpackets.support.schema.Schema;
 
 import java.util.List;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @Builder
 @Jacksonized

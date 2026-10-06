@@ -6,8 +6,10 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.UserType;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.Json;
 
+@CheckedAgainst("WIN63-202609091217-117204808")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder

@@ -1,6 +1,7 @@
 package me.roboroads.gearth.gpackets.docs;
 
 import gearth.protocol.HMessage;
+import me.roboroads.gearth.gpackets.support.CheckedAgainst;
 import me.roboroads.gearth.gpackets.support.PacketType;
 import me.roboroads.gearth.gpackets.support.PacketTypes;
 import me.roboroads.gearth.gpackets.support.schema.BranchParameter;
@@ -97,7 +98,9 @@ public final class PacketReference {
         return "# " + type.header() + "\n\n"
                 + (type.unused() == null ? "" : "!!! warning \"Unused by the client\"\n    " + type.unused() + "\n\n")
                 + "- Direction: " + direction + "\n"
-                + "- Class: `" + type.schema().type().getName() + "`\n\n"
+                + "- Class: `" + type.schema().type().getName() + "`\n"
+                + (type.checkedAgainst() == null ? "" : "- Checked against client build `" + type.checkedAgainst() + "`\n")
+                + "\n"
                 + "```java\n@Intercept\nvoid on" + name + "(" + name + " packet) {\n    // ...\n}\n```\n\n"
                 + (type.direction() == HMessage.Direction.TOSERVER && type.schema().hasChecks()
                     ? "Limits are checked when you send this packet, see [Limits](../../changing-and-sending.md#limits).\n\n" : "")
@@ -125,6 +128,11 @@ public final class PacketReference {
             while (!pending.isEmpty()) {
                 Schema<?> next = pending.removeFirst();
                 out.append("\n## ").append(next.type().getSimpleName()).append("\n\n");
+                // A structure only says its build when it was checked against another one than the packet.
+                String build = checkedAgainst(next.type());
+                if (build != null && !build.equals(checkedAgainst(root.type()))) {
+                    out.append("Checked against client build `").append(build).append("`.\n\n");
+                }
                 out.append(section(next, 3));
             }
             return out.toString();
@@ -233,6 +241,11 @@ public final class PacketReference {
             }
             String is = when.negated() ? "` is not " : "` is ";
             return "`" + subject(when) + is + (labels.size() == 1 ? labels.get(0) : "one of " + String.join(", ", labels));
+        }
+
+        private static String checkedAgainst(Class<?> type) {
+            CheckedAgainst checked = type.getDeclaredAnnotation(CheckedAgainst.class);
+            return checked == null ? null : checked.value();
         }
 
         /** What a branch looks at: the value's name, with the mask when only some bits pick the case. */
