@@ -13,6 +13,7 @@ import me.roboroads.gearth.gpackets.incoming.sub.user.Bot;
 import me.roboroads.gearth.gpackets.incoming.sub.user.Player;
 import me.roboroads.gearth.gpackets.incoming.sub.wired.UserMove;
 import me.roboroads.gearth.gpackets.model.enums.ChatBarStyle;
+import me.roboroads.gearth.gpackets.model.enums.ChatBubbleWidth;
 import me.roboroads.gearth.gpackets.model.enums.Direction;
 import me.roboroads.gearth.gpackets.model.enums.Gender;
 import me.roboroads.gearth.gpackets.model.enums.RoomBanDuration;
@@ -152,5 +153,14 @@ public class JsonRoundTripTest {
 
         assertEquals("{\"userId\":12345,\"roomId\":4242,\"duration\":\"RWUAM_BAN_USER_PERM\"}", ban.toJson());
         assertEquals(ban, BanUserWithDuration.fromJson(ban.toJson()));
+    }
+
+    @Test
+    public void incomingChatRoundTripKeepsTheLinksAndTheOpenEnums() {
+        me.roboroads.gearth.gpackets.incoming.Chat chat = RoomChatWireFormatTest.incomingChat()
+                .style(ChatBarStyle.of(1028))
+                .chatBubbleWidthOverride(ChatBubbleWidth.of(-1));
+
+        assertEquals(chat, me.roboroads.gearth.gpackets.incoming.Chat.fromJson(chat.toJson()));
     }
 }
