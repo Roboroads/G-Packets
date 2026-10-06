@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.5.1...G-Packets-v0.5.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* let the outgoing Chat send an empty text like the client ([#122](https://github.com/Roboroads/G-Packets/issues/122)) ([ec4cfde](https://github.com/Roboroads/G-Packets/commit/ec4cfdeeff994010378661d6ea7194b6f4f7f30e))
+
 ## [0.5.1](https://github.com/Roboroads/G-Packets/compare/G-Packets-v0.5.0...G-Packets-v0.5.1) (2026-10-06)
 
 
