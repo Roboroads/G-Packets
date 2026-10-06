@@ -197,7 +197,7 @@ public final class PacketReference {
                         shared.computeIfAbsent(c.schema(), schema -> new ArrayList<>()).add(c.value());
                     }
                     for (Map.Entry<Schema<?>, List<Object>> entry : shared.entrySet()) {
-                        collect(entry.getKey().parameters(), join(note, "only when " + condition(when, entry.getValue())),
+                        collect(entry.getKey().parameters(), join(note, "only when " + condition(when, entry.getValue(), values.get(when.on()))),
                                 rows, enums, branches, values);
                     }
                 }
@@ -221,7 +221,7 @@ public final class PacketReference {
         }
 
         /** When a conditional parameter is on the wire: the value it checks and the values that add it. */
-        private static String condition(BranchParameter when, List<Object> values) {
+        private static String condition(BranchParameter when, List<Object> values, ValueParameter discriminator) {
             // A sign bit mask reads better as what it means.
             if (when.mask() != null && when.mask() == Integer.MIN_VALUE && values.size() == 1) {
                 boolean negative = ((Number) values.get(0)).intValue() == Integer.MIN_VALUE;
@@ -229,9 +229,10 @@ public final class PacketReference {
             }
             List<String> labels = new ArrayList<>();
             for (Object value : values) {
-                labels.add("`" + literal(value) + "`");
+                labels.add(label(value, discriminator));
             }
-            return "`" + subject(when) + "` is " + (labels.size() == 1 ? labels.get(0) : "one of " + String.join(", ", labels));
+            String is = when.negated() ? "` is not " : "` is ";
+            return "`" + subject(when) + is + (labels.size() == 1 ? labels.get(0) : "one of " + String.join(", ", labels));
         }
 
         /** What a branch looks at: the value's name, with the mask when only some bits pick the case. */

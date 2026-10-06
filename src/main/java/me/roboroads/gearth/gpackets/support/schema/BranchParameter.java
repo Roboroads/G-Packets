@@ -16,14 +16,19 @@ public final class BranchParameter extends Parameter {
     private final ValueParameter discriminator;
     private final Integer mask;
     private final boolean exhaustive;
+    private final boolean negated;
     private final Map<Object, Case> cases;
 
-    BranchParameter(ValueParameter discriminator, Integer mask, boolean exhaustive, Map<Object, Case> cases) {
+    BranchParameter(ValueParameter discriminator, Integer mask, boolean exhaustive, boolean negated, Map<Object, Case> cases) {
         super(null);
         this.discriminator = discriminator;
         this.mask = mask;
         this.exhaustive = exhaustive;
+        this.negated = negated;
         this.cases = Collections.unmodifiableMap(new LinkedHashMap<>(cases));
+        if (negated && (exhaustive || this.cases.size() != 1)) {
+            throw new IllegalArgumentException(discriminator.name() + ": only a when can be negated");
+        }
         if (mask != null) {
             String where = discriminator.name();
             if (discriminator.enumType() != null || !isWhole(discriminator.wireType())) {
@@ -59,6 +64,14 @@ public final class BranchParameter extends Parameter {
         return exhaustive;
     }
 
+    /**
+     * True for {@code whenNot(...)}: its one case's parameters follow when the discriminator is
+     * anything but the case's value.
+     */
+    public boolean negated() {
+        return negated;
+    }
+
     /** The cases by wire value, in declaration order. */
     public Map<Object, Case> cases() {
         return cases;
@@ -73,6 +86,10 @@ public final class BranchParameter extends Parameter {
         Object key = discriminator.coerce(value, where);
         if (mask != null) {
             key = discriminator.coerce(((Number) key).longValue() & mask, where);
+        }
+        if (negated) {
+            Case only = cases.values().iterator().next();
+            return only.value().equals(key) ? null : only;
         }
         Case match = cases.get(key);
         if (match == null && exhaustive) {

@@ -232,6 +232,8 @@ public class PacketImplementationTest {
                 return Byte.class;
             case FLOAT:
                 return Float.class;
+            case DOUBLE:
+                return Double.class;
             default:
                 throw new AssertionError(wireType);
         }
@@ -255,6 +257,12 @@ public class PacketImplementationTest {
         }
         if (type == byte.class) {
             return Byte.class;
+        }
+        if (type == float.class) {
+            return Float.class;
+        }
+        if (type == double.class) {
+            return Double.class;
         }
         throw new AssertionError("Unexpected primitive " + type);
     }

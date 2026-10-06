@@ -249,6 +249,21 @@ class PacketReferenceTest {
     }
 
     @Test
+    void rendersANegatedWhenWithTheEnumName() {
+        Schema<Animal> schema = Schema.of(Animal.class)
+                .enumInt("kind", UserType.class)
+                .whenNot("kind", UserType.PLAYER, w -> w.integer("ownerId"))
+                .doubleValue("weight");
+
+        assertEquals("## Parameters\n\n" + TABLE_HEAD
+                        + "| `kind` | int → `UserType` |  |\n"
+                        + "| `ownerId` | int | only when `kind` is not `1` (`PLAYER`) |\n"
+                        + "| `weight` | double |  |\n"
+                        + "\n`kind` (`UserType`): `PLAYER` = `1`, `PET` = `2`, `OLD_BOT` = `3`, `BOT` = `4`\n",
+                PacketReference.body(schema));
+    }
+
+    @Test
     void pageShowsDirectionClassAndAnInterceptSnippet() {
         assertTrue(PacketReference.page(Chat.TYPE).startsWith("# Chat\n\n"
                 + "- Direction: outgoing (to server)\n"
