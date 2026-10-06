@@ -2,7 +2,9 @@ package me.roboroads.gearth.gpackets;
 
 import me.roboroads.gearth.gpackets.incoming.FlatControllers;
 import me.roboroads.gearth.gpackets.incoming.FloorHeightMap;
+import me.roboroads.gearth.gpackets.incoming.Objects;
 import me.roboroads.gearth.gpackets.incoming.RoomSettingsData;
+import me.roboroads.gearth.gpackets.incoming.SlideObjectBundle;
 import me.roboroads.gearth.gpackets.incoming.TradingItemList;
 import me.roboroads.gearth.gpackets.incoming.Users;
 import me.roboroads.gearth.gpackets.incoming.WiredMovements;
@@ -162,5 +164,23 @@ public class JsonRoundTripTest {
                 .chatBubbleWidthOverride(ChatBubbleWidth.of(-1));
 
         assertEquals(chat, me.roboroads.gearth.gpackets.incoming.Chat.fromJson(chat.toJson()));
+    }
+
+    @Test
+    public void objectsRoundTripKeepsTheStaticClassAndTheStuffDataSubtypes() {
+        Objects objects = RoomItemWireFormatTest.objects();
+
+        Objects parsed = Objects.fromJson(objects.toJson());
+
+        assertEquals(objects, parsed);
+        assertInstanceOf(LegacyStuffData.class, parsed.objects().get(0).stuffData());
+        assertInstanceOf(MapStuffData.class, parsed.objects().get(1).stuffData());
+    }
+
+    @Test
+    public void slideObjectBundleRoundTripKeepsTheUser() {
+        SlideObjectBundle bundle = RoomItemWireFormatTest.slideObjectBundleWithUser();
+
+        assertEquals(bundle, SlideObjectBundle.fromJson(bundle.toJson()));
     }
 }

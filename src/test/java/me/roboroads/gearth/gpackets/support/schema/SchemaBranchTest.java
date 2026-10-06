@@ -7,12 +7,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -275,6 +277,81 @@ class SchemaBranchTest {
                         .on(256, Person.class, s -> s)));
 
         assertEquals("typeAndFlags: case 256 has bits outside the mask 255", e.getMessage());
+    }
+
+    @Test
+    void aSignBitMaskMatchesEveryNegativeValue() {
+        Schema<Sample> schema = Schema.of(Sample.class)
+                .integer("typeId")
+                .when("typeId", Integer.MIN_VALUE, Integer.MIN_VALUE, w -> w.string("className"));
+        HPacket negative = packet();
+        negative.appendInt(-3).appendString("door");
+        HPacket positive = packet();
+        positive.appendInt(3);
+
+        assertEquals("door", schema.read(negative).get("className"));
+        assertEquals(Collections.singletonList("typeId"), new ArrayList<>(schema.read(positive).keySet()));
+    }
+
+    // 1 and 2 share the user that follows; 0 and any other value add nothing.
+    private static final Schema<Sample> ONE_OF = Schema.of(Sample.class)
+            .integer("moveType")
+            .whenOneOf("moveType", Arrays.asList(1, 2), w -> w
+                    .integer("userIndex")
+                    .string("z"));
+
+    @Test
+    void whenOneOfReadsTheSharedParametersForEachValue() {
+        for (int moveType : new int[]{1, 2}) {
+            HPacket p = packet();
+            p.appendInt(moveType).appendInt(7).appendString("1.0");
+
+            Map<String, Object> values = ONE_OF.read(p);
+
+            assertEquals(Arrays.asList("moveType", "userIndex", "z"), new ArrayList<>(values.keySet()));
+            HPacket out = packet();
+            ONE_OF.write(values, out);
+            assertEquals(bytes(p), bytes(out));
+        }
+    }
+
+    @Test
+    void whenOneOfAddsNothingForAnotherValue() {
+        HPacket p = packet();
+        p.appendInt(0);
+
+        assertEquals(Collections.singletonList("moveType"), new ArrayList<>(ONE_OF.read(p).keySet()));
+    }
+
+    @Test
+    void whenOneOfSharesOneSchemaBetweenItsCases() {
+        BranchParameter when = (BranchParameter) ONE_OF.parameters().get(1);
+
+        assertFalse(when.exhaustive());
+        assertEquals(Arrays.asList(1, 2), new ArrayList<>(when.cases().keySet()));
+        assertSame(when.cases().get(1).schema(), when.cases().get(2).schema());
+        assertNull(when.cases().get(1).subclass());
+    }
+
+    @Test
+    void whenOneOfTakesEnumConstants() {
+        BranchParameter when = (BranchParameter) Schema.of(Sample.class)
+                .enumInt("kind", UserType.class)
+                .whenOneOf("kind", Arrays.asList(UserType.PET, UserType.BOT), w -> w.integer("level"))
+                .parameters().get(1);
+
+        assertEquals(Arrays.asList(2, 4), new ArrayList<>(when.cases().keySet()));
+    }
+
+    @Test
+    void whenOneOfRejectsNoValuesAndDuplicates() {
+        IllegalArgumentException none = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).integer("a").whenOneOf("a", Collections.emptyList(), w -> w));
+        IllegalArgumentException twice = assertThrows(IllegalArgumentException.class,
+                () -> Schema.of(Sample.class).integer("a").whenOneOf("a", Arrays.asList(1, 1), w -> w));
+
+        assertEquals("Sample.a: whenOneOf needs at least one value", none.getMessage());
+        assertEquals("Sample.a: duplicate value 1", twice.getMessage());
     }
 
     @Test

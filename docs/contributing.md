@@ -191,6 +191,16 @@ Use `when` for parameters that are only sent when an earlier value says so. A wi
 .when("hasJump", true, j -> j.integer("jumpPower"))
 ```
 
+When several values share the parameters that follow, list them with `whenOneOf`. A roller only sends the user it moves along when the move type is walk or slide, and the user looks the same for both:
+
+```java
+.enumInt("userMoveType", SlideUserMoveType.class)
+.whenOneOf("userMoveType", Arrays.asList(SlideUserMoveType.WALK, SlideUserMoveType.SLIDE), u -> u
+        .integer("userIndex")
+        .string("userOldZ")
+        .string("userNewZ"))
+```
+
 ## Branching on part of a value
 
 Some ints pack several things. A furni's stuff data starts with `typeAndFlags`: the low byte is the format, and bit 256 means a limited edition, so a serial number follows the format's values. Pass a mask to `branch` or `when` and only those bits decide. `branch(on, mask, cases)` picks the case by `on & mask`, and `when(on, mask, value, body)` adds parameters when `on & mask` equals `value`:
@@ -208,6 +218,12 @@ Some ints pack several things. A furni's stuff data starts with `typeAndFlags`: 
 ```
 
 Bits outside the mask are kept in the value and written back unchanged, so a flag the library doesn't know yet doesn't break the packet. A case body can use a value declared before the branch, as the `when` above does with `typeAndFlags`.
+
+The sign bit works the same way. A floor furni with a negative type sends its class name at the end, so its schema adds that name when the sign bit is set:
+
+```java
+.when("furniClassId", Integer.MIN_VALUE, Integer.MIN_VALUE, s -> s.string("staticClass"))
+```
 
 ## Optional trailing parameters
 

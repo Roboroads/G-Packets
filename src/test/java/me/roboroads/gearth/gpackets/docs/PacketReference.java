@@ -191,8 +191,13 @@ public final class PacketReference {
                     branches.add(branch);
                 } else if (parameter instanceof BranchParameter) {
                     BranchParameter when = (BranchParameter) parameter;
+                    // The values of a whenOneOf share one schema, so their parameters get one set of rows.
+                    Map<Schema<?>, List<Object>> shared = new LinkedHashMap<>();
                     for (BranchParameter.Case c : when.cases().values()) {
-                        collect(c.schema().parameters(), join(note, "only when `" + subject(when) + "` is `" + literal(c.value()) + "`"),
+                        shared.computeIfAbsent(c.schema(), schema -> new ArrayList<>()).add(c.value());
+                    }
+                    for (Map.Entry<Schema<?>, List<Object>> entry : shared.entrySet()) {
+                        collect(entry.getKey().parameters(), join(note, "only when " + condition(when, entry.getValue())),
                                 rows, enums, branches, values);
                     }
                 }
@@ -213,6 +218,20 @@ public final class PacketReference {
                         .append(group.labels.size() == 1 ? group.labels.get(0) : "one of " + String.join(", ", group.labels))
                         .append(": `").append(group.subclass).append("`\n\n").append(group.section);
             }
+        }
+
+        /** When a conditional parameter is on the wire: the value it checks and the values that add it. */
+        private static String condition(BranchParameter when, List<Object> values) {
+            // A sign bit mask reads better as what it means.
+            if (when.mask() != null && when.mask() == Integer.MIN_VALUE && values.size() == 1) {
+                boolean negative = ((Number) values.get(0)).intValue() == Integer.MIN_VALUE;
+                return "`" + when.on() + "` is " + (negative ? "negative" : "zero or more");
+            }
+            List<String> labels = new ArrayList<>();
+            for (Object value : values) {
+                labels.add("`" + literal(value) + "`");
+            }
+            return "`" + subject(when) + "` is " + (labels.size() == 1 ? labels.get(0) : "one of " + String.join(", ", labels));
         }
 
         /** What a branch looks at: the value's name, with the mask when only some bits pick the case. */
